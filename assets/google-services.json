@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "580808811102",
+    "project_id": "active-citizen-firebase",
+    "storage_bucket": "active-citizen-firebase.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:580808811102:android:29e0f55a2dd968d4b74acf",
+        "android_client_info": {
+          "package_name": "com.cortezz2001.activecitizen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "580808811102-g2hs647vk0c18o6bi27f6u483appgtfu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cortezz2001.activecitizen",
+            "certificate_hash": "6b4a620b58b5ab39d52daa255fe27f7496c69459"
+          }
+        },
+        {
+          "client_id": "580808811102-1i0eh9jddquttvoejum85o4kb0smsh07.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbT_lv7u07p2epI6FDmJmPQQJKJl4z26U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "580808811102-1i0eh9jddquttvoejum85o4kb0smsh07.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "580808811102-jgmbevk1u3ah1jf4489fcm7ar2bsd1bl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.cortezz2001.activecitizen"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
