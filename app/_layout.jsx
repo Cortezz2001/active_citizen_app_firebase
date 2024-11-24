@@ -2,32 +2,19 @@ import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { AuthProvider, useAuthContext } from "@/lib/context";
-
+import CustomLoadingIndicator from "@/components/CustomLoading";
 function InitialLayout() {
-    const { user, loading } = useAuthContext();
-    const segments = useSegments();
-    const router = useRouter();
+    const { loading } = useAuthContext();
 
-    useEffect(() => {
-        if (!loading) {
-            // Отключаем анимацию для начальной навигации
-            const options = {
-                animation: "none",
-            };
-
-            if (user) {
-                router.replace("/(tabs)/home");
-            } else {
-                router.replace("/", undefined, options);
-            }
-        }
-    }, [user, loading]);
+    // Показываем пустой экран во время загрузки
+    if (loading) {
+        return <CustomLoadingIndicator />;
+    }
 
     return (
         <Stack
             screenOptions={{
                 animation: "slide_from_right",
-                // Добавляем настройку для предотвращения множественных переходов
                 gestureEnabled: false,
             }}
         >
@@ -35,7 +22,7 @@ function InitialLayout() {
                 name="index"
                 options={{
                     headerShown: false,
-                    animation: "none", // Отключаем анимацию для индексной страницы
+                    animation: "none",
                 }}
             />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />

@@ -4,8 +4,21 @@ import { router, Redirect } from "expo-router";
 import { ScrollView, Text, View, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-
+import { useAuthContext } from "@/lib/context";
 export default function Index() {
+    const { user, loading } = useAuthContext();
+
+    // Если пользователь залогинен - сразу редиректим на home
+    if (!loading && user) {
+        return <Redirect href="/(tabs)/home" />;
+    }
+
+    // Если все еще идет загрузка - возвращаем null
+    if (loading) {
+        return null;
+    }
+
+    // Если пользователь не залогинен - показываем стартовый экран
     return (
         <SafeAreaView className="bg-secondary h-full">
             <ScrollView

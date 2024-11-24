@@ -8,6 +8,7 @@ const Profile = () => {
     const { logout } = useAuthContext();
     const handleSignOut = () => {
         logout();
+        router.push("/sign-in");
     };
     return (
         <SafeAreaView className="bg-secondary h-full">
