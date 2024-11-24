@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>580808811102-jgmbevk1u3ah1jf4489fcm7ar2bsd1bl.apps.googleusercontent.com</string>
+	<string>580808811102-r5gl008kjdtkdoj4ntm33l1r23gp7501.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.580808811102-jgmbevk1u3ah1jf4489fcm7ar2bsd1bl</string>
+	<string>com.googleusercontent.apps.580808811102-r5gl008kjdtkdoj4ntm33l1r23gp7501</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>580808811102-g2hs647vk0c18o6bi27f6u483appgtfu.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDd886uxVmHbiPtXquYydpi4p0dLSCx7_Q</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.cortezz2001.activecitizen</string>
+	<string>com.cortezz2001.active-citizen</string>
 	<key>PROJECT_ID</key>
 	<string>active-citizen-firebase</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:580808811102:ios:5c7343990fdd2223b74acf</string>
+	<string>1:580808811102:ios:a4cd4bcd24abc236b74acf</string>
 </dict>
 </plist>
