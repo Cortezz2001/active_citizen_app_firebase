@@ -2,13 +2,12 @@ import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { AuthProvider, useAuthContext } from "@/lib/context";
-import CustomLoadingIndicator from "@/components/CustomLoading";
+
 function InitialLayout() {
     const { loading } = useAuthContext();
 
-    // Показываем пустой экран во время загрузки
     if (loading) {
-        return <CustomLoadingIndicator />;
+        return null;
     }
 
     return (
@@ -25,8 +24,25 @@ function InitialLayout() {
                     animation: "none",
                 }}
             />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+                name="(auth)"
+                options={{
+                    headerShown: false,
+                    // Запрещаем жест возврата назад
+                    gestureEnabled: false,
+                    // Запрещаем возврат назад через кнопку устройства
+                    headerBackVisible: false,
+                    // Делаем невозможным программный возврат назад
+                    headerLeft: () => null,
+                }}
+            />
+            <Stack.Screen
+                name="(tabs)"
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                }}
+            />
         </Stack>
     );
 }

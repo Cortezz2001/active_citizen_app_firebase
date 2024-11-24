@@ -1,10 +1,4 @@
-import {
-    Text,
-    View,
-    Image,
-    TouchableWithoutFeedback,
-    Pressable,
-} from "react-native";
+import { Text, View, Image, Pressable } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
