@@ -15,7 +15,7 @@
         "ios": {
             "supportsTablet": true,
             "bundleIdentifier": "com.cortezz2001.active-citizen",
-            "googleServicesFile": "./assets/GoogleService-Info.plist",
+            "googleServicesFile": "./GoogleService-Info.plist",
             "buildNumber": "1.0.0"
         },
         "android": {
@@ -24,7 +24,7 @@
                 "backgroundColor": "#ffffff"
             },
             "package": "com.cortezz2001.active_citizen",
-            "googleServicesFile": "./assets/google-services.json",
+            "googleServicesFile": "./google-services.json",
             "versionCode": 1
         },
         "web": {
@@ -51,7 +51,8 @@
                         "useFrameworks": "static"
                     }
                 }
-            ]
+            ],
+            "@react-native-google-signin/google-signin"
         ],
         "experiments": {
             "typedRoutes": true
