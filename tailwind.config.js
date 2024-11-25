@@ -10,6 +10,7 @@ module.exports = {
                 primary: "#006FFD",
                 secondary: {
                     DEFAULT: "#FFFFFF",
+                    RED: "#FF6B6B",
                 },
             },
             fontFamily: {

@@ -82,7 +82,7 @@ export default function SignIn() {
                 <CustomButton
                     title="Login"
                     handlePress={handleSignIn}
-                    containerStyles="rounded-lg py-3 mb-6"
+                    containerStyles="rounded-lg py-3 mb-6 bg-primary"
                     isLoading={isSubmitting}
                 />
 

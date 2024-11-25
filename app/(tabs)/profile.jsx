@@ -16,7 +16,7 @@ const Profile = () => {
                 <CustomButton
                     title="Sign out"
                     handlePress={handleSignOut}
-                    containerStyles="w-full mt-7 mt-10 min-h-[62px]"
+                    containerStyles="w-full mt-7 mt-10 min-h-[62px] bg-red-500"
                 />
             </View>
         </SafeAreaView>

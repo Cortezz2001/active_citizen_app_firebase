@@ -15,7 +15,7 @@ const TabIcon = ({ icon, color, name, focused }) => {
             />
             <Text
                 className={`mt-1 text-xs ${
-                    focused ? "font-semibold" : "font-normal"
+                    focused ? "font-msemibold" : "font-mregular"
                 }`}
                 style={{ color }}
                 numberOfLines={1}

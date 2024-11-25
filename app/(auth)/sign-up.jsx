@@ -126,7 +126,7 @@ const SignUp = () => {
                 <CustomButton
                     title="Sign up"
                     handlePress={handleSignUp}
-                    containerStyles="rounded-lg py-3"
+                    containerStyles="rounded-lg py-3 bg-primary"
                     isLoading={isSubmitting}
                 />
                 <View className="flex-row justify-center mb-4 mt-6">
