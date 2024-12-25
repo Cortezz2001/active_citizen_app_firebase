@@ -35,8 +35,8 @@ export default function Index() {
                 {/* Первая страница */}
                 <View className="flex-1 justify-center items-center px-4 bg-white">
                     <Image
-                        source={images.logo}
-                        className="w-[130px] h-[84px] mb-8"
+                        source={images.logo_welcome}
+                        className="w-[300px] h-[230px] mb-8"
                         resizeMode="contain"
                     />
                     <Text className="text-3xl text-black font-mbold text-center">

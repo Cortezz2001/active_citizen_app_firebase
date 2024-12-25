@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
+import images from "@/constants/images";
 
 const Home = () => {
     const [activeTab, setActiveTab] = useState("News");
@@ -233,9 +234,18 @@ const Home = () => {
         <SafeAreaView className="bg-secondary flex-1">
             <View className="px-4 pt-4 flex-1">
                 {/* Header */}
-                <View className="flex-row justify-between items-center mb-4">
-                    <Text className="text-2xl font-mbold">Active Citizen</Text>
-                    <TouchableOpacity>
+                <View className="flex-row justify-between items-center mb-2">
+                    <View className="flex-row items-center">
+                        <Image
+                            source={images.logo} // Логотип
+                            className="w-[65px] h-[65px] mr-2" // Размер логотипа и отступ
+                            resizeMode="contain"
+                        />
+                        <Text className="text-2xl font-mbold">
+                            Active Citizen
+                        </Text>
+                    </View>
+                    <TouchableOpacity className=" mr-2">
                         <MaterialIcons
                             name="language"
                             size={24}
