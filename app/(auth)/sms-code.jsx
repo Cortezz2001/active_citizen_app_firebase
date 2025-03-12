@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useState, useEffect, useRef } from "react";
 import { TextInput } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
+import Toast from 'react-native-toast-message';
 
 export default function SmsCode() {
     const { phoneNumber } = useLocalSearchParams();
@@ -58,7 +59,11 @@ export default function SmsCode() {
         const code = verificationCode.join("");
         
         if (code.length !== 6) {
-            Alert.alert("Error", "Please enter the 6-digit verification code");
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Please enter the 6-digit verification code',
+              });
             return;
         }
 
@@ -66,14 +71,22 @@ export default function SmsCode() {
         
         try {
             await verifyPhoneCode(code);
-            Alert.alert("Success", "Successfully signed in!");
+            Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'Successfully signed in!',
+              });
             router.replace("/home");
         } catch (error) {
             let message = "Failed to verify the code. Please try again.";
             if (error.message.includes("invalid-verification-code")) {
                 message = "Invalid verification code. Please try again.";
             }
-            Alert.alert("Error", message);
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Invalid verification code. Please try again.',
+              });
         } finally {
             setSubmitting(false);
         }
@@ -96,9 +109,17 @@ export default function SmsCode() {
                 });
             }, 1000);
             
-            Alert.alert("Success", "A new verification code has been sent");
+            Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'A new verification code has been sent',
+              });
         } catch (error) {
-            Alert.alert("Error", "Failed to resend verification code");
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Failed to resend verification code',
+              });
         }
     };
 

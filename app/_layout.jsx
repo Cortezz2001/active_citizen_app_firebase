@@ -2,6 +2,42 @@ import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { AuthProvider, useAuthContext } from "@/lib/context";
+import Toast from 'react-native-toast-message';
+import { View,Text } from "react-native";
+import { MaterialIcons } from '@expo/vector-icons';
+
+const toastConfig = {
+    success: ({ text1, text2 }) => (
+      <View className="flex-row items-center bg-neutral-50 border-l-4 border-green-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
+        <MaterialIcons name="check-circle" size={24} color="#22c55e" />
+        <View className="flex-1">
+          <Text className="text-green-600 text-base font-msemibold">{text1}</Text>
+          {text2 ? <Text className="text-gray-700 text-sm font-mregular">{text2}</Text> : null}
+        </View>
+      </View>
+    ),
+  
+    error: ({ text1, text2 }) => (
+      <View className="flex-row items-center bg-neutral-50 border-l-4 border-red-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
+        <MaterialIcons name="error" size={24} color="#ef4444" />
+        <View className="flex-1">
+          <Text className="text-red-600 text-base font-msemibold">{text1}</Text>
+          {text2 ? <Text className="text-gray-700 text-sm font-mregular">{text2}</Text> : null}
+        </View>
+      </View>
+    ),
+  
+    info: ({ text1, text2 }) => (
+      <View className="flex-row items-center bg-neutral-50 border-l-4 border-primary p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
+        <MaterialIcons name="info" size={24} color="#3b82f6" />
+        <View className="flex-1">
+          <Text className="text-primary text-base font-msemibold">{text1}</Text>
+          {text2 ? <Text className="text-gray-700 text-sm font-mregular">{text2}</Text> : null}
+        </View>
+      </View>
+    ),
+  };
+  
 
 function InitialLayout() {
     const { loading } = useAuthContext();
@@ -73,7 +109,10 @@ export default function RootLayout() {
 
     return (
         <AuthProvider>
-            <InitialLayout />
+            <>
+                <InitialLayout />
+                <Toast config={toastConfig} />
+            </>
         </AuthProvider>
     );
 }

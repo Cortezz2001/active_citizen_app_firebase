@@ -2,6 +2,7 @@ import React from "react";
 import { TouchableOpacity, Image, Text } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
 import { router } from "expo-router";
+import Toast from 'react-native-toast-message';
 
 const GoogleButton = () => {
     const { signInWithGoogle } = useAuth();
@@ -11,12 +12,18 @@ const GoogleButton = () => {
             const result = await signInWithGoogle();
             console.log("Sign in success:", result);
             router.replace("/home");
+            Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'Successfully signed in!',
+              });
         } catch (error) {
             console.log("Error details:", error);
-            Alert.alert(
-                "Authentication Error",
-                error.message || "Failed to sign in with Google"
-            );
+            Toast.show({
+                type: 'error',
+                text1: 'Authentication Error',
+                text2: error.message || "Failed to sign in with Google",
+            });
         }
     };
 

@@ -75,20 +75,6 @@ export default function SignIn() {
                     isLoading={isSubmitting}
                 />
 
-                {/* <View className="flex-row justify-center mb-4">
-                    <Text className="text-gray-500 font-mmedium">
-                        Not a member?{" "}
-                    </Text>
-                    <TouchableOpacity>
-                        <Link
-                            href="/sign-up"
-                            className="text-blue-500 font-mmedium"
-                        >
-                            Sign up
-                        </Link>
-                    </TouchableOpacity>
-                </View> */}
-
                 <View className="flex-row items-center justify-center mb-6 mt-3">
                     <View className="flex-1 h-[1px] bg-gray-300" />
                     <Text className="text-gray-500 px-2 font-mmedium">
