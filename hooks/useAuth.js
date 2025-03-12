@@ -3,10 +3,12 @@ import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import storage from "@react-native-firebase/storage";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FIREBASE_GOOGLE_AUTH_KEY } from "@env"
 
 GoogleSignin.configure({
     webClientId:
-        "580808811102-1i0eh9jddquttvoejum85o4kb0smsh07.apps.googleusercontent.com",
+    FIREBASE_GOOGLE_AUTH_KEY,
     offlineAccess: true,
     forceCodeForRefreshToken: true,
 });
@@ -14,6 +16,8 @@ GoogleSignin.configure({
 export const useAuth = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [verificationId, setVerificationId] = useState(null);
+    const [userDataForSignUp, setUserDataForSignUp] = useState(null);
 
     useEffect(() => {
         const unsubscribe = auth().onAuthStateChanged((user) => {
@@ -24,6 +28,76 @@ export const useAuth = () => {
 
         return unsubscribe;
     }, []);
+
+    const sendPhoneVerificationCode = async (phoneNumber, userData = null) => {
+        try {
+            // Save additional user data if provided (for sign up)
+            if (userData) {
+                setUserDataForSignUp(userData);
+                await AsyncStorage.setItem('userDataForSignUp', JSON.stringify(userData));
+            }
+
+            // Request verification code
+            const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+            setVerificationId(confirmation.verificationId);
+            await AsyncStorage.setItem('verificationId', confirmation.verificationId);
+            return confirmation;
+        } catch (error) {
+            console.error("Phone verification error:", error);
+            throw error;
+        }
+    };
+
+    const verifyPhoneCode = async (code) => {
+        try {
+            // Get the verification ID from state or storage
+            let currentVerificationId = verificationId;
+            if (!currentVerificationId) {
+                currentVerificationId = await AsyncStorage.getItem('verificationId');
+                if (!currentVerificationId) {
+                    throw new Error("Verification session expired. Please try again.");
+                }
+            }
+
+            // Create credential
+            const credential = auth.PhoneAuthProvider.credential(
+                currentVerificationId,
+                code
+            );
+
+            // Sign in with credential
+            const userCredential = await auth().signInWithCredential(credential);
+            
+            // Check if this is a sign up (we have user data)
+            let userData = userDataForSignUp;
+            if (!userData) {
+                const storedUserData = await AsyncStorage.getItem('userDataForSignUp');
+                if (storedUserData) {
+                    userData = JSON.parse(storedUserData);
+                }
+            }
+
+            // If we have user data, update the profile (this was a sign up)
+            if (userData && userData.name) {
+                await userCredential.user.updateProfile({
+                    displayName: userData.name
+                });
+                
+                // Clear stored data
+                setUserDataForSignUp(null);
+                await AsyncStorage.removeItem('userDataForSignUp');
+            }
+
+            // Clear verification ID
+            setVerificationId(null);
+            await AsyncStorage.removeItem('verificationId');
+
+            return userCredential.user;
+        } catch (error) {
+            console.error("Phone verification error:", error);
+            throw error;
+        }
+    };
 
     const signInWithGoogle = async () => {
         try {
@@ -38,13 +112,11 @@ export const useAuth = () => {
             const userInfo = await GoogleSignin.signIn();
             console.log("Sign in successful, userInfo:", userInfo);
 
-            // Изменим эту проверку
             if (!userInfo?.data?.idToken) {
                 console.error("No idToken received");
                 throw new Error("No ID token received");
             }
 
-            // И здесь используем правильный путь к токену
             const googleCredential = auth.GoogleAuthProvider.credential(
                 userInfo.data.idToken
             );
@@ -65,42 +137,6 @@ export const useAuth = () => {
         }
     };
 
-    const signUp = async (email, password, username, avatarUri = null) => {
-        try {
-            const { user: newUser } =
-                await auth().createUserWithEmailAndPassword(email, password);
-
-            let photoURL = null;
-
-            if (avatarUri) {
-                const reference = storage().ref(`avatars/${newUser.uid}`);
-                await reference.putFile(avatarUri);
-                photoURL = await reference.getDownloadURL();
-            }
-
-            await newUser.updateProfile({
-                displayName: username,
-                photoURL: photoURL,
-            });
-
-            return newUser;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    };
-
-    const signIn = async (email, password) => {
-        try {
-            const { user } = await auth().signInWithEmailAndPassword(
-                email,
-                password
-            );
-            return user;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    };
-
     const logout = async () => {
         try {
             await auth().signOut();
@@ -112,8 +148,8 @@ export const useAuth = () => {
     return {
         user,
         loading,
-        signUp,
-        signIn,
+        sendPhoneVerificationCode,
+        verifyPhoneCode,
         logout,
         signInWithGoogle,
     };

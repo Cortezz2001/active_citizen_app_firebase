@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "580808811102-0ue9tvfaj6gb487d6qs196jk052r8gtc.apps.googleusercontent.com",
+          "client_id": "580808811102-nkj8j1lq0ijeqktvoe8347fhr0uf064m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.cortezz2001.active_citizen",
-            "certificate_hash": "d10a1256b778fa8eff51464aed3280eca7a0de88"
+            "certificate_hash": "0ae2d82202b44e0e50d90cb48eea181fe98875d8"
           }
         },
         {

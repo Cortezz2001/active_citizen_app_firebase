@@ -24,6 +24,12 @@ const AuthLayout = () => {
                         headerShown: false,
                     }}
                 />
+                                <Stack.Screen
+                    name="sms-code"
+                    options={{
+                        headerShown: false,
+                    }}
+                />
             </Stack>
 
             {/* <Loader isLoading={loading} /> */}

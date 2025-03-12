@@ -5,41 +5,47 @@ import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { ScrollView } from "react-native";
-import FormField from "@/components/FormField";
+import PhoneField from "@/components/PhoneField";
 import GoogleButton from "@/components/GoogleButton";
 import { useAuth } from "@/hooks/useAuth";
+
 export default function SignIn() {
-    const { signIn } = useAuth();
+    const { sendPhoneVerificationCode } = useAuth();
     const [isSubmitting, setSubmitting] = useState(false);
-    const [form, setForm] = useState({
-        email: "",
-        password: "",
-    });
+    const [phoneNumber, setPhoneNumber] = useState("");
 
     const handleSignIn = async () => {
-        if (form.email === "" || form.password === "") {
-            Alert.alert("Error", "Please fill in all fields");
+        if (!phoneNumber) {
+            Alert.alert("Error", "Please enter your phone number");
+            return;
+        }
+
+        // Basic phone validation
+        const phoneRegex = /^\+[0-9]{10,15}$/;
+        if (!phoneRegex.test(phoneNumber)) {
+            Alert.alert("Error", "Please enter a valid phone number with country code (e.g. +123456789012)");
             return;
         }
 
         setSubmitting(true);
 
         try {
-            await signIn(form.email, form.password);
-            Alert.alert("Success", "Successfully signed in!");
-            router.replace("/home");
+            await sendPhoneVerificationCode(phoneNumber);
+            router.push({
+                pathname: "/sms-code",
+                params: { phoneNumber }
+            });
         } catch (error) {
             let message = "An error occurred during sign in";
-            if (error.message.includes("user-not-found")) {
-                message = "User not found. Please check your email.";
-            } else if (error.message.includes("wrong-password")) {
-                message = "Invalid password. Please try again.";
+            if (error.message.includes("invalid-phone-number")) {
+                message = "Invalid phone number. Please check your number and try again.";
             }
             Alert.alert("Error", message);
         } finally {
             setSubmitting(false);
         }
     };
+    
     return (
         <SafeAreaView className="flex-1 bg-white justify-center px-6">
             <StatusBar style="dark" />
@@ -49,36 +55,19 @@ export default function SignIn() {
                     justifyContent: "center",
                 }}
             >
-                {/* Заголовок */}
                 <Text className="text-3xl font-mbold text-black text-center mb-8">
                     Welcome!
                 </Text>
 
-                {/* Поле для Email */}
-                <FormField
-                    title="Email"
-                    value={form.email}
-                    handleChangeText={(e) => setForm({ ...form, email: e })}
-                    placeholder="Email Address"
-                    keyboardType="email-address"
+                <Text className="text-black font-msemibold text-left mb-2">
+                    Phone Number
+                </Text>
+                <PhoneField
+                    value={phoneNumber}
+                    handleChangeText={setPhoneNumber}
+                    containerStyle="mb-8"
                 />
 
-                {/* Поле для пароля */}
-                <FormField
-                    title="Password"
-                    value={form.password}
-                    handleChangeText={(e) => setForm({ ...form, password: e })}
-                    placeholder="Password"
-                />
-
-                {/* Ссылка для восстановления пароля */}
-                <TouchableOpacity>
-                    <Text className="text-blue-500 text-sm text-right mb-6 font-mmedium">
-                        Forgot password?
-                    </Text>
-                </TouchableOpacity>
-
-                {/* Кнопка Login */}
                 <CustomButton
                     title="Login"
                     handlePress={handleSignIn}
@@ -86,14 +75,7 @@ export default function SignIn() {
                     isLoading={isSubmitting}
                 />
 
-                {/* <TouchableOpacity className="bg-blue-600 rounded-lg py-3 mb-6">
-                <Text className="text-white text-center font-msemibold text-base font-msemibold">
-                    Login
-                </Text>
-            </TouchableOpacity> */}
-
-                {/* Ссылка для регистрации */}
-                <View className="flex-row justify-center mb-4">
+                {/* <View className="flex-row justify-center mb-4">
                     <Text className="text-gray-500 font-mmedium">
                         Not a member?{" "}
                     </Text>
@@ -105,9 +87,8 @@ export default function SignIn() {
                             Sign up
                         </Link>
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
-                {/* Разделитель */}
                 <View className="flex-row items-center justify-center mb-6 mt-3">
                     <View className="flex-1 h-[1px] bg-gray-300" />
                     <Text className="text-gray-500 px-2 font-mmedium">
