@@ -4,11 +4,10 @@ import auth from "@react-native-firebase/auth";
 import storage from "@react-native-firebase/storage";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FIREBASE_GOOGLE_OAUTH_KEY } from "@env"
 
 GoogleSignin.configure({
     webClientId:
-    FIREBASE_GOOGLE_OAUTH_KEY,
+    process.env.EXPO_PUBLIC_FIREBASE_GOOGLE_OAUTH_KEY,
     offlineAccess: true,
     forceCodeForRefreshToken: true,
 });
