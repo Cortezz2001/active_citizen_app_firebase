@@ -12,11 +12,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useAuthContext } from "../../lib/context";
 import { router } from "expo-router";
 import { images } from "../../constants";
+import CustomAlert from "../../components/CustomAlertTwoButtons";
 
 const Profile = () => {
     const { user, logout } = useAuthContext();
     const [activeTab, setActiveTab] = useState("Account");
     const [editMode, setEditMode] = useState(false);
+    const [alertVisible, setAlertVisible] = useState(false);
 
     // Profile settings data
     const accountSettingsData = [
@@ -56,8 +58,13 @@ const Profile = () => {
     ];
 
     const handleSignOut = () => {
+        setAlertVisible(true);
+    };
+    
+    const confirmSignOut = () => {
         logout();
         router.replace("/sign-in");
+        setAlertVisible(false);
     };
 
     const renderProfileHeader = () => (
@@ -172,6 +179,18 @@ const Profile = () => {
                 >
                     {renderContent()}
                 </ScrollView>
+
+                {/* Custom Alert */}
+                <CustomAlert
+                    visible={alertVisible}
+                    title="Log out"
+                    message="Are you sure you want to log out? You'll need to login again to use the app."
+                    primaryButtonText="Log out"
+                    secondaryButtonText="Cancel"
+                    onPrimaryButtonPress={confirmSignOut}
+                    onSecondaryButtonPress={() => setAlertVisible(false)}
+                    onClose={() => setAlertVisible(false)}
+                />
             </View>
         </SafeAreaView>
     );
