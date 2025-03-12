@@ -16,6 +16,7 @@ const GoogleButton = () => {
                 type: 'success',
                 text1: 'Success',
                 text2: 'Successfully signed in!',
+                visibilityTime: 2000
               });
         } catch (error) {
             console.log("Error details:", error);
