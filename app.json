@@ -4,7 +4,7 @@
         "slug": "active_citizen_app",
         "version": "1.0.0",
         "orientation": "portrait",
-        "icon": "./assets/images/icon.png",
+        "icon": "./assets/images/logo_1024.png",
         "scheme": "active_citizen",
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
