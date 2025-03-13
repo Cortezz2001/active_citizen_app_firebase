@@ -8,6 +8,7 @@ import { ScrollView } from "react-native";
 import PhoneField from "@/components/PhoneField";
 import GoogleButton from "@/components/GoogleButton";
 import { useAuth } from "@/hooks/useAuth";
+import Toast from 'react-native-toast-message';
 
 export default function SignIn() {
     const { sendPhoneVerificationCode } = useAuth();
@@ -16,14 +17,22 @@ export default function SignIn() {
 
     const handleSignIn = async () => {
         if (!phoneNumber) {
-            Alert.alert("Error", "Please enter your phone number");
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Please enter your phone number',
+                });
             return;
         }
 
         // Basic phone validation
         const phoneRegex = /^\+[0-9]{10,15}$/;
         if (!phoneRegex.test(phoneNumber)) {
-            Alert.alert("Error", "Please enter a valid phone number with country code (e.g. +123456789012)");
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Please enter a valid phone number with country code (e.g. +123456789012)',
+                });
             return;
         }
 
@@ -40,7 +49,11 @@ export default function SignIn() {
             if (error.message.includes("invalid-phone-number")) {
                 message = "Invalid phone number. Please check your number and try again.";
             }
-            Alert.alert("Error", message);
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: message,
+                });
         } finally {
             setSubmitting(false);
         }
