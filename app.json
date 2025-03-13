@@ -4,7 +4,7 @@
         "slug": "active_citizen_app",
         "version": "1.0.0",
         "orientation": "portrait",
-        "icon": "./assets/images/logo_1024.png",
+        "icon": "./assets/icons/adaptive-icon.png",
         "scheme": "active_citizen",
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
@@ -16,11 +16,17 @@
             "supportsTablet": true,
             "bundleIdentifier": "com.cortezz2001.active-citizen",
             "googleServicesFile": "./GoogleService-Info.plist",
-            "buildNumber": "1.0.0"
+            "buildNumber": "1.0.0",
+            "icon": {
+                "dark": "./assets/icons/ios-dark.png",
+                "light": "./assets/icons/ios-light.png",
+                "tinted": "./assets/icons/ios-tinted.png"
+              }
         },
         "android": {
             "adaptiveIcon": {
-                "foregroundImage": "./assets/images/adaptive-icon.png",
+                "foregroundImage": "./assets/icons/adaptive-icon.png",
+                "monochromeImage": "./assets/icons/adaptive-icon.png",
                 "backgroundColor": "#ffffff"
             },
             "package": "com.cortezz2001.active_citizen",
@@ -37,9 +43,13 @@
             [
                 "expo-splash-screen",
                 {
-                    "image": "./assets/images/splash-icon.png",
+                    "image": "./assets/icons/splash-icon-light.png",
                     "imageWidth": 200,
                     "resizeMode": "contain",
+                    "dark": {
+                        "image": "./assets/icons/splash-icon-dark.png",
+                        "backgroundColor": "#000000"
+                      },
                     "backgroundColor": "#ffffff"
                 }
             ],
