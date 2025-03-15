@@ -8,7 +8,7 @@ import { ScrollView } from "react-native";
 import PhoneField from "@/components/PhoneField";
 import GoogleButton from "@/components/GoogleButton";
 import { useAuth } from "@/hooks/useAuth";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
 export default function SignIn() {
     const { sendPhoneVerificationCode } = useAuth();
@@ -18,10 +18,10 @@ export default function SignIn() {
     const handleSignIn = async () => {
         if (!phoneNumber) {
             Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: 'Please enter your phone number',
-                });
+                type: "error",
+                text1: "Error",
+                text2: "Please enter your phone number",
+            });
             return;
         }
 
@@ -29,10 +29,10 @@ export default function SignIn() {
         const phoneRegex = /^\+[0-9]{10,15}$/;
         if (!phoneRegex.test(phoneNumber)) {
             Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: 'Please enter a valid phone number with country code (e.g. +123456789012)',
-                });
+                type: "error",
+                text1: "Error",
+                text2: "Please enter a valid phone number with country code (e.g. +123456789012)",
+            });
             return;
         }
 
@@ -42,23 +42,24 @@ export default function SignIn() {
             await sendPhoneVerificationCode(phoneNumber);
             router.push({
                 pathname: "/sms-code",
-                params: { phoneNumber }
+                params: { phoneNumber },
             });
         } catch (error) {
             let message = "An error occurred during sign in";
             if (error.message.includes("invalid-phone-number")) {
-                message = "Invalid phone number. Please check your number and try again.";
+                message =
+                    "Invalid phone number. Please check your number and try again.";
             }
             Toast.show({
-                type: 'error',
-                text1: 'Error',
+                type: "error",
+                text1: "Error",
                 text2: message,
-                });
+            });
         } finally {
             setSubmitting(false);
         }
     };
-    
+
     return (
         <SafeAreaView className="flex-1 bg-white justify-center px-6">
             <StatusBar style="dark" />
