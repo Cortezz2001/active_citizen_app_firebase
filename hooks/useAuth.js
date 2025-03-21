@@ -1,19 +1,11 @@
-// /hooks/useAuth.js
 import { useState, useEffect } from "react";
-import {
-    getAuth,
-    onAuthStateChanged,
-    signOut,
-    PhoneAuthProvider,
-    signInWithCredential,
-    signInWithPhoneNumber,
-    GoogleAuthProvider,
-} from "@react-native-firebase/auth";
+import auth from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 GoogleSignin.configure({
-    webClientId: process.env.EXPO_PUBLIC_FIREBASE_GOOGLE_OAUTH_KEY,
+    webClientId:
+    process.env.EXPO_PUBLIC_FIREBASE_GOOGLE_OAUTH_KEY,
     offlineAccess: true,
     forceCodeForRefreshToken: true,
 });
@@ -25,8 +17,7 @@ export const useAuth = () => {
     const [userDataForSignUp, setUserDataForSignUp] = useState(null);
 
     useEffect(() => {
-        const auth = getAuth();
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = auth().onAuthStateChanged((user) => {
             console.log("OnAuthStateChanged", user);
             setUser(user);
             setLoading(false);
@@ -37,21 +28,16 @@ export const useAuth = () => {
 
     const sendPhoneVerificationCode = async (phoneNumber, userData = null) => {
         try {
+            // Save additional user data if provided (for sign up)
             if (userData) {
                 setUserDataForSignUp(userData);
-                await AsyncStorage.setItem(
-                    "userDataForSignUp",
-                    JSON.stringify(userData)
-                );
+                await AsyncStorage.setItem('userDataForSignUp', JSON.stringify(userData));
             }
 
-            const auth = getAuth();
-            const confirmation = await signInWithPhoneNumber(auth, phoneNumber);
+            // Request verification code
+            const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
             setVerificationId(confirmation.verificationId);
-            await AsyncStorage.setItem(
-                "verificationId",
-                confirmation.verificationId
-            );
+            await AsyncStorage.setItem('verificationId', confirmation.verificationId);
             return confirmation;
         } catch (error) {
             console.error("Phone verification error:", error);
@@ -61,45 +47,47 @@ export const useAuth = () => {
 
     const verifyPhoneCode = async (code) => {
         try {
+            // Get the verification ID from state or storage
             let currentVerificationId = verificationId;
             if (!currentVerificationId) {
-                currentVerificationId = await AsyncStorage.getItem(
-                    "verificationId"
-                );
+                currentVerificationId = await AsyncStorage.getItem('verificationId');
                 if (!currentVerificationId) {
-                    throw new Error(
-                        "Verification session expired. Please try again."
-                    );
+                    throw new Error("Verification session expired. Please try again.");
                 }
             }
 
-            const auth = getAuth();
-            const credential = PhoneAuthProvider.credential(
+            // Create credential
+            const credential = auth.PhoneAuthProvider.credential(
                 currentVerificationId,
                 code
             );
-            const userCredential = await signInWithCredential(auth, credential);
 
+            // Sign in with credential
+            const userCredential = await auth().signInWithCredential(credential);
+            
+            // Check if this is a sign up (we have user data)
             let userData = userDataForSignUp;
             if (!userData) {
-                const storedUserData = await AsyncStorage.getItem(
-                    "userDataForSignUp"
-                );
+                const storedUserData = await AsyncStorage.getItem('userDataForSignUp');
                 if (storedUserData) {
                     userData = JSON.parse(storedUserData);
                 }
             }
 
+            // If we have user data, update the profile (this was a sign up)
             if (userData && userData.name) {
                 await userCredential.user.updateProfile({
-                    displayName: userData.name,
+                    displayName: userData.name
                 });
+                
+                // Clear stored data
                 setUserDataForSignUp(null);
-                await AsyncStorage.removeItem("userDataForSignUp");
+                await AsyncStorage.removeItem('userDataForSignUp');
             }
 
+            // Clear verification ID
             setVerificationId(null);
-            await AsyncStorage.removeItem("verificationId");
+            await AsyncStorage.removeItem('verificationId');
 
             return userCredential.user;
         } catch (error) {
@@ -111,8 +99,13 @@ export const useAuth = () => {
     const signInWithGoogle = async () => {
         try {
             console.log("Starting Google Sign In process");
+
             await GoogleSignin.hasPlayServices();
+            console.log("Play Services OK");
+
             await GoogleSignin.signOut();
+            console.log("Signed out from previous session");
+
             const userInfo = await GoogleSignin.signIn();
             console.log("Sign in successful, userInfo:", userInfo);
 
@@ -120,13 +113,13 @@ export const useAuth = () => {
                 console.error("No idToken received");
                 throw new Error("No ID token received");
             }
-            const auth = getAuth();
-            const googleCredential = GoogleAuthProvider.credential(
+
+            const googleCredential = auth.GoogleAuthProvider.credential(
                 userInfo.data.idToken
             );
             console.log("Credential created");
 
-            const result = await signInWithCredential(auth, googleCredential);
+            const result = await auth().signInWithCredential(googleCredential);
             console.log("Firebase auth successful");
 
             return result;
@@ -143,8 +136,7 @@ export const useAuth = () => {
 
     const logout = async () => {
         try {
-            const auth = getAuth();
-            await signOut(auth);
+            await auth().signOut();
         } catch (error) {
             throw new Error(error.message);
         }
