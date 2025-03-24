@@ -24,8 +24,14 @@ const AuthLayout = () => {
                         headerShown: false,
                     }}
                 />
-                                <Stack.Screen
+                <Stack.Screen
                     name="sms-code"
+                    options={{
+                        headerShown: false,
+                    }}
+                />
+                <Stack.Screen
+                    name="complete-registration"
                     options={{
                         headerShown: false,
                     }}

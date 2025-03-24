@@ -6,7 +6,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useState, useEffect, useRef } from "react";
 import { TextInput } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
 export default function SmsCode() {
     const { phoneNumber } = useLocalSearchParams();
@@ -14,7 +14,14 @@ export default function SmsCode() {
     const [isSubmitting, setSubmitting] = useState(false);
     const [resendDisabled, setResendDisabled] = useState(true);
     const [timer, setTimer] = useState(60);
-    const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
+    const [verificationCode, setVerificationCode] = useState([
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    ]);
     const inputRefs = useRef([]);
 
     useEffect(() => {
@@ -36,6 +43,20 @@ export default function SmsCode() {
         return () => clearInterval(interval);
     }, []);
 
+    // const checkProfileAndRedirect = async (user) => {
+    //     try {
+    //         const userDoc = await getDocument("users", user.uid);
+    //         if (!userDoc || !userDoc.fname) {
+    //             router.replace("/complete-registration");
+    //         } else {
+    //             router.replace("/home");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error checking profile:", error);
+    //         router.replace("/home");
+    //     }
+    // };
+
     const handleCodeChange = (text, index) => {
         // Разрешаем только цифры
         if (/^[0-9]*$/.test(text)) {
@@ -50,43 +71,47 @@ export default function SmsCode() {
     };
 
     const handleKeyPress = (e, index) => {
-        if (e.nativeEvent.key === 'Backspace' && !verificationCode[index] && index > 0) {
+        if (
+            e.nativeEvent.key === "Backspace" &&
+            !verificationCode[index] &&
+            index > 0
+        ) {
             inputRefs.current[index - 1].focus();
         }
     };
 
     const handleVerify = async () => {
         const code = verificationCode.join("");
-        
+
         if (code.length !== 6) {
             Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: 'Please enter the 6-digit verification code',
-              });
+                type: "error",
+                text1: "Error",
+                text2: "Please enter the 6-digit verification code",
+            });
             return;
         }
 
         setSubmitting(true);
-        
+
         try {
             await verifyPhoneCode(code);
+            router.replace("/complete-registration");
             Toast.show({
-                type: 'success',
-                text1: 'Success',
-                text2: 'Successfully signed in!',
-              });
-            router.replace("/home");
+                type: "success",
+                text1: "Success",
+                text2: "Successfully signed in!",
+            });
         } catch (error) {
             let message = "Failed to verify the code. Please try again.";
             if (error.message.includes("invalid-verification-code")) {
                 message = "Invalid verification code. Please try again.";
             }
             Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: 'Invalid verification code. Please try again.',
-              });
+                type: "error",
+                text1: "Error",
+                text2: "Invalid verification code. Please try again.",
+            });
         } finally {
             setSubmitting(false);
         }
@@ -97,7 +122,7 @@ export default function SmsCode() {
             await sendPhoneVerificationCode(phoneNumber);
             setResendDisabled(true);
             setTimer(60);
-            
+
             const interval = setInterval(() => {
                 setTimer((prevTimer) => {
                     if (prevTimer <= 1) {
@@ -108,18 +133,18 @@ export default function SmsCode() {
                     return prevTimer - 1;
                 });
             }, 1000);
-            
+
             Toast.show({
-                type: 'success',
-                text1: 'Success',
-                text2: 'A new verification code has been sent',
-              });
+                type: "success",
+                text1: "Success",
+                text2: "A new verification code has been sent",
+            });
         } catch (error) {
             Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: 'Failed to resend verification code',
-              });
+                type: "error",
+                text1: "Error",
+                text2: "Failed to resend verification code",
+            });
         }
     };
 
@@ -131,15 +156,20 @@ export default function SmsCode() {
                     Enter confirmation code
                 </Text>
                 <Text className="text-sm text-gray-500 text-center mb-8">
-                    A 6-digit code was sent to{"\n"}{phoneNumber}
+                    A 6-digit code was sent to{"\n"}
+                    {phoneNumber}
                 </Text>
 
                 <View className="flex-row justify-around w-full px-4 mb-8">
                     {[0, 1, 2, 3, 4, 5].map((index) => (
-                        <View 
-                            key={index} 
+                        <View
+                            key={index}
                             className="w-11 h-12 border-2 rounded-lg justify-around items-center border-gray-300"
-                            style={{ borderColor: verificationCode[index] ? '#3b82f6' : '#d1d5db' }}
+                            style={{
+                                borderColor: verificationCode[index]
+                                    ? "#3b82f6"
+                                    : "#d1d5db",
+                            }}
                         >
                             <TextInput
                                 ref={(ref) => (inputRefs.current[index] = ref)}
@@ -147,20 +177,28 @@ export default function SmsCode() {
                                 maxLength={1}
                                 keyboardType="number-pad"
                                 value={verificationCode[index]}
-                                onChangeText={(text) => handleCodeChange(text, index)}
+                                onChangeText={(text) =>
+                                    handleCodeChange(text, index)
+                                }
                                 onKeyPress={(e) => handleKeyPress(e, index)}
                             />
                         </View>
                     ))}
                 </View>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     onPress={handleResend}
                     disabled={resendDisabled}
                     className="mb-8"
                 >
-                    <Text className={`text-center ${resendDisabled ? 'text-gray-400' : 'text-blue-500'} font-mmedium`}>
-                        {resendDisabled ? `Resend code (${timer}s)` : 'Resend code'}
+                    <Text
+                        className={`text-center ${
+                            resendDisabled ? "text-gray-400" : "text-blue-500"
+                        } font-mmedium`}
+                    >
+                        {resendDisabled
+                            ? `Resend code (${timer}s)`
+                            : "Resend code"}
                     </Text>
                 </TouchableOpacity>
 

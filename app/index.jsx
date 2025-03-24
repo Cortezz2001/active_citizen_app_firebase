@@ -8,11 +8,14 @@ import { StatusBar } from "expo-status-bar";
 import { useAuthContext } from "@/lib/context";
 
 export default function Index() {
-    const { user, loading } = useAuthContext();
+    const { user, loading, hasProfile } = useAuthContext();
 
     // Если пользователь залогинен - сразу редиректим на home
-    if (!loading && user) {
+    if (user && hasProfile && !loading) {
         return <Redirect href="/(tabs)/home" />;
+    }
+    if (user && hasProfile === false) {
+        return <Redirect href="/complete-registration" />;
     }
 
     // Если все еще идет загрузка - возвращаем null

@@ -10,8 +10,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import images from "@/constants/images";
+import { router } from "expo-router";
+import { useProfileCheck } from "../../hooks/useProfileCheck";
 
 const Home = () => {
+    // const { loading } = useProfileCheck();
     const [activeTab, setActiveTab] = useState("News");
     const [searchText, setSearchText] = useState("");
     const newsData = [
@@ -230,6 +233,13 @@ const Home = () => {
         return null;
     };
 
+    // if (loading) {
+    //     return (
+    //         <SafeAreaView className="flex-1 bg-white justify-center items-center">
+    //             <Text>Loading...</Text>
+    //         </SafeAreaView>
+    //     );
+    // }
     return (
         <SafeAreaView className="bg-secondary flex-1">
             <View className="px-4 pt-4 flex-1">

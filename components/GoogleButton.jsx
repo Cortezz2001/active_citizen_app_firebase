@@ -1,36 +1,11 @@
 import React from "react";
 import { TouchableOpacity, Image, Text } from "react-native";
-import { useAuth } from "@/hooks/useAuth";
-import { router } from "expo-router";
-import Toast from 'react-native-toast-message';
 
-const GoogleButton = () => {
-    const { signInWithGoogle } = useAuth();
-
-    const handleGoogleSignIn = async () => {
-        try {
-            const result = await signInWithGoogle();
-            console.log("Sign in success:", result);
-            router.replace("/home");
-            Toast.show({
-                type: 'success',
-                text1: 'Success',
-                text2: 'Successfully signed in!',
-              });
-        } catch (error) {
-            console.log("Error details:", error);
-            Toast.show({
-                type: 'error',
-                text1: 'Authentication Error',
-                text2: error.message || "Failed to sign in with Google",
-            });
-        }
-    };
-
+const GoogleButton = ({ onPress }) => {
     return (
         <TouchableOpacity
             className="w-full mt-3 bg-white border border-gray-300 py-3 rounded-lg flex-row justify-center items-center"
-            onPress={handleGoogleSignIn}
+            onPress={onPress}
         >
             <Image
                 source={require("@/assets/icons/google.png")}

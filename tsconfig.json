@@ -15,5 +15,5 @@
         "app/index.jsx",
         "app/(tabs)/home.jsx",
         "app/(tabs)/request.jsx"
-    ]
+, "app/(auth)/_layout.tsx"    ]
 }

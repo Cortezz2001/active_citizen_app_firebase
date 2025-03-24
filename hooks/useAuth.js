@@ -1,11 +1,12 @@
+// hooks/useAuth.jsx
 import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFirestore } from "@/hooks/useFirestore";
 
 GoogleSignin.configure({
-    webClientId:
-    process.env.EXPO_PUBLIC_FIREBASE_GOOGLE_OAUTH_KEY,
+    webClientId: process.env.EXPO_PUBLIC_FIREBASE_GOOGLE_OAUTH_KEY,
     offlineAccess: true,
     forceCodeForRefreshToken: true,
 });
@@ -14,12 +15,26 @@ export const useAuth = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [verificationId, setVerificationId] = useState(null);
-    const [userDataForSignUp, setUserDataForSignUp] = useState(null);
+    const [hasProfile, setHasProfile] = useState(null); // Новое состояние для проверки профиля
+    const { getDocument } = useFirestore();
 
     useEffect(() => {
-        const unsubscribe = auth().onAuthStateChanged((user) => {
-            console.log("OnAuthStateChanged", user);
-            setUser(user);
+        const unsubscribe = auth().onAuthStateChanged(async (authUser) => {
+            console.log("OnAuthStateChanged", authUser);
+            setUser(authUser);
+
+            if (authUser) {
+                try {
+                    const userDoc = await getDocument("users", authUser.uid);
+                    setHasProfile(!!userDoc); // true, если профиль существует, false, если нет
+                } catch (error) {
+                    console.error("Error checking user profile:", error);
+                    setHasProfile(false); // В случае ошибки считаем, что профиля нет
+                }
+            } else {
+                setHasProfile(null); // Если нет пользователя, сбрасываем состояние
+            }
+
             setLoading(false);
         });
 
@@ -28,16 +43,9 @@ export const useAuth = () => {
 
     const sendPhoneVerificationCode = async (phoneNumber, userData = null) => {
         try {
-            // Save additional user data if provided (for sign up)
-            if (userData) {
-                setUserDataForSignUp(userData);
-                await AsyncStorage.setItem('userDataForSignUp', JSON.stringify(userData));
-            }
-
-            // Request verification code
             const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
             setVerificationId(confirmation.verificationId);
-            await AsyncStorage.setItem('verificationId', confirmation.verificationId);
+            await AsyncStorage.setItem("verificationId", confirmation.verificationId);
             return confirmation;
         } catch (error) {
             console.error("Phone verification error:", error);
@@ -47,47 +55,22 @@ export const useAuth = () => {
 
     const verifyPhoneCode = async (code) => {
         try {
-            // Get the verification ID from state or storage
             let currentVerificationId = verificationId;
             if (!currentVerificationId) {
-                currentVerificationId = await AsyncStorage.getItem('verificationId');
+                currentVerificationId = await AsyncStorage.getItem("verificationId");
                 if (!currentVerificationId) {
                     throw new Error("Verification session expired. Please try again.");
                 }
             }
 
-            // Create credential
-            const credential = auth.PhoneAuthProvider.credential(
-                currentVerificationId,
-                code
-            );
-
-            // Sign in with credential
+            const credential = auth.PhoneAuthProvider.credential(currentVerificationId, code);
             const userCredential = await auth().signInWithCredential(credential);
-            
-            // Check if this is a sign up (we have user data)
-            let userData = userDataForSignUp;
-            if (!userData) {
-                const storedUserData = await AsyncStorage.getItem('userDataForSignUp');
-                if (storedUserData) {
-                    userData = JSON.parse(storedUserData);
-                }
-            }
 
-            // If we have user data, update the profile (this was a sign up)
-            if (userData && userData.name) {
-                await userCredential.user.updateProfile({
-                    displayName: userData.name
-                });
-                
-                // Clear stored data
-                setUserDataForSignUp(null);
-                await AsyncStorage.removeItem('userDataForSignUp');
-            }
-
-            // Clear verification ID
             setVerificationId(null);
-            await AsyncStorage.removeItem('verificationId');
+            await AsyncStorage.removeItem("verificationId");
+
+            const userDoc = await getDocument("users", userCredential.user.uid);
+            setHasProfile(!!userDoc); // Обновляем состояние профиля после входа
 
             return userCredential.user;
         } catch (error) {
@@ -99,10 +82,8 @@ export const useAuth = () => {
     const signInWithGoogle = async () => {
         try {
             console.log("Starting Google Sign In process");
-
             await GoogleSignin.hasPlayServices();
             console.log("Play Services OK");
-
             await GoogleSignin.signOut();
             console.log("Signed out from previous session");
 
@@ -114,13 +95,14 @@ export const useAuth = () => {
                 throw new Error("No ID token received");
             }
 
-            const googleCredential = auth.GoogleAuthProvider.credential(
-                userInfo.data.idToken
-            );
+            const googleCredential = auth.GoogleAuthProvider.credential(userInfo.data.idToken);
             console.log("Credential created");
 
             const result = await auth().signInWithCredential(googleCredential);
             console.log("Firebase auth successful");
+
+            const userDoc = await getDocument("users", result.user.uid);
+            setHasProfile(!!userDoc); // Обновляем состояние профиля после входа
 
             return result;
         } catch (error) {
@@ -137,6 +119,7 @@ export const useAuth = () => {
     const logout = async () => {
         try {
             await auth().signOut();
+            setHasProfile(null); // Сбрасываем состояние профиля при выходе
         } catch (error) {
             throw new Error(error.message);
         }
@@ -145,6 +128,7 @@ export const useAuth = () => {
     return {
         user,
         loading,
+        hasProfile, // Добавляем в возвращаемые значения
         sendPhoneVerificationCode,
         verifyPhoneCode,
         logout,

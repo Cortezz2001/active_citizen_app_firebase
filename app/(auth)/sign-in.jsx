@@ -11,9 +11,43 @@ import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
 
 export default function SignIn() {
-    const { sendPhoneVerificationCode } = useAuth();
+    const { sendPhoneVerificationCode, signInWithGoogle } = useAuth();
     const [isSubmitting, setSubmitting] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
+
+    // const checkProfileAndRedirect = async (user) => {
+    //     try {
+    //         const userDoc = await getDocument("users", user.uid);
+    //         if (!userDoc || !userDoc.fname) {
+    //             router.replace("/complete-registration");
+    //         } else {
+    //             router.replace("/home");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error checking profile:", error);
+    //         router.replace("/home");
+    //     }
+    // };
+
+    const handleGoogleSignIn = async () => {
+        try {
+            const result = await signInWithGoogle();
+            console.log("Sign in success:", result);
+            router.replace("/complete-registration");
+            Toast.show({
+                type: "success",
+                text1: "Success",
+                text2: "Successfully signed in!",
+            });
+        } catch (error) {
+            console.log("Error details:", error);
+            Toast.show({
+                type: "error",
+                text1: "Authentication Error",
+                text2: error.message || "Failed to sign in with Google",
+            });
+        }
+    };
 
     const handleSignIn = async () => {
         if (!phoneNumber) {
@@ -96,7 +130,7 @@ export default function SignIn() {
                     </Text>
                     <View className="flex-1 h-[1px] bg-gray-300" />
                 </View>
-                <GoogleButton />
+                <GoogleButton onPress={handleGoogleSignIn} />
             </ScrollView>
         </SafeAreaView>
     );
