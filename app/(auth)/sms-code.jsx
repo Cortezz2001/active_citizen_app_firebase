@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { TextInput } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
+import { useFirestore } from "../../hooks/useFirestore";
 
 export default function SmsCode() {
     const { phoneNumber } = useLocalSearchParams();
@@ -23,6 +24,7 @@ export default function SmsCode() {
         "",
     ]);
     const inputRefs = useRef([]);
+    const { getDocument } = useFirestore();
 
     useEffect(() => {
         if (inputRefs.current[0]) {
@@ -43,19 +45,19 @@ export default function SmsCode() {
         return () => clearInterval(interval);
     }, []);
 
-    // const checkProfileAndRedirect = async (user) => {
-    //     try {
-    //         const userDoc = await getDocument("users", user.uid);
-    //         if (!userDoc || !userDoc.fname) {
-    //             router.replace("/complete-registration");
-    //         } else {
-    //             router.replace("/home");
-    //         }
-    //     } catch (error) {
-    //         console.error("Error checking profile:", error);
-    //         router.replace("/home");
-    //     }
-    // };
+    const checkProfileAndRedirect = async (user) => {
+        try {
+            const userDoc = await getDocument("users", user.uid);
+            if (!userDoc || !userDoc.fname) {
+                router.replace("/complete-registration");
+            } else {
+                router.replace("/home");
+            }
+        } catch (error) {
+            console.error("Error checking profile:", error);
+            router.replace("/home");
+        }
+    };
 
     const handleCodeChange = (text, index) => {
         // Разрешаем только цифры
@@ -95,13 +97,21 @@ export default function SmsCode() {
         setSubmitting(true);
 
         try {
-            await verifyPhoneCode(code);
-            router.replace("/complete-registration");
-            Toast.show({
-                type: "success",
-                text1: "Success",
-                text2: "Successfully signed in!",
-            });
+            const result = await verifyPhoneCode(code);
+            if (result) {
+                await checkProfileAndRedirect(result);
+                Toast.show({
+                    type: "success",
+                    text1: "Success",
+                    text2: "Successfully signed in!",
+                });
+            } else {
+                Toast.show({
+                    type: "error",
+                    text1: "Error",
+                    text2: "Failed to verify the code. No user data returned.",
+                });
+            }
         } catch (error) {
             let message = "Failed to verify the code. Please try again.";
             if (error.message.includes("invalid-verification-code")) {

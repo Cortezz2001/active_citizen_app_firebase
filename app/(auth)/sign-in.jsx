@@ -9,31 +9,46 @@ import PhoneField from "@/components/PhoneField";
 import GoogleButton from "@/components/GoogleButton";
 import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
+import { useFirestore } from "../../hooks/useFirestore";
 
 export default function SignIn() {
     const { sendPhoneVerificationCode, signInWithGoogle } = useAuth();
     const [isSubmitting, setSubmitting] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
+    const { getDocument } = useFirestore();
 
-    // const checkProfileAndRedirect = async (user) => {
-    //     try {
-    //         const userDoc = await getDocument("users", user.uid);
-    //         if (!userDoc || !userDoc.fname) {
-    //             router.replace("/complete-registration");
-    //         } else {
-    //             router.replace("/home");
-    //         }
-    //     } catch (error) {
-    //         console.error("Error checking profile:", error);
-    //         router.replace("/home");
-    //     }
-    // };
+    const checkProfileAndRedirect = async (user) => {
+        try {
+            const userDoc = await getDocument("users", user.uid);
+            if (!userDoc || !userDoc.fname) {
+                router.replace("/complete-registration");
+            } else {
+                router.replace("/home");
+            }
+        } catch (error) {
+            console.error("Error checking profile:", error);
+            router.replace("/home");
+        }
+    };
 
     const handleGoogleSignIn = async () => {
         try {
             const result = await signInWithGoogle();
             console.log("Sign in success:", result);
-            router.replace("/complete-registration");
+            if (result) {
+                await checkProfileAndRedirect(result.user);
+                Toast.show({
+                    type: "success",
+                    text1: "Success",
+                    text2: "Successfully signed in!",
+                });
+            } else {
+                Toast.show({
+                    type: "error",
+                    text1: "Error",
+                    text2: "Failed to verify the code. No user data returned.",
+                });
+            }
             Toast.show({
                 type: "success",
                 text1: "Success",
