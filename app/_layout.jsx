@@ -6,6 +6,7 @@ import { AuthProvider, useAuthContext } from "@/lib/context";
 import Toast from "react-native-toast-message";
 import { View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { KeyboardProvider } from "@/hooks/useKeyboard";
 
 const toastConfig = {
     success: ({ text1, text2 }) => (
@@ -127,10 +128,12 @@ export default function RootLayout() {
 
     return (
         <AuthProvider>
-            <>
-                <InitialLayout />
-                <Toast config={toastConfig} />
-            </>
+            <KeyboardProvider>
+                <>
+                    <InitialLayout />
+                    <Toast config={toastConfig} />
+                </>
+            </KeyboardProvider>
         </AuthProvider>
     );
 }

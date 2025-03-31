@@ -1,8 +1,9 @@
-import { Text, View, Image, Pressable } from "react-native";
-import React from "react";
+import { Text, View, Image, Pressable, Keyboard } from "react-native";
+import React, { useEffect, useState } from "react";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { icons } from "../../constants";
+import { useKeyboard } from "../../hooks/useKeyboard";
 
 const TabIcon = ({ icon, color, name, focused }) => {
     return (
@@ -27,6 +28,8 @@ const TabIcon = ({ icon, color, name, focused }) => {
 };
 
 const TabsLayout = () => {
+    const { isKeyboardVisible } = useKeyboard();
+
     return (
         <>
             <Tabs
@@ -37,6 +40,8 @@ const TabsLayout = () => {
                     tabBarStyle: {
                         borderTopWidth: 1,
                         height: 65,
+                        // Скрываем tabBar, когда клавиатура видима
+                        display: isKeyboardVisible ? "none" : "flex",
                     },
                     tabBarButton: (props) => (
                         <Pressable

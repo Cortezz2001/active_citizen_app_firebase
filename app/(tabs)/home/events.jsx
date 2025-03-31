@@ -1,0 +1,86 @@
+import React, { useContext } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { SearchContext } from "./_layout";
+import { useKeyboard } from "../../../hooks/useKeyboard";
+
+const eventsData = [
+    {
+        id: 1,
+        title: "Community Cleanup",
+        date: "June 15",
+        image: "https://picsum.photos/300/200",
+    },
+    // ... other events items (same as in the original file)
+];
+
+const EventsTab = () => {
+    const { searchText } = useContext(SearchContext);
+    const { isKeyboardVisible } = useKeyboard(); // Используем контекст клавиатуры
+
+    const getFilteredEvents = () => {
+        const search = searchText.toLowerCase();
+        return eventsData.filter(
+            (item) =>
+                item.title.toLowerCase().includes(search) ||
+                item.date.toLowerCase().includes(search)
+        );
+    };
+
+    const EmptyStateMessage = () => (
+        <View className="flex-1 items-center justify-center py-10 bg-secondary">
+            <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
+            <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+                No events found for "{searchText}"
+            </Text>
+            <Text className="text-gray-400 mt-2 text-center">
+                Try adjusting your search terms
+            </Text>
+        </View>
+    );
+
+    return (
+        <View className="flex-1">
+            {/* Content Scroll View */}
+            <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+                {searchText && getFilteredEvents().length === 0 ? (
+                    <EmptyStateMessage />
+                ) : (
+                    getFilteredEvents().map((item) => (
+                        <TouchableOpacity
+                            key={item.id}
+                            className="bg-white rounded-lg mb-4 shadow-md flex-row items-center"
+                        >
+                            <Image
+                                source={{ uri: item.image }}
+                                className="w-24 h-24 rounded-l-lg"
+                            />
+                            <View className="p-4 flex-1">
+                                <Text className="font-mmedium text-lg">
+                                    {item.title}
+                                </Text>
+                                <Text className="text-gray-500 font-mmedium">
+                                    {item.date}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    ))
+                )}
+            </ScrollView>
+
+            {/* Create Button - скрываем при появлении клавиатуры */}
+            {!isKeyboardVisible && (
+                <TouchableOpacity
+                    className="absolute bottom-5 right-4 bg-primary rounded-full w-14 h-14 items-center justify-center shadow-lg"
+                    onPress={() => {
+                        /* Handle create event */
+                    }}
+                >
+                    <MaterialIcons name="add" size={30} color="white" />
+                </TouchableOpacity>
+            )}
+        </View>
+    );
+};
+
+export default EventsTab;
