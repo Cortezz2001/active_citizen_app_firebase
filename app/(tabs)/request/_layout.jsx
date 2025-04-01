@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Slot, usePathname, useRouter } from "expo-router";
-import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import images from "@/constants/images";
 import { createContext } from "react";
 
 // Контекст для поиска
@@ -12,16 +11,19 @@ export const SearchContext = createContext({
     setSearchText: () => {},
 });
 
-const HomeLayout = () => {
+const RequestLayout = () => {
     const router = useRouter();
     const pathname = usePathname();
 
     // Извлекаем текущую вкладку из пути
     const getCurrentTab = () => {
         const path = pathname.split("/").pop();
-        return path === "home"
-            ? "News"
-            : path.charAt(0).toUpperCase() + path.slice(1);
+        if (path === "send-request") {
+            return "Send Request";
+        } else if (path === "my-requests") {
+            return "My Requests";
+        }
+        return "Send Request";
     };
 
     const [activeTab, setActiveTab] = useState(getCurrentTab());
@@ -39,26 +41,18 @@ const HomeLayout = () => {
     // Функция для перехода между вкладками
     const navigateToTab = (tab) => {
         setActiveTab(tab);
-        const tabRoute = tab.toLowerCase();
-        router.push(`/home/${tabRoute}`);
+        const tabRoute =
+            tab === "Send Request" ? "send-request" : "my-requests";
+        router.push(`/request/${tabRoute}`);
     };
 
     return (
         <SafeAreaView className="bg-secondary flex-1">
             <View className="px-4 pt-4 flex-1">
                 {/* Header */}
-                <View className="flex-row justify-between items-center mb-2">
-                    <View className="flex-row items-center">
-                        <Image
-                            source={images.logo}
-                            className="w-[65px] h-[65px] mr-2"
-                            resizeMode="contain"
-                        />
-                        <Text className="text-2xl font-mbold">
-                            Active Citizen
-                        </Text>
-                    </View>
-                    <TouchableOpacity className="mr-2">
+                <View className="flex-row justify-between items-center mb-4">
+                    <Text className="text-2xl font-mbold">Requests</Text>
+                    <TouchableOpacity>
                         <MaterialIcons
                             name="language"
                             size={24}
@@ -69,7 +63,7 @@ const HomeLayout = () => {
 
                 {/* Tab Navigation */}
                 <View className="flex-row justify-between mb-4 bg-white rounded-full p-1">
-                    {["News", "Events", "Surveys", "Petitions"].map((tab) => (
+                    {["Send Request", "My Requests"].map((tab) => (
                         <TouchableOpacity
                             key={tab}
                             onPress={() => navigateToTab(tab)}
@@ -92,34 +86,24 @@ const HomeLayout = () => {
                     ))}
                 </View>
 
-                {/* Common Search Bar */}
-                <View className="bg-white rounded-lg p-2 mb-4 shadow-md">
-                    <View className="flex-row items-center">
-                        <MaterialIcons
-                            name="search"
-                            size={24}
-                            color="gray"
-                            className="mr-2"
-                        />
-                        <TextInput
-                            placeholder={`Search ${activeTab.toLowerCase()}...`}
-                            value={searchText}
-                            onChangeText={setSearchText}
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            className="flex-1 pl-2"
-                        />
-                        {searchText.length > 0 && (
-                            <TouchableOpacity onPress={() => setSearchText("")}>
-                                <MaterialIcons
-                                    name="close"
-                                    size={24}
-                                    color="gray"
-                                />
-                            </TouchableOpacity>
-                        )}
+                {/* Search Bar для My Requests */}
+                {activeTab === "My Requests" && (
+                    <View className="bg-white rounded-lg p-2 mb-4 shadow-md">
+                        <View className="flex-row items-center">
+                            <MaterialIcons
+                                name="search"
+                                size={24}
+                                color="gray"
+                            />
+                            <TextInput
+                                placeholder="Search requests"
+                                value={searchText}
+                                onChangeText={setSearchText}
+                                className="flex-1 ml-2"
+                            />
+                        </View>
                     </View>
-                </View>
+                )}
 
                 {/* Content Slot with SearchContext Provider */}
                 <SearchContext.Provider value={{ searchText, setSearchText }}>
@@ -130,4 +114,4 @@ const HomeLayout = () => {
     );
 };
 
-export default HomeLayout;
+export default RequestLayout;

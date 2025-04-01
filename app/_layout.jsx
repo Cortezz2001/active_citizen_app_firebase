@@ -98,6 +98,13 @@ function InitialLayout() {
                     gestureEnabled: false,
                 }}
             />
+            <Stack.Screen
+                name="pages"
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                }}
+            />
         </Stack>
     );
 }
