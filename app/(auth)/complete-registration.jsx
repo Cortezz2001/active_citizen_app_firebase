@@ -20,7 +20,7 @@ import FormField from "@/components/FormField";
 import DropdownField from "@/components/DropdownField";
 
 const CompleteRegistration = () => {
-    const { user, logout } = useAuthContext();
+    const { user, logout, refreshUser } = useAuthContext();
     const { setDocument } = useFirestore();
 
     const [form, setForm] = useState({
@@ -56,6 +56,8 @@ const CompleteRegistration = () => {
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             });
+
+            await refreshUser();
 
             Toast.show({
                 type: "success",

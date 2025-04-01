@@ -41,6 +41,14 @@ export const useAuth = () => {
         return unsubscribe;
     }, []);
 
+    const refreshUser = async () => {
+        const currentUser = auth().currentUser;
+        if (currentUser) {
+            await currentUser.reload(); // Обновляем данные из Firebase Auth
+            setUser(auth().currentUser); // Устанавливаем обновленный объект user
+        }
+    };
+
     const sendPhoneVerificationCode = async (phoneNumber, userData = null) => {
         try {
             const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
@@ -133,5 +141,6 @@ export const useAuth = () => {
         verifyPhoneCode,
         logout,
         signInWithGoogle,
+        refreshUser,
     };
 };
