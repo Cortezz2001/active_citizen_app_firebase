@@ -19,16 +19,10 @@ const ProfileLayout = () => {
             ? "Account"
             : path.charAt(0).toUpperCase() + path.slice(1);
     };
-
-    const [activeTab, setActiveTab] = useState(getCurrentTab());
-
-    useEffect(() => {
-        setActiveTab(getCurrentTab());
-    }, [pathname]);
+    const activeTab = getCurrentTab();
 
     // Функция для перехода между вкладками
     const navigateToTab = (tab) => {
-        setActiveTab(tab);
         const tabRoute = tab.toLowerCase();
         router.push(`/profile/${tabRoute}`);
     };

@@ -15,6 +15,8 @@ const RequestLayout = () => {
     const router = useRouter();
     const pathname = usePathname();
 
+    const [searchText, setSearchText] = useState("");
+
     // Извлекаем текущую вкладку из пути
     const getCurrentTab = () => {
         const path = pathname.split("/").pop();
@@ -25,22 +27,15 @@ const RequestLayout = () => {
         }
         return "Send Request";
     };
-
-    const [activeTab, setActiveTab] = useState(getCurrentTab());
-    const [searchText, setSearchText] = useState("");
+    const activeTab = getCurrentTab();
 
     // Сбрасываем поиск при смене вкладки
     useEffect(() => {
         setSearchText("");
-    }, [activeTab]);
-
-    useEffect(() => {
-        setActiveTab(getCurrentTab());
     }, [pathname]);
 
     // Функция для перехода между вкладками
     const navigateToTab = (tab) => {
-        setActiveTab(tab);
         const tabRoute =
             tab === "Send Request" ? "send-request" : "my-requests";
         router.push(`/request/${tabRoute}`);

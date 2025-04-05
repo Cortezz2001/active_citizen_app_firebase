@@ -15,6 +15,7 @@ export const SearchContext = createContext({
 const HomeLayout = () => {
     const router = useRouter();
     const pathname = usePathname();
+    const [searchText, setSearchText] = useState("");
 
     // Извлекаем текущую вкладку из пути
     const getCurrentTab = () => {
@@ -23,22 +24,15 @@ const HomeLayout = () => {
             ? "News"
             : path.charAt(0).toUpperCase() + path.slice(1);
     };
-
-    const [activeTab, setActiveTab] = useState(getCurrentTab());
-    const [searchText, setSearchText] = useState("");
+    const activeTab = getCurrentTab();
 
     // Сбрасываем поиск при смене вкладки
     useEffect(() => {
         setSearchText("");
-    }, [activeTab]);
-
-    useEffect(() => {
-        setActiveTab(getCurrentTab());
     }, [pathname]);
 
     // Функция для перехода между вкладками
     const navigateToTab = (tab) => {
-        setActiveTab(tab);
         const tabRoute = tab.toLowerCase();
         router.push(`/home/${tabRoute}`);
     };
