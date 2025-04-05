@@ -57,7 +57,7 @@ const RequestLayout = () => {
                 </View>
 
                 {/* Tab Navigation */}
-                <View className="flex-row justify-between mb-4 bg-white rounded-full p-1">
+                <View className="flex-row justify-between mb-4 bg-white rounded-full">
                     {["Send Request", "My Requests"].map((tab) => (
                         <TouchableOpacity
                             key={tab}

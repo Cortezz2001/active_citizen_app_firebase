@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SearchContext } from "./_layout";
 import { useKeyboard } from "../../../hooks/useKeyboard";
-
+import CustomButton from "../../../components/CustomButton";
 const petitionsData = [
     { id: 1, title: "Green City Initiative", supporters: 1500 },
     // ... other petitions items (same as in the original file)
@@ -42,20 +42,32 @@ const PetitionsTab = () => {
                     getFilteredPetitions().map((item) => (
                         <TouchableOpacity
                             key={item.id}
-                            className="bg-white rounded-lg mb-4 p-4 shadow-md"
+                            className="bg-ghostwhite rounded-lg mb-4 shadow-md border-2 border-gray-200 overflow-hidden"
                         >
-                            <Text className="font-mmedium text-lg mb-2">
-                                {item.title}
-                            </Text>
-                            <View className="flex-row items-center">
-                                <MaterialIcons
-                                    name="people"
-                                    size={24}
-                                    color="#2196F3"
-                                />
-                                <Text className="ml-2 text-gray-600 font-mmedium">
-                                    {item.supporters} supporters
+                            <View className="p-4">
+                                <Text className="font-mmedium text-lg text-gray-900 mb-2">
+                                    {item.title}
                                 </Text>
+                                <View className="flex-row items-center justify-between">
+                                    <View className="flex-row items-center">
+                                        <MaterialIcons
+                                            name="people"
+                                            size={20}
+                                            color="#006FFD"
+                                        />
+                                        <Text className="ml-2 text-primary font-mmedium">
+                                            {item.supporters} supporters
+                                        </Text>
+                                    </View>
+                                    <CustomButton
+                                        title="Sign"
+                                        handlePress={() => {
+                                            /* Handle sign */
+                                        }}
+                                        containerStyles="bg-ghostwhite px-3 py-1 rounded-full border border-primary shadow-lg"
+                                        textStyles="text-primary font-mmedium text-sm"
+                                    />
+                                </View>
                             </View>
                         </TouchableOpacity>
                     ))

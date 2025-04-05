@@ -62,7 +62,7 @@ const HomeLayout = () => {
                 </View>
 
                 {/* Tab Navigation */}
-                <View className="flex-row justify-between mb-4 bg-white rounded-full p-1">
+                <View className="flex-row justify-between mb-4 bg-white rounded-full">
                     {["News", "Events", "Surveys", "Petitions"].map((tab) => (
                         <TouchableOpacity
                             key={tab}
@@ -87,13 +87,13 @@ const HomeLayout = () => {
                 </View>
 
                 {/* Common Search Bar */}
-                <View className="bg-white rounded-lg p-2 mb-4 shadow-md">
+                <View className="bg-ghostwhite rounded-3xl p-2 mb-4 shadow-md border border-gray-200">
                     <View className="flex-row items-center">
                         <MaterialIcons
                             name="search"
                             size={24}
                             color="gray"
-                            className="mr-2"
+                            style={{ marginLeft: 2 }}
                         />
                         <TextInput
                             placeholder={`Search ${activeTab.toLowerCase()}...`}
@@ -101,7 +101,7 @@ const HomeLayout = () => {
                             onChangeText={setSearchText}
                             autoCapitalize="none"
                             autoCorrect={false}
-                            className="flex-1 pl-2"
+                            className="flex-1 pl-2 font-mregular"
                         />
                         {searchText.length > 0 && (
                             <TouchableOpacity onPress={() => setSearchText("")}>

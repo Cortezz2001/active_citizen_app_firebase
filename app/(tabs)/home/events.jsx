@@ -9,7 +9,13 @@ const eventsData = [
         id: 1,
         title: "Community Cleanup",
         date: "June 15",
-        image: "https://picsum.photos/300/200",
+        image: "https://picsum.photos/300/400",
+    },
+    {
+        id: 2,
+        title: "Test",
+        date: "June 30",
+        image: "https://picsum.photos/200/400",
     },
     // ... other events items (same as in the original file)
 ];
@@ -49,7 +55,7 @@ const EventsTab = () => {
                     getFilteredEvents().map((item) => (
                         <TouchableOpacity
                             key={item.id}
-                            className="bg-white rounded-lg mb-4 shadow-md flex-row items-center"
+                            className="rounded-lg mb-4 shadow-md flex-row items-center bg-ghostwhite border border-gray-200"
                         >
                             <Image
                                 source={{ uri: item.image }}
@@ -59,9 +65,16 @@ const EventsTab = () => {
                                 <Text className="font-mmedium text-lg">
                                     {item.title}
                                 </Text>
-                                <Text className="text-gray-500 font-mmedium">
-                                    {item.date}
-                                </Text>
+                                <View className="flex-row items-center mt-2 ">
+                                    <MaterialIcons
+                                        name="event"
+                                        size={16}
+                                        color="#006FFD"
+                                    />
+                                    <Text className=" font-mmedium ml-1 text-primary">
+                                        {item.date}
+                                    </Text>
+                                </View>
                             </View>
                         </TouchableOpacity>
                     ))

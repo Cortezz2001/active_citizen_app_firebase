@@ -9,6 +9,11 @@ const newsData = [
         title: "City park renovation starts next month",
         image: "https://picsum.photos/300/200",
     },
+    {
+        id: 2,
+        title: "City park renovation starts next month",
+        image: "https://picsum.photos/300/100",
+    },
     // ... other news items (same as in the original file)
 ];
 
@@ -44,7 +49,7 @@ const NewsTab = () => {
                     getFilteredNews().map((item) => (
                         <TouchableOpacity
                             key={item.id}
-                            className="bg-white rounded-lg mb-4 shadow-md"
+                            className="rounded-lg mb-4 shadow-md bg-ghostwhite border border-gray-200"
                         >
                             <Image
                                 source={{ uri: item.image }}
@@ -54,6 +59,16 @@ const NewsTab = () => {
                                 <Text className="font-mmedium text-lg">
                                     {item.title}
                                 </Text>
+                                <View className="flex-row items-center mt-2">
+                                    <MaterialIcons
+                                        name="access-time"
+                                        size={16}
+                                        color="#6B7280"
+                                    />
+                                    <Text className="text-gray-500 ml-1 text-sm">
+                                        Just now
+                                    </Text>
+                                </View>
                             </View>
                         </TouchableOpacity>
                     ))

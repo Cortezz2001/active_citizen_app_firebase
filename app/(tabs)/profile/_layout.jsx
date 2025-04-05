@@ -71,7 +71,7 @@ const ProfileLayout = () => {
                 {renderProfileHeader()}
 
                 {/* Tab Navigation */}
-                <View className="flex-row justify-between mb-4 bg-white rounded-full p-1">
+                <View className="flex-row justify-between mb-4 bg-white rounded-full">
                     {["Account", "Settings"].map((tab) => (
                         <TouchableOpacity
                             key={tab}

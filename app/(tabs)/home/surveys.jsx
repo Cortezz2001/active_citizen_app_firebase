@@ -43,20 +43,29 @@ const SurveysTab = () => {
                     getFilteredSurveys().map((item) => (
                         <TouchableOpacity
                             key={item.id}
-                            className="bg-white rounded-lg mb-4 p-4 shadow-md"
+                            className="bg-ghostwhite rounded-lg mb-4 shadow-md border-2 border-gray-200 overflow-hidden"
                         >
-                            <Text className="font-mmedium text-lg mb-2">
-                                {item.title}
-                            </Text>
-                            <View className="flex-row items-center">
-                                <MaterialIcons
-                                    name="how-to-vote"
-                                    size={24}
-                                    color="#4CAF50"
-                                />
-                                <Text className="ml-2 text-gray-600 font-mmedium">
-                                    {item.votes} votes
+                            <View className="p-4">
+                                <Text className="font-mmedium text-lg text-gray-900 mb-2">
+                                    {item.title}
                                 </Text>
+                                <View className="flex-row items-center justify-between">
+                                    <View className="flex-row items-center">
+                                        <MaterialIcons
+                                            name="how-to-vote"
+                                            size={20}
+                                            color="#006FFD"
+                                        />
+                                        <Text className="ml-2 text-primary font-mmedium">
+                                            {item.votes} votes
+                                        </Text>
+                                    </View>
+                                    <TouchableOpacity className="bg-ghostwhite px-3 py-1 rounded-full border border-primary">
+                                        <Text className="text-primary font-mmedium">
+                                            Vote
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </TouchableOpacity>
                     ))
