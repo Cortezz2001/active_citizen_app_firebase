@@ -181,7 +181,7 @@ const EditProfile = () => {
                             handleChangeText={(e) =>
                                 setForm({ ...form, fname: e })
                             }
-                            containerStyle="mb-4"
+                            containerStyle="mb-4 bg-ghostwhite"
                         />
 
                         <Text className="text-black font-msemibold text-left mb-2">
@@ -194,7 +194,7 @@ const EditProfile = () => {
                             handleChangeText={(e) =>
                                 setForm({ ...form, lname: e })
                             }
-                            containerStyle="mb-4"
+                            containerStyle="mb-4 bg-ghostwhite"
                         />
 
                         <Text className="text-black font-msemibold text-left mb-2">
@@ -206,7 +206,7 @@ const EditProfile = () => {
                             value={form.city}
                             options={kazakhstanCities}
                             onSelect={(city) => setForm({ ...form, city })}
-                            containerStyle="mb-4"
+                            containerStyle="mb-4 bg-ghostwhite"
                         />
 
                         <Text className="text-black font-msemibold text-left mb-2">
@@ -218,7 +218,7 @@ const EditProfile = () => {
                             value={form.gender}
                             options={genderOptions}
                             onSelect={(gender) => setForm({ ...form, gender })}
-                            containerStyle="mb-6"
+                            containerStyle="mb-6 bg-ghostwhite"
                         />
 
                         <CustomButton

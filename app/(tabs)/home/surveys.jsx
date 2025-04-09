@@ -43,7 +43,7 @@ const SurveysTab = () => {
                     getFilteredSurveys().map((item) => (
                         <TouchableOpacity
                             key={item.id}
-                            className="bg-ghostwhite rounded-lg mb-4 shadow-md border-2 border-gray-200 overflow-hidden"
+                            className="bg-ghostwhite rounded-lg mb-4 shadow-md border border-gray-200 overflow-hidden"
                         >
                             <View className="p-4">
                                 <Text className="font-mmedium text-lg text-gray-900 mb-2">

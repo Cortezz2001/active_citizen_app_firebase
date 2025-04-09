@@ -65,7 +65,7 @@ const DropdownField = ({
 
                         {options.length > 10 && (
                             <View className="px-4 mb-4">
-                                <View className="border border-gray-300 rounded-lg px-4 py-2 flex-row items-center">
+                                <View className="bg-ghostwhite border border-gray-300 rounded-lg px-4 py-2 flex-row items-center">
                                     <MaterialIcons
                                         name="search"
                                         size={20}

@@ -10,7 +10,7 @@ import { KeyboardProvider } from "@/hooks/useKeyboard";
 
 const toastConfig = {
     success: ({ text1, text2 }) => (
-        <View className="flex-row items-center bg-neutral-50 border-l-4 border-green-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
+        <View className="flex-row items-center bg-ghostwhite border-l-4 border-green-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
             <MaterialIcons name="check-circle" size={24} color="#22c55e" />
             <View className="flex-1">
                 <Text className="text-green-600 text-base font-msemibold">
@@ -26,7 +26,7 @@ const toastConfig = {
     ),
 
     error: ({ text1, text2 }) => (
-        <View className="flex-row items-center bg-neutral-50 border-l-4 border-red-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
+        <View className="flex-row items-center bg-ghostwhite border-l-4 border-red-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
             <MaterialIcons name="error" size={24} color="#ef4444" />
             <View className="flex-1">
                 <Text className="text-red-600 text-base font-msemibold">
@@ -42,7 +42,7 @@ const toastConfig = {
     ),
 
     info: ({ text1, text2 }) => (
-        <View className="flex-row items-center bg-neutral-50 border-l-4 border-primary p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
+        <View className="flex-row items-center bg-ghostwhite border-l-4 border-primary p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
             <MaterialIcons name="info" size={24} color="#3b82f6" />
             <View className="flex-1">
                 <Text className="text-primary text-base font-msemibold">

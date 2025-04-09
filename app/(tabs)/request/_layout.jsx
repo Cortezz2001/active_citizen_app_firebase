@@ -83,7 +83,7 @@ const RequestLayout = () => {
 
                 {/* Search Bar для My Requests */}
                 {activeTab === "My Requests" && (
-                    <View className="bg-white rounded-lg p-2 mb-4 shadow-md">
+                    <View className="bg-ghostwhite rounded-3xl p-2 mb-4 shadow-md border border-gray-200">
                         <View className="flex-row items-center">
                             <MaterialIcons
                                 name="search"

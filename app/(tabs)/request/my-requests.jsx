@@ -1,5 +1,11 @@
 import React, { useContext } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import {
+    ScrollView,
+    ScrollViewBase,
+    View,
+    Text,
+    TouchableOpacity,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SearchContext } from "./_layout";
 
@@ -63,14 +69,14 @@ const MyRequestsTab = () => {
     );
 
     return (
-        <View className="flex-1">
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
             {searchText && getFilteredRequests().length === 0 ? (
                 <EmptyStateMessage />
             ) : (
                 getFilteredRequests().map((request) => (
                     <TouchableOpacity
                         key={request.id}
-                        className="bg-white rounded-lg p-4 mb-4 flex-row items-center"
+                        className="bg-ghostwhite rounded-lg p-4 mb-4 flex-row items-center border border-gray-200"
                     >
                         <View className="flex-1">
                             <Text className="font-mmedium text-lg mb-2">
@@ -80,7 +86,7 @@ const MyRequestsTab = () => {
                                 {request.date}
                             </Text>
                         </View>
-                        <View className="flex-row items-center">
+                        <View className="flex-row items-center justify-end w-32">
                             <MaterialIcons
                                 name={
                                     request.statusIcon === "pending"
@@ -98,12 +104,12 @@ const MyRequestsTab = () => {
                                 }
                                 size={24}
                             />
-                            <Text className="ml-2">{request.status}</Text>
+                            <Text className="ml-2 w-20">{request.status}</Text>
                         </View>
                     </TouchableOpacity>
                 ))
             )}
-        </View>
+        </ScrollView>
     );
 };
 

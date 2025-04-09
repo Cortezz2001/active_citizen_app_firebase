@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    ScrollView,
-    TextInput,
-    Switch,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Switch } from "react-native";
+import FormField from "../../../components/FormField";
 
 const categories = ["Lighting", "Trash", "Roads", "Green Zones", "Other"];
 
@@ -19,47 +13,61 @@ const SendRequestTab = () => {
 
     return (
         <ScrollView
+            showsVerticalScrollIndicator={false}
             contentContainerStyle={{
                 flexGrow: 1,
                 justifyContent: "space-between",
             }}
         >
             {/* Complaint Title */}
-            <TextInput
+            <Text className="text-black font-msemibold text-left mb-2">
+                Title
+            </Text>
+            <FormField
+                title="Title"
                 placeholder="Title"
                 value={title}
-                onChangeText={setTitle}
-                className="bg-white rounded-lg p-3 mb-4 border border-gray-200"
+                handleChangeText={setTitle}
+                className="bg-ghostwhite rounded-lg p-3 border border-gray-200"
             />
 
             {/* Problem Description */}
-            <TextInput
+            <Text className="text-black font-msemibold text-left mb-2">
+                Description
+            </Text>
+            <FormField
+                title="Description"
                 placeholder="Description"
                 value={description}
-                onChangeText={setDescription}
+                handleChangeText={setDescription}
                 multiline
                 numberOfLines={10}
-                className="bg-white rounded-lg p-3 mb-4 h-32 border border-gray-200"
+                className="bg-ghostwhite rounded-lg p-3 h-32 border border-gray-200"
             />
 
             {/* Category */}
-            <View className="bg-white rounded-lg p-3 mb-4">
-                <Text className="text-gray-500 mb-2">Category</Text>
-                <View className="flex-row flex-wrap">
+            <View className="mb-4">
+                <Text className="text-black font-msemibold text-left mb-2">
+                    Category
+                </Text>
+                <View className="flex-row flex-wrap justify-evenly">
                     {categories.map((cat) => (
                         <TouchableOpacity
                             key={cat}
                             onPress={() => setCategory(cat)}
-                            className={`p-2 m-1 rounded-full ${
-                                category === cat ? "bg-primary" : "bg-gray-200"
+                            className={`py-2 px-3 mb-2 rounded-full border border-gray-200 ${
+                                category === cat
+                                    ? "bg-primary"
+                                    : "bg-ghostwhite"
                             }`}
+                            style={{ width: "48%" }}
                         >
                             <Text
-                                className={
+                                className={`text-center font-mmedium ${
                                     category === cat
                                         ? "text-white"
-                                        : "text-black"
-                                }
+                                        : "text-gray-600"
+                                }`}
                             >
                                 {cat}
                             </Text>
@@ -69,11 +77,15 @@ const SendRequestTab = () => {
             </View>
 
             {/* Contact Information */}
-            <TextInput
+            <Text className="text-black font-msemibold text-left mb-2">
+                Contact
+            </Text>
+            <FormField
+                title="Contact"
                 placeholder="Contact phone or email"
                 value={contactInfo}
-                onChangeText={setContactInfo}
-                className="bg-white rounded-lg p-3 mb-4 border border-gray-200"
+                handleChangeText={setContactInfo}
+                className="bg-ghostwhite rounded-lg p-3 border border-gray-200"
             />
 
             <View className="flex-row items-center bg-white p-3 rounded-lg mb-4">
