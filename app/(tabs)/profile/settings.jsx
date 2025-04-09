@@ -33,9 +33,14 @@ const Settings = () => {
                             size={24}
                             color="#006FFD"
                         />
-                        <Text className="ml-4 font-mmedium text-lg">
+                        <Text className="flex-1 ml-4 font-mmedium text-lg">
                             {item.title}
                         </Text>
+                        <MaterialIcons
+                            name="chevron-right"
+                            size={24}
+                            color="#006FFD"
+                        />
                     </TouchableOpacity>
                 ))}
             </View>
