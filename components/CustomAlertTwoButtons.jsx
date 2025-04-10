@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Modal } from "react-native";
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    Modal,
+    ActivityIndicator,
+} from "react-native";
 
 const CustomAlert = ({
     visible,
@@ -10,6 +16,7 @@ const CustomAlert = ({
     onPrimaryButtonPress,
     onSecondaryButtonPress,
     onClose,
+    isLoading,
 }) => {
     return (
         <Modal
@@ -35,6 +42,7 @@ const CustomAlert = ({
                         <TouchableOpacity
                             className="flex-1 border border-gray-300 rounded-full py-3 mx-1"
                             onPress={onSecondaryButtonPress || onClose}
+                            disabled={isLoading}
                         >
                             <Text className="text-primary font-msemibold text-center">
                                 {secondaryButtonText || "Cancel"}
@@ -42,12 +50,23 @@ const CustomAlert = ({
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            className="flex-1 bg-primary rounded-full py-3 mx-1"
+                            className={`flex-1 bg-primary rounded-full py-3 mx-1 flex-row justify-center items-center ${
+                                isLoading ? "opacity-50" : ""
+                            }`}
                             onPress={onPrimaryButtonPress}
+                            disabled={isLoading}
                         >
                             <Text className="text-white font-msemibold text-center">
                                 {primaryButtonText || "OK"}
                             </Text>
+                            {isLoading && (
+                                <ActivityIndicator
+                                    animating={isLoading}
+                                    color="#fff"
+                                    size="small"
+                                    className="ml-2"
+                                />
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -57,18 +76,3 @@ const CustomAlert = ({
 };
 
 export default CustomAlert;
-
-// const [alertVisible, setAlertVisible] = useState(false); В начале
-
-{
-    /* <CustomAlert
-visible={alertVisible}
-title=""
-message=""
-primaryButtonText=""
-secondaryButtonText=""
-onPrimaryButtonPress={confirmSignOut}
-onSecondaryButtonPress={() => setAlertVisible(false)}
-onClose={() => setAlertVisible(false)}
-/> */
-}
