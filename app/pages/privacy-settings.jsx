@@ -14,7 +14,11 @@ const PrivacySettings = () => {
                 >
                     <MaterialIcons name="arrow-back" size={24} />
                 </TouchableOpacity>
-                <Text className="text-2xl font-mbold text-black">
+                <Text
+                    className="text-2xl font-mbold text-black"
+                    numberOfLines={2}
+                    adjustsFontSizeToFit
+                >
                     Privacy Settings
                 </Text>
             </View>

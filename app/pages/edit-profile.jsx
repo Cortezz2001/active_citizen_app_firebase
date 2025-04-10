@@ -147,7 +147,11 @@ const EditProfile = () => {
                 >
                     <MaterialIcons name="arrow-back" size={24} />
                 </TouchableOpacity>
-                <Text className="text-2xl font-mbold text-black">
+                <Text
+                    className="text-2xl font-mbold text-black"
+                    numberOfLines={2}
+                    adjustsFontSizeToFit
+                >
                     Edit Your Profile
                 </Text>
             </View>
