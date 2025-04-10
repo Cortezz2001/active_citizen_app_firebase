@@ -140,37 +140,33 @@ const EditProfile = () => {
     return (
         <SafeAreaView className="flex-1 bg-white">
             <StatusBar style="dark" />
-            <View className="px-6 pt-4 flex-row mb-2">
+            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
                 <TouchableOpacity
                     onPress={() => router.back()}
-                    className="flex-row items-center"
+                    className="flex-row items-center mr-4"
                 >
-                    <MaterialIcons
-                        name="arrow-back"
-                        size={24}
-                        color="#3b82f6"
-                    />
-                    <Text className="ml-1 text-primary font-msemibold">
-                        Back
-                    </Text>
+                    <MaterialIcons name="arrow-back" size={24} />
                 </TouchableOpacity>
+                <Text className="text-2xl font-mbold text-black">
+                    Edit Your Profile
+                </Text>
             </View>
 
             {isLoading ? (
                 <LoadingIndicator />
             ) : (
                 <ScrollView
-                    className="px-6"
+                    className="flex-1"
                     contentContainerStyle={{
+                        flexGrow: 1,
                         justifyContent: "center",
+                        alignItems: "center",
+                        paddingHorizontal: 24,
                         paddingVertical: 30,
                     }}
                     showsVerticalScrollIndicator={false}
                 >
-                    <Text className="text-3xl font-mbold text-black text-center mt-2 mb-10">
-                        Edit Your Profile
-                    </Text>
-                    <View className="flex-1 justify-center">
+                    <View className="w-full max-w-md">
                         <Text className="text-black font-msemibold text-left mb-2">
                             First Name <Text className="text-red-500">*</Text>
                         </Text>
@@ -200,6 +196,7 @@ const EditProfile = () => {
                         <Text className="text-black font-msemibold text-left mb-2">
                             City <Text className="text-red-500">*</Text>
                         </Text>
+
                         <DropdownField
                             title="City"
                             placeholder="Select your city"
