@@ -6,9 +6,16 @@ import { useKeyboard } from "../../../hooks/useKeyboard";
 import CustomButton from "../../../components/CustomButton";
 import { useRouter } from "expo-router";
 
+// Обновленные данные с датой создания и целевым количеством сторонников
 const petitionsData = [
-    { id: 1, title: "Green City Initiative", supporters: 1500 },
-    // ... other petitions items
+    {
+        id: 1,
+        title: "Green City Initiative",
+        supporters: 1500,
+        createdDate: "20.03.2023",
+        targetSupporters: 2000,
+    },
+    // ... другие элементы петиций
 ];
 
 const PetitionsTab = () => {
@@ -66,17 +73,41 @@ const PetitionsTab = () => {
                                 <Text className="font-mmedium text-lg text-gray-900 mb-2">
                                     {item.title}
                                 </Text>
-                                <View className="flex-row items-center justify-between">
-                                    <View className="flex-row items-center">
-                                        <MaterialIcons
-                                            name="people"
-                                            size={20}
-                                            color="#006FFD"
-                                        />
-                                        <Text className="ml-2 text-primary font-mmedium">
-                                            {item.supporters} supporters
+                                <Text className="text-gray-500 text-sm mb-3">
+                                    Created: {item.createdDate}
+                                </Text>
+                                <View className="mb-3">
+                                    <View className="flex-row items-center justify-between mb-1">
+                                        <View className="flex-row items-center">
+                                            <MaterialIcons
+                                                name="people"
+                                                size={18}
+                                                color="#006FFD"
+                                            />
+                                            <Text className="ml-1 text-primary font-mmedium">
+                                                {item.supporters} supporters
+                                            </Text>
+                                        </View>
+                                        <Text className="text-gray-500 font-mregular">
+                                            Target: {item.targetSupporters}
                                         </Text>
                                     </View>
+                                    {/* Progress bar */}
+                                    <View className="h-2 bg-gray-200 rounded-full w-full mt-1">
+                                        <View
+                                            className="h-2 bg-primary rounded-full"
+                                            style={{
+                                                width: `${Math.min(
+                                                    100,
+                                                    (item.supporters /
+                                                        item.targetSupporters) *
+                                                        100
+                                                )}%`,
+                                            }}
+                                        />
+                                    </View>
+                                </View>
+                                <View className="flex-row items-center justify-end">
                                     <CustomButton
                                         title="Sign"
                                         handlePress={() => {
