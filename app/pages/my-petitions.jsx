@@ -357,7 +357,7 @@ const MyPetitionsPage = () => {
                                         </View>
                                     </View>
 
-                                    <Text className="text-gray-500 text-sm mb-3">
+                                    <Text className="text-gray-500 text-sm mb-3 font-mmedium">
                                         Created: {petition.createdDate}
                                     </Text>
 
