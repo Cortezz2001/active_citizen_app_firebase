@@ -88,13 +88,13 @@ const RequestLayout = () => {
                             <MaterialIcons
                                 name="search"
                                 size={24}
-                                color="gray"
+                                color="#9CA3AF"
                             />
                             <TextInput
                                 placeholder="Search requests"
                                 value={searchText}
                                 onChangeText={setSearchText}
-                                className="flex-1 ml-2"
+                                className="flex-1 ml-2 font-mregular"
                             />
                         </View>
                     </View>

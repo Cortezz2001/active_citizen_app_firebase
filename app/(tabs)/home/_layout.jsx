@@ -92,7 +92,7 @@ const HomeLayout = () => {
                         <MaterialIcons
                             name="search"
                             size={24}
-                            color="gray"
+                            color="#9CA3AF"
                             style={{ marginLeft: 2 }}
                         />
                         <TextInput
