@@ -12,13 +12,7 @@ const SendRequestTab = () => {
     const [isDataProcessingAgreed, setIsDataProcessingAgreed] = useState(false);
 
     return (
-        <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-                flexGrow: 1,
-                justifyContent: "space-between",
-            }}
-        >
+        <ScrollView showsVerticalScrollIndicator={false}>
             {/* Complaint Title */}
             <Text className="text-black font-msemibold text-left mb-2">
                 Title
@@ -28,7 +22,7 @@ const SendRequestTab = () => {
                 placeholder="Title"
                 value={title}
                 handleChangeText={setTitle}
-                className="bg-ghostwhite rounded-lg p-3 border border-gray-200"
+                className="bg-ghostwhite rounded-lg p-2 border border-gray-200"
             />
 
             {/* Problem Description */}
@@ -42,7 +36,7 @@ const SendRequestTab = () => {
                 handleChangeText={setDescription}
                 multiline
                 numberOfLines={10}
-                className="bg-ghostwhite rounded-lg p-3 h-32 border border-gray-200"
+                className="bg-ghostwhite rounded-lg p-2 h-32 border border-gray-200"
             />
 
             {/* Category */}
@@ -85,10 +79,10 @@ const SendRequestTab = () => {
                 placeholder="Contact phone or email"
                 value={contactInfo}
                 handleChangeText={setContactInfo}
-                className="bg-ghostwhite rounded-lg p-3 border border-gray-200"
+                className="bg-ghostwhite rounded-lg p-2 border border-gray-200"
             />
 
-            <View className="flex-row items-center bg-white p-3 rounded-lg mb-4">
+            <View className="flex-row items-center bg-white p-2 rounded-lg mb-4">
                 <Switch
                     value={isDataProcessingAgreed}
                     onValueChange={setIsDataProcessingAgreed}

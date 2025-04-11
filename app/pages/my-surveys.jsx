@@ -310,7 +310,7 @@ const MySurveysPage = () => {
                         filteredSurveys.map((survey) => (
                             <View
                                 key={survey.id}
-                                className="bg-white rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden"
+                                className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden"
                             >
                                 <View className="p-4">
                                     <View className="flex-row justify-between items-start mb-2">
