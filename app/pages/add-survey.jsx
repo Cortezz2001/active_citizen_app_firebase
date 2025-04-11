@@ -223,7 +223,7 @@ const AddSurveyPage = () => {
             >
                 {/* Survey Title */}
                 <View className="mb-4 mt-4">
-                    <Text className="font-mmedium text-gray-700 mb-2">
+                    <Text className="font-msemibold text-black mb-2">
                         Survey Title
                     </Text>
                     <TextInput
@@ -236,7 +236,7 @@ const AddSurveyPage = () => {
 
                 {/* Survey Description */}
                 <View className="mb-4">
-                    <Text className="font-mmedium text-gray-700 mb-2">
+                    <Text className="font-msemibold text-black mb-2">
                         Description
                     </Text>
                     <TextInput

@@ -80,18 +80,6 @@ const EventsTab = () => {
                     ))
                 )}
             </ScrollView>
-
-            {/* Create Button - скрываем при появлении клавиатуры */}
-            {!isKeyboardVisible && (
-                <TouchableOpacity
-                    className="absolute bottom-5 right-4 bg-primary rounded-full w-14 h-14 items-center justify-center shadow-lg"
-                    onPress={() => {
-                        /* Handle create event */
-                    }}
-                >
-                    <MaterialIcons name="add" size={30} color="white" />
-                </TouchableOpacity>
-            )}
         </View>
     );
 };
