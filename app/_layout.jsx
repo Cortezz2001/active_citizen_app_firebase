@@ -97,6 +97,7 @@ function InitialLayout() {
                 options={{
                     headerShown: false,
                     gestureEnabled: false,
+                    animation: "fade",
                 }}
             />
             <Stack.Screen
