@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext } from "react";
 import {
     View,
     Text,
@@ -12,6 +12,12 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import CustomAlertTwoButtons from "../../components/CustomAlertTwoButtons";
+import { useTranslation } from "react-i18next";
+
+export const FilterContext = createContext({
+    showFilterModal: false,
+    setShowFilterModal: () => {},
+});
 
 // Sample petition data (in a real app, this would come from an API/database)
 const initialPetitionsData = [
@@ -107,22 +113,23 @@ const statusColors = {
 };
 
 const MyPetitionsPage = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const [petitionsData, setPetitionsData] = useState(initialPetitionsData);
     const [filteredPetitions, setFilteredPetitions] =
         useState(initialPetitionsData);
     const [searchText, setSearchText] = useState("");
-    const [activeStatus, setActiveStatus] = useState("All");
+    const [selectedStatuses, setSelectedStatuses] = useState([]);
     const [deleteAlert, setDeleteAlert] = useState({
         visible: false,
         petitionId: null,
     });
     const [isDeleting, setIsDeleting] = useState(false);
     const [showRejectionReason, setShowRejectionReason] = useState(null);
+    const [showFilterModal, setShowFilterModal] = useState(false);
 
-    // Status filters
+    // Status filters using API status values
     const statusFilters = [
-        "All",
         "Draft",
         "Under Moderation",
         "Approved",
@@ -131,7 +138,7 @@ const MyPetitionsPage = () => {
         "Completed",
     ];
 
-    // Filter petitions based on search text and active status
+    // Filter petitions based on search text and selected statuses
     useEffect(() => {
         let result = [...petitionsData];
 
@@ -143,14 +150,14 @@ const MyPetitionsPage = () => {
         }
 
         // Filter by status
-        if (activeStatus !== "All") {
-            result = result.filter(
-                (petition) => petition.status === activeStatus
+        if (selectedStatuses.length > 0) {
+            result = result.filter((petition) =>
+                selectedStatuses.includes(petition.status)
             );
         }
 
         setFilteredPetitions(result);
-    }, [searchText, activeStatus, petitionsData]);
+    }, [searchText, selectedStatuses, petitionsData]);
 
     const handleEdit = (petitionId) => {
         router.push({
@@ -190,24 +197,46 @@ const MyPetitionsPage = () => {
         setShowRejectionReason(reasonText);
     };
 
+    const toggleStatus = (status) => {
+        setSelectedStatuses((prev) =>
+            prev.includes(status)
+                ? prev.filter((s) => s !== status)
+                : [...prev, status]
+        );
+    };
+
+    const resetFilters = () => {
+        setSelectedStatuses([]);
+    };
+
     const canEdit = (status) => {
-        return status === "Draft" || status === "Rejected";
+        return status === "Draft";
     };
 
     const canDelete = (status) => {
-        return status === "Draft" || status === "Rejected";
+        return status === "Draft";
+    };
+
+    // Map API status values to translation keys
+    const translationKeyMapping = {
+        Draft: "draft",
+        "Under Moderation": "under_moderation",
+        Approved: "approved",
+        Rejected: "rejected",
+        Published: "published",
+        Completed: "completed",
     };
 
     const EmptyStateMessage = () => (
         <View className="flex-1 items-center justify-center py-10 bg-secondary">
             <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
             <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
-                No petitions found
+                {t("my_petitions.empty_state.no_petitions")}
             </Text>
             <Text className="text-gray-400 mt-2 text-center">
                 {searchText
-                    ? "Try adjusting your search terms"
-                    : "Create your first petition"}
+                    ? t("my_petitions.empty_state.search_advice")
+                    : t("my_petitions.empty_state.create_advice")}
             </Text>
             {!searchText && (
                 <TouchableOpacity
@@ -215,7 +244,7 @@ const MyPetitionsPage = () => {
                     onPress={() => router.push("/pages/add-petition")}
                 >
                     <Text className="text-white font-mmedium">
-                        Create Petition
+                        {t("my_petitions.create_button")}
                     </Text>
                 </TouchableOpacity>
             )}
@@ -232,265 +261,373 @@ const MyPetitionsPage = () => {
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text
-                    className="text-2xl font-mbold text-black"
-                    numberOfLines={2}
-                    adjustsFontSizeToFit
-                >
-                    My Petitions
-                </Text>
-                <View className="flex-1 items-end">
-                    <TouchableOpacity
-                        onPress={() => router.push("/pages/add-petition")}
+                <View className="flex-1">
+                    <Text
+                        className="text-2xl font-mbold text-black"
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.6}
                     >
-                        <MaterialIcons name="add" size={24} color="#006FFD" />
-                    </TouchableOpacity>
+                        {t("my_petitions.title")}
+                    </Text>
                 </View>
+                <TouchableOpacity
+                    onPress={() => router.push("/pages/add-petition")}
+                    className="ml-4"
+                >
+                    <MaterialIcons name="add" size={24} color="#006FFD" />
+                </TouchableOpacity>
             </View>
 
-            <View className="flex-1 px-4 mt-4">
-                {/* Search Bar */}
-                <View className="bg-ghostwhite rounded-3xl flex-row items-center px-3 mb-4 border border-gray-200">
-                    <View className="flex-row items-center">
+            <FilterContext.Provider
+                value={{ showFilterModal, setShowFilterModal }}
+            >
+                <View className="flex-1 px-4 mt-4">
+                    {/* Search Bar */}
+                    <View className="bg-ghostwhite rounded-3xl flex-row items-center px-3 p-1 mb-4 border border-gray-200">
                         <MaterialIcons
+                            style={{ marginLeft: 4 }}
                             name="search"
-                            size={20}
+                            size={24}
                             color="#9CA3AF"
                         />
                         <TextInput
                             className="flex-1 py-2 px-2 font-mregular"
-                            placeholder="Search petitions"
+                            placeholder={t("my_petitions.search_placeholder")}
                             value={searchText}
                             onChangeText={setSearchText}
                         />
-                        {searchText ? (
+                        {searchText && (
                             <TouchableOpacity onPress={() => setSearchText("")}>
                                 <MaterialIcons
                                     name="close"
-                                    size={20}
+                                    size={24}
                                     color="#9CA3AF"
                                 />
                             </TouchableOpacity>
-                        ) : null}
+                        )}
+                        <TouchableOpacity
+                            className="mx-2"
+                            onPress={() => setShowFilterModal(true)}
+                            accessibilityRole="button"
+                            accessibilityLabel={
+                                selectedStatuses.length > 0
+                                    ? `${t(
+                                          "my_petitions.filter_modal.title"
+                                      )} ${t(
+                                          "my_petitions.filter_modal.active"
+                                      )}`
+                                    : t("my_petitions.filter_modal.title")
+                            }
+                        >
+                            <MaterialIcons
+                                name="filter-list"
+                                size={24}
+                                color={
+                                    selectedStatuses.length > 0
+                                        ? "#006FFD"
+                                        : "#9CA3AF"
+                                }
+                            />
+                        </TouchableOpacity>
                     </View>
-                </View>
 
-                {/* Status Filter */}
-                <View className="mb-4">
+                    {/* Petition List */}
                     <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{
-                            alignItems: "center",
-                            height: 40,
-                        }}
+                        showsVerticalScrollIndicator={false}
+                        className="flex-1"
                     >
-                        {statusFilters.map((status) => (
-                            <TouchableOpacity
-                                key={status}
-                                className={`mr-2 px-4 h-10 rounded-full flex items-center justify-center ${
-                                    activeStatus === status
-                                        ? "bg-primary"
-                                        : "bg-white border border-gray-300"
-                                }`}
-                                onPress={() => setActiveStatus(status)}
-                            >
-                                <Text
-                                    className={`font-mmedium ${
-                                        activeStatus === status
-                                            ? "text-white"
-                                            : "text-gray-700"
-                                    }`}
+                        {filteredPetitions.length === 0 ? (
+                            <EmptyStateMessage />
+                        ) : (
+                            filteredPetitions.map((petition) => (
+                                <View
+                                    key={petition.id}
+                                    className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden"
                                 >
-                                    {status}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
-
-                {/* Petition List */}
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    className="flex-1"
-                >
-                    {filteredPetitions.length === 0 ? (
-                        <EmptyStateMessage />
-                    ) : (
-                        filteredPetitions.map((petition) => (
-                            <View
-                                key={petition.id}
-                                className="bg-white rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden"
-                            >
-                                <View className="p-4">
-                                    <View className="flex-row justify-between items-start mb-2">
-                                        <Text className="font-mmedium text-lg text-gray-900 flex-1 mr-2">
-                                            {petition.title}
-                                        </Text>
-                                        <View
-                                            className={`px-2 py-1 rounded-full flex-row items-center ${
-                                                statusColors[petition.status].bg
-                                            }`}
-                                        >
-                                            <MaterialIcons
-                                                name={
+                                    <View className="p-4">
+                                        <View className="flex-row justify-between items-start mb-2">
+                                            <Text className="font-mmedium text-lg text-gray-900 flex-1 mr-2">
+                                                {petition.title}
+                                            </Text>
+                                            <View
+                                                className={`px-2 py-1 rounded-full flex-row items-center ${
                                                     statusColors[
                                                         petition.status
-                                                    ].icon
-                                                }
-                                                size={16}
-                                                color={
-                                                    statusColors[
-                                                        petition.status
-                                                    ].iconColor
-                                                }
-                                            />
-                                            <Text
-                                                className={`ml-1 text-xs font-mmedium ${
-                                                    statusColors[
-                                                        petition.status
-                                                    ].text
+                                                    ].bg
                                                 }`}
                                             >
-                                                {petition.status}
-                                            </Text>
-                                        </View>
-                                    </View>
-
-                                    <Text className="text-gray-500 text-sm mb-3 font-mmedium">
-                                        Created: {petition.createdDate}
-                                    </Text>
-
-                                    {/* Supporter count and progress for published/completed petitions */}
-                                    {(petition.status === "Published" ||
-                                        petition.status === "Approved" ||
-                                        petition.status === "Completed") && (
-                                        <View className="mb-3">
-                                            <View className="flex-row items-center justify-between mb-1">
-                                                <View className="flex-row items-center">
-                                                    <MaterialIcons
-                                                        name="people"
-                                                        size={18}
-                                                        color="#006FFD"
-                                                    />
-                                                    <Text className="ml-1 text-primary font-mmedium">
-                                                        {petition.supporters}{" "}
-                                                        supporters
-                                                    </Text>
-                                                </View>
-                                                <Text className="text-gray-500 font-mregular">
-                                                    Target:{" "}
-                                                    {petition.targetSupporters}
-                                                </Text>
-                                            </View>
-                                            {/* Progress bar */}
-                                            <View className="h-2 bg-gray-200 rounded-full w-full mt-1">
-                                                <View
-                                                    className="h-2 bg-primary rounded-full"
-                                                    style={{
-                                                        width: `${Math.min(
-                                                            100,
-                                                            (petition.supporters /
-                                                                petition.targetSupporters) *
-                                                                100
-                                                        )}%`,
-                                                    }}
-                                                />
-                                            </View>
-                                        </View>
-                                    )}
-
-                                    {/* Rejection reason for rejected petitions */}
-                                    {petition.status === "Rejected" && (
-                                        <TouchableOpacity
-                                            className="mb-3"
-                                            onPress={() =>
-                                                handleViewRejectionReason(
-                                                    petition.rejectionReason
-                                                )
-                                            }
-                                        >
-                                            <View className="flex-row items-center">
                                                 <MaterialIcons
-                                                    name="info"
-                                                    size={18}
-                                                    color="#EF4444"
+                                                    name={
+                                                        statusColors[
+                                                            petition.status
+                                                        ].icon
+                                                    }
+                                                    size={16}
+                                                    color={
+                                                        statusColors[
+                                                            petition.status
+                                                        ].iconColor
+                                                    }
                                                 />
-                                                <Text className="ml-1 text-red-500 font-mmedium">
-                                                    View Rejection Reason
+                                                <Text
+                                                    className={`ml-1 text-xs font-mmedium ${
+                                                        statusColors[
+                                                            petition.status
+                                                        ].text
+                                                    }`}
+                                                >
+                                                    {t(
+                                                        `my_petitions.statuses.${
+                                                            translationKeyMapping[
+                                                                petition.status
+                                                            ]
+                                                        }`
+                                                    )}
                                                 </Text>
                                             </View>
-                                        </TouchableOpacity>
-                                    )}
+                                        </View>
 
-                                    {/* Action buttons */}
-                                    <View className="flex-row justify-between items-center">
-                                        <View className="flex-row">
-                                            {/* Edit button for draft and rejected */}
-                                            {canEdit(petition.status) && (
-                                                <TouchableOpacity
-                                                    className="mr-3"
-                                                    onPress={() =>
-                                                        handleEdit(petition.id)
-                                                    }
-                                                >
+                                        <Text className="text-gray-500 text-sm mb-3 font-mmedium">
+                                            {t("my_petitions.created_label")}:{" "}
+                                            {petition.createdDate}
+                                        </Text>
+
+                                        {(petition.status === "Published" ||
+                                            petition.status === "Approved" ||
+                                            petition.status ===
+                                                "Completed") && (
+                                            <View className="mb-3">
+                                                <View className="flex-row items-center justify-between mb-1">
                                                     <View className="flex-row items-center">
                                                         <MaterialIcons
-                                                            name="edit"
+                                                            name="people"
                                                             size={18}
                                                             color="#006FFD"
                                                         />
                                                         <Text className="ml-1 text-primary font-mmedium">
-                                                            Edit
+                                                            {
+                                                                petition.supporters
+                                                            }{" "}
+                                                            {t(
+                                                                "my_petitions.supporters_label"
+                                                            )}
                                                         </Text>
                                                     </View>
-                                                </TouchableOpacity>
-                                            )}
+                                                    <Text className="text-gray-500 font-mregular">
+                                                        {t(
+                                                            "my_petitions.target_label"
+                                                        )}
+                                                        :{" "}
+                                                        {
+                                                            petition.targetSupporters
+                                                        }
+                                                    </Text>
+                                                </View>
+                                                <View className="h-2 bg-gray-200 rounded-full w-full mt-1">
+                                                    <View
+                                                        className="h-2 bg-primary rounded-full"
+                                                        style={{
+                                                            width: `${Math.min(
+                                                                100,
+                                                                (petition.supporters /
+                                                                    petition.targetSupporters) *
+                                                                    100
+                                                            )}%`,
+                                                        }}
+                                                    />
+                                                </View>
+                                            </View>
+                                        )}
 
-                                            {/* Delete button for draft and rejected */}
-                                            {canDelete(petition.status) && (
-                                                <TouchableOpacity
-                                                    onPress={() =>
-                                                        handleDeleteConfirm(
-                                                            petition.id
-                                                        )
-                                                    }
-                                                >
-                                                    <View className="flex-row items-center">
-                                                        <MaterialIcons
-                                                            name="delete"
-                                                            size={18}
-                                                            color="#EF4444"
-                                                        />
-                                                        <Text className="ml-1 text-red-500 font-mmedium">
-                                                            Delete
-                                                        </Text>
-                                                    </View>
+                                        {petition.status === "Rejected" && (
+                                            <TouchableOpacity
+                                                className="mb-3"
+                                                onPress={() =>
+                                                    handleViewRejectionReason(
+                                                        petition.rejectionReason
+                                                    )
+                                                }
+                                            >
+                                                <View className="flex-row items-center">
+                                                    <MaterialIcons
+                                                        name="info"
+                                                        size={18}
+                                                        color="#EF4444"
+                                                    />
+                                                    <Text className="ml-1 text-red-500 font-mmedium">
+                                                        {t(
+                                                            "my_petitions.actions.view_rejection_reason"
+                                                        )}
+                                                    </Text>
+                                                </View>
+                                            </TouchableOpacity>
+                                        )}
+
+                                        <View className="flex-row justify-between items-center">
+                                            <View className="flex-row">
+                                                {canEdit(petition.status) && (
+                                                    <TouchableOpacity
+                                                        className="mr-3"
+                                                        onPress={() =>
+                                                            handleEdit(
+                                                                petition.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <View className="flex-row items-center">
+                                                            <MaterialIcons
+                                                                name="edit"
+                                                                size={18}
+                                                                color="#006FFD"
+                                                            />
+                                                            <Text className="ml-1 text-primary font-mmedium">
+                                                                {t(
+                                                                    "my_petitions.actions.edit"
+                                                                )}
+                                                            </Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                )}
+
+                                                {canDelete(petition.status) && (
+                                                    <TouchableOpacity
+                                                        onPress={() =>
+                                                            handleDeleteConfirm(
+                                                                petition.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <View className="flex-row items-center">
+                                                            <MaterialIcons
+                                                                name="delete"
+                                                                size={18}
+                                                                color="#EF4444"
+                                                            />
+                                                            <Text className="ml-1 text-red-500 font-mmedium">
+                                                                {t(
+                                                                    "my_petitions.actions.delete"
+                                                                )}
+                                                            </Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                )}
+                                            </View>
+
+                                            {petition.status !== "Draft" && (
+                                                <TouchableOpacity className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300">
+                                                    <Text className="text-gray-700 font-mmedium">
+                                                        {t(
+                                                            "my_petitions.actions.view_details"
+                                                        )}
+                                                    </Text>
                                                 </TouchableOpacity>
                                             )}
                                         </View>
-
-                                        {/* View details button */}
-                                        <TouchableOpacity className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300">
-                                            <Text className="text-gray-700 font-mmedium">
-                                                View Details
-                                            </Text>
-                                        </TouchableOpacity>
                                     </View>
                                 </View>
+                            ))
+                        )}
+                    </ScrollView>
+                </View>
+
+                {/* Filter Modal */}
+                <Modal
+                    transparent={true}
+                    visible={showFilterModal}
+                    animationType="fade"
+                    onRequestClose={() => setShowFilterModal(false)}
+                >
+                    <TouchableOpacity
+                        style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                        activeOpacity={1}
+                        onPress={() => setShowFilterModal(false)}
+                    >
+                        <View className="flex-1 justify-end">
+                            <View className="bg-white rounded-t-xl p-5 h-1/2">
+                                <View className="flex-row justify-between items-center mb-4">
+                                    <Text className="text-lg font-mbold">
+                                        {t("my_petitions.filter_modal.title")}
+                                    </Text>
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            setShowFilterModal(false)
+                                        }
+                                    >
+                                        <MaterialIcons
+                                            name="close"
+                                            size={24}
+                                            color="#374151"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* Status Filter */}
+                                <View className="mb-6">
+                                    <Text className="text-base font-mmedium mb-2">
+                                        {t("my_petitions.filter_modal.status")}
+                                    </Text>
+                                    <View className="flex-row flex-wrap">
+                                        {statusFilters.map((status) => (
+                                            <TouchableOpacity
+                                                key={status}
+                                                className={`mr-2 mb-2 px-4 h-10 rounded-full flex items-center justify-center ${
+                                                    selectedStatuses.includes(
+                                                        status
+                                                    )
+                                                        ? "bg-primary"
+                                                        : "bg-white border border-gray-300"
+                                                }`}
+                                                onPress={() =>
+                                                    toggleStatus(status)
+                                                }
+                                            >
+                                                <Text
+                                                    className={`font-mmedium ${
+                                                        selectedStatuses.includes(
+                                                            status
+                                                        )
+                                                            ? "text-white"
+                                                            : "text-gray-700"
+                                                    }`}
+                                                >
+                                                    {t(
+                                                        `my_petitions.statuses.${translationKeyMapping[status]}`
+                                                    )}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </View>
+
+                                {/* Reset Button */}
+                                <View className="flex-row justify-end">
+                                    <TouchableOpacity
+                                        className="p-3 bg-gray-200 rounded-full"
+                                        onPress={resetFilters}
+                                    >
+                                        <Text className="text-center text-gray-700 font-mmedium">
+                                            {t(
+                                                "my_petitions.filter_modal.reset"
+                                            )}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        ))
-                    )}
-                </ScrollView>
-            </View>
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
+            </FilterContext.Provider>
 
             {/* Delete Confirmation Alert */}
             <CustomAlertTwoButtons
                 visible={deleteAlert.visible}
-                title="Delete Petition"
-                message="Are you sure you want to delete this petition? This action cannot be undone."
-                primaryButtonText="Delete"
-                secondaryButtonText="Cancel"
+                title={t("my_petitions.delete_modal.title")}
+                message={t("my_petitions.delete_modal.message")}
+                primaryButtonText={t("my_petitions.delete_modal.delete_button")}
+                secondaryButtonText={t(
+                    "my_petitions.delete_modal.cancel_button"
+                )}
                 onPrimaryButtonPress={handleDelete}
                 onSecondaryButtonPress={() =>
                     setDeleteAlert({ visible: false, petitionId: null })
@@ -516,7 +653,7 @@ const MyPetitionsPage = () => {
                     <View className="flex-1 justify-center items-center">
                         <View className="bg-white rounded-xl p-5 mx-5 w-4/5 shadow-lg">
                             <Text className="text-lg font-mbold mb-2">
-                                Rejection Reason
+                                {t("my_petitions.rejection_reason_modal.title")}
                             </Text>
                             <Text className="text-gray-600 mb-4">
                                 {showRejectionReason}
@@ -526,7 +663,9 @@ const MyPetitionsPage = () => {
                                 onPress={() => setShowRejectionReason(null)}
                             >
                                 <Text className="text-white font-mmedium">
-                                    Close
+                                    {t(
+                                        "my_petitions.rejection_reason_modal.close_button"
+                                    )}
                                 </Text>
                             </TouchableOpacity>
                         </View>

@@ -16,6 +16,7 @@ import CustomAlert from "../../../components/CustomAlertTwoButtons";
 import * as ImagePicker from "expo-image-picker";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import auth from "@react-native-firebase/auth";
+import { useTranslation } from "react-i18next";
 
 const ProfileLayout = () => {
     const router = useRouter();
@@ -25,13 +26,12 @@ const ProfileLayout = () => {
     const [uploadingImage, setUploadingImage] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(user?.photoURL || null);
     const storage = getStorage();
+    const { t } = useTranslation();
 
     // Извлекаем текущую вкладку из пути
     const getCurrentTab = () => {
         const path = pathname.split("/").pop();
-        return path === "profile"
-            ? "Account"
-            : path.charAt(0).toUpperCase() + path.slice(1);
+        return path === "profile" ? "account" : path; // Возвращаем id вкладки
     };
     const activeTab = getCurrentTab();
 
@@ -61,8 +61,8 @@ const ProfileLayout = () => {
             if (status !== "granted") {
                 Toast.show({
                     type: "error",
-                    text1: "Error",
-                    text2: "Необходимо разрешение на доступ к галерее для смены аватара.",
+                    text1: t("profile_layout.toast.error_title"),
+                    text2: t("profile_layout.toast.gallery_permission_error"),
                 });
                 return;
             }
@@ -82,8 +82,8 @@ const ProfileLayout = () => {
             console.error("Error picking image:", error);
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Произошла ошибка при выборе изображения.",
+                text1: t("profile_layout.toast.error_title"),
+                text2: t("profile_layout.toast.image_selection_error"),
             });
         }
     };
@@ -93,8 +93,8 @@ const ProfileLayout = () => {
         if (!user || !user.uid) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Вы должны быть авторизованы для смены аватара.",
+                text1: t("profile_layout.toast.error_title"),
+                text2: t("profile_layout.toast.auth_error"),
             });
             return;
         }
@@ -128,8 +128,8 @@ const ProfileLayout = () => {
             console.error("Error uploading avatar:", error);
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Произошла ошибка при загрузке аватара.",
+                text1: t("profile_layout.toast.error_title"),
+                text2: t("profile_layout.toast.upload_error"),
             });
         } finally {
             setUploadingImage(false);
@@ -175,7 +175,9 @@ const ProfileLayout = () => {
             <View className="px-4 pt-4 flex-1">
                 {/* Header */}
                 <View className="flex-row justify-between items-center mb-4">
-                    <Text className="text-2xl font-mbold">Profile</Text>
+                    <Text className="text-2xl font-mbold">
+                        {t("profile_layout.title")}
+                    </Text>
                     <TouchableOpacity onPress={handleSignOut}>
                         <MaterialIcons name="logout" size={24} color="red" />
                     </TouchableOpacity>
@@ -186,24 +188,33 @@ const ProfileLayout = () => {
 
                 {/* Tab Navigation */}
                 <View className="flex-row justify-between mb-4 bg-white rounded-full">
-                    {["Account", "Settings"].map((tab) => (
+                    {[
+                        {
+                            id: "account",
+                            label: t("profile_layout.tabs.account"),
+                        },
+                        {
+                            id: "settings",
+                            label: t("profile_layout.tabs.settings"),
+                        },
+                    ].map((tab) => (
                         <TouchableOpacity
-                            key={tab}
-                            onPress={() => navigateToTab(tab)}
+                            key={tab.id}
+                            onPress={() => navigateToTab(tab.id)}
                             className={`flex-1 py-2 rounded-full ${
-                                activeTab === tab
+                                activeTab === tab.id
                                     ? "bg-primary"
                                     : "bg-transparent"
                             }`}
                         >
                             <Text
                                 className={`text-center font-mmedium ${
-                                    activeTab === tab
+                                    activeTab === tab.id
                                         ? "text-white"
                                         : "text-gray-600"
                                 }`}
                             >
-                                {tab}
+                                {tab.label}
                             </Text>
                         </TouchableOpacity>
                     ))}
@@ -215,10 +226,14 @@ const ProfileLayout = () => {
                 {/* Custom Alert */}
                 <CustomAlert
                     visible={alertVisible}
-                    title="Log out"
-                    message="Are you sure you want to log out? You'll need to login again to use the app."
-                    primaryButtonText="Log out"
-                    secondaryButtonText="Cancel"
+                    title={t("profile_layout.logout_alert.title")}
+                    message={t("profile_layout.logout_alert.message")}
+                    primaryButtonText={t(
+                        "profile_layout.logout_alert.primary_button"
+                    )}
+                    secondaryButtonText={t(
+                        "profile_layout.logout_alert.secondary_button"
+                    )}
                     onPrimaryButtonPress={confirmSignOut}
                     onSecondaryButtonPress={() => setAlertVisible(false)}
                     onClose={() => setAlertVisible(false)}

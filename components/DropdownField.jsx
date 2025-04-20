@@ -8,6 +8,7 @@ import {
     TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const DropdownField = ({
     title,
@@ -17,6 +18,7 @@ const DropdownField = ({
     onSelect,
     containerStyle,
 }) => {
+    const { t } = useTranslation();
     const [modalVisible, setModalVisible] = useState(false);
     const [searchText, setSearchText] = useState("");
 
@@ -51,7 +53,9 @@ const DropdownField = ({
                 <View className="flex-1 justify-end bg-black/50">
                     <View className="bg-white rounded-t-2xl pb-8 pt-4 h-1/2">
                         <View className="flex-row justify-between items-center px-4 mb-4">
-                            <Text className="text-xl font-mbold">{`Select ${title}`}</Text>
+                            <Text className="text-xl font-mbold">
+                                {t("dropdown_field.modal_title", { title })}
+                            </Text>
                             <TouchableOpacity
                                 onPress={() => setModalVisible(false)}
                             >
@@ -73,7 +77,9 @@ const DropdownField = ({
                                         style={{ marginRight: 8 }}
                                     />
                                     <TextInput
-                                        placeholder="Search..."
+                                        placeholder={t(
+                                            "dropdown_field.search_placeholder"
+                                        )}
                                         value={searchText}
                                         onChangeText={setSearchText}
                                         className="flex-1 font-mregular"
@@ -114,10 +120,12 @@ const DropdownField = ({
                         ) : (
                             <View className="flex-1 justify-center items-center px-4">
                                 <Text className="text-gray-500 text-center font-mmedium text-lg mb-1">
-                                    No results found
+                                    {t("dropdown_field.empty_state.no_results")}
                                 </Text>
                                 <Text className="text-gray-400 text-center font-mregular">
-                                    Try different search terms
+                                    {t(
+                                        "dropdown_field.empty_state.search_advice"
+                                    )}
                                 </Text>
                             </View>
                         )}

@@ -14,7 +14,6 @@ const newsData = [
         title: "City park renovation starts next month",
         image: "https://picsum.photos/300/100",
     },
-    // ... other news items (same as in the original file)
 ];
 
 const NewsTab = () => {

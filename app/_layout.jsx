@@ -1,4 +1,5 @@
 globalThis.RNFB_SILENCE_MODULAR_DEPRECATION_WARNINGS = true; // Отключение предупреждений о переходе Firebase на SDK v22
+import "@/i18n";
 import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";

@@ -1,0 +1,449 @@
+{
+    "home_layout": {
+        "app_title": "Active Citizen",
+        "tabs": {
+            "news": "News",
+            "events": "Events",
+            "surveys": "Surveys",
+            "petitions": "Petitions"
+        },
+        "search_placeholder": "Search {{item}}..."
+    },
+    "language_selector": {
+        "select_language": "Select language",
+        "languages": {
+            "english": "English",
+            "russian": "Russian",
+            "kazakh": "Kazakh"
+        }
+    },
+    "tabs_layout": {
+        "request": "Request",
+        "home": "Home",
+        "profile": "Profile"
+    },
+    "profile_layout": {
+        "title": "Profile",
+        "tabs": {
+            "account": "Account",
+            "settings": "Settings"
+        },
+        "logout_alert": {
+            "title": "Log out",
+            "message": "Are you sure you want to log out? You'll need to login again to use the app.",
+            "primary_button": "Log out",
+            "secondary_button": "Cancel"
+        },
+        "toast": {
+            "error_title": "Error",
+            "gallery_permission_error": "Permission to access the gallery is required to change the avatar.",
+            "image_selection_error": "An error occurred while selecting the image.",
+            "auth_error": "You must be authorized to change the avatar.",
+            "upload_error": "An error occurred while uploading the avatar."
+        }
+    },
+    "account": {
+        "settings": {
+            "edit_profile": "Edit Profile",
+            "privacy_settings": "Privacy Settings",
+            "delete_account": "Delete account"
+        },
+        "delete_alert": {
+            "title": "Delete Account",
+            "message": "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+            "primary_button": "Delete",
+            "secondary_button": "Cancel"
+        },
+        "toast": {
+            "success_title": "Success",
+            "success_message": "Your account has been deleted successfully.",
+            "error_title": "Error",
+            "error_message": "Failed to delete account. Please try again."
+        }
+    },
+    "settings": {
+        "notification_preferences": "Notification Preferences",
+        "language": "Language",
+        "select_language": "Select language",
+        "languages": {
+            "english": "English",
+            "russian": "Russian",
+            "kazakh": "Kazakh"
+        }
+    },
+    "request_layout": {
+        "title": "Requests",
+        "tabs": {
+            "send_request": "Send Request",
+            "my_requests": "My Requests"
+        },
+        "search_placeholder": "Search requests"
+    },
+    "send_request": {
+        "fields": {
+            "title": "Title",
+            "description": "Description",
+            "category": "Category",
+            "contact": "Contact"
+        },
+        "categories": {
+            "lighting": "Lighting",
+            "trash": "Trash",
+            "roads": "Roads",
+            "green_zones": "Green Zones",
+            "other": "Other"
+        },
+        "data_processing_agreement": "I agree to the processing of my data",
+        "buttons": {
+            "save_as_draft": "Save as Draft",
+            "submit": "Submit",
+            "update": "Update"
+        },
+        "toast": {
+            "error": {
+                "title": "Error",
+                "missing_title": "Please enter a title",
+                "missing_description": "Please enter a description",
+                "missing_category": "Please select a category",
+                "missing_contact": "Please enter contact information",
+                "missing_data_agreement": "You must agree to data processing"
+            },
+            "success": {
+                "title": "Success",
+                "saved_as_draft": "Request saved as draft",
+                "submitted": "Request submitted successfully",
+                "draft_updated": "Draft updated successfully",
+                "updated": "Request updated successfully"
+            }
+        }
+    },
+    "my_requests": {
+        "statuses": {
+            "all": "All",
+            "draft": "Draft",
+            "in_progress": "In progress",
+            "rejected": "Rejected",
+            "completed": "Completed"
+        },
+        "created_label": "Created",
+        "actions": {
+            "view_rejection_reason": "View Rejection Reason",
+            "edit": "Edit",
+            "delete": "Delete",
+            "view_details": "View Details"
+        },
+        "empty_state": {
+            "no_requests": "No requests found",
+            "search_advice": "Try adjusting your search terms",
+            "filter_advice": "Try a different filter"
+        },
+        "rejection_reason_modal": {
+            "title": "Rejection Reason",
+            "close_button": "Close"
+        },
+        "delete_modal": {
+            "title": "Delete Request",
+            "message": "Are you sure you want to delete this request? This action cannot be undone.",
+            "cancel_button": "Cancel",
+            "delete_button": "Delete",
+            "deleting": "Deleting..."
+        },
+        "filter_modal": {
+            "title": "Filter Requests",
+            "status": "Status",
+            "reset": "Reset"
+          }
+    },
+    "my_surveys": {
+        "title": "My Surveys",
+        "search_placeholder": "Search surveys",
+        "create_button": "Create Survey",
+        "votes_label": "votes",
+        "statuses": {
+            "all": "All",
+            "draft": "Draft",
+            "under_moderation": "Under Moderation",
+            "approved": "Approved",
+            "rejected": "Rejected",
+            "published": "Published",
+            "completed": "Completed"
+        },
+        "created_label": "Created",
+        "actions": {
+            "view_rejection_reason": "View Rejection Reason",
+            "edit": "Edit",
+            "delete": "Delete",
+            "view_details": "View Details"
+        },
+        "empty_state": {
+            "no_surveys": "No surveys found",
+            "search_advice": "Try adjusting your search terms",
+            "create_advice": "Create your first survey"
+        },
+        "rejection_reason_modal": {
+            "title": "Rejection Reason",
+            "close_button": "Close"
+        },
+        "delete_modal": {
+            "title": "Delete Survey",
+            "message": "Are you sure you want to delete this survey? This action cannot be undone.",
+            "cancel_button": "Cancel",
+            "delete_button": "Delete",
+            "deleting": "Deleting..."
+        },
+        "filter_modal": {
+            "title": "Filter Surveys",
+            "status": "Status",
+            "reset": "Reset"
+          }
+    },
+    "my_petitions": {
+        "title": "My Petitions",
+        "search_placeholder": "Search petitions",
+        "create_button": "Create Petition",
+        "statuses": {
+            "all": "All",
+            "draft": "Draft",
+            "under_moderation": "Under Moderation",
+            "approved": "Approved",
+            "rejected": "Rejected",
+            "published": "Published",
+            "completed": "Completed"
+        },
+        "created_label": "Created",
+        "supporters_label": "supporters",
+        "target_label": "Target",
+        "actions": {
+            "view_rejection_reason": "View Rejection Reason",
+            "edit": "Edit",
+            "delete": "Delete",
+            "view_details": "View Details"
+        },
+        "empty_state": {
+            "no_petitions": "No petitions found",
+            "search_advice": "Try adjusting your search terms",
+            "create_advice": "Create your first petition"
+        },
+        "rejection_reason_modal": {
+            "title": "Rejection Reason",
+            "close_button": "Close"
+        },
+        "delete_modal": {
+            "title": "Delete Petition",
+            "message": "Are you sure you want to delete this petition? This action cannot be undone.",
+            "cancel_button": "Cancel",
+            "delete_button": "Delete",
+            "deleting": "Deleting..."
+        },
+        "filter_modal": {
+            "title": "Filter Surveys",
+            "status": "Status",
+            "reset": "Reset"
+          }
+    },
+    "edit_profile": {
+        "title": "Edit Your Profile",
+        "back_button": "Back",
+        "fields": {
+            "first_name": {
+                "label": "First Name",
+                "placeholder": "Enter your first name",
+                "required": "First Name is required"
+            },
+            "last_name": {
+                "label": "Last Name",
+                "placeholder": "Enter your last name",
+                "required": "Last Name is required"
+            },
+            "city": {
+                "label": "City",
+                "placeholder": "Select your city",
+                "required": "City is required",
+                "options": {
+                    "almaty": "Almaty",
+                    "astana": "Astana",
+                    "shymkent": "Shymkent",
+                    "karaganda": "Karaganda",
+                    "aktobe": "Aktobe",
+                    "taraz": "Taraz",
+                    "pavlodar": "Pavlodar",
+                    "ust_kamenogorsk": "Ust-Kamenogorsk",
+                    "semey": "Semey",
+                    "atyrau": "Atyrau",
+                    "kyzylorda": "Kyzylorda",
+                    "kostanay": "Kostanay",
+                    "uralsk": "Uralsk",
+                    "petropavlovsk": "Petropavlovsk",
+                    "aktau": "Aktau",
+                    "temirtau": "Temirtau",
+                    "turkestan": "Turkestan",
+                    "kokshetau": "Kokshetau",
+                    "taldykorgan": "Taldykorgan",
+                    "ekibastuz": "Ekibastuz",
+                    "zhezkazgan": "Zhezkazgan",
+                    "balkhash": "Balkhash",
+                    "kentau": "Kentau",
+                    "rudny": "Rudny",
+                    "zhanaozen": "Zhanaozen"
+                }
+            },
+            "gender": {
+                "label": "Gender",
+                "placeholder": "Select your gender",
+                "required": "Gender is required",
+                "options": {
+                    "male": "Male",
+                    "female": "Female"
+                }
+            }
+        },
+        "buttons": {
+            "update": "Update Profile"
+        },
+        "toast": {
+            "error": {
+                "title": "Error",
+                "all_fields_required": "All fields are required",
+                "load_error": "Could not load profile data",
+                "update_error": "Could not update profile"
+            },
+            "success": {
+                "title": "Success",
+                "update_success": "Profile updated successfully!"
+            }
+        }
+    },
+    "dropdown_field": {
+        "modal_title": "Select {{title}}",
+        "search_placeholder": "Search...",
+        "empty_state": {
+            "no_results": "No results found",
+            "search_advice": "Try different search terms"
+        }
+    },
+    "add_survey": {
+        "title_create": "Create Survey",
+        "title_edit": "Edit Survey",
+        "back_button": "Back",
+        "fields": {
+            "title": {
+                "label": "Survey Title",
+                "placeholder": "Enter survey title",
+                "required": "Please enter a survey title"
+            },
+            "description": {
+                "label": "Description",
+                "placeholder": "Enter survey description",
+                "required": "Please enter a survey description"
+            },
+            "questions": {
+                "label": "Questions",
+                "question_label": "Question {{index}}",
+                "placeholder": "Enter question",
+                "required": "All questions must have text",
+                "min_questions": "You need at least one question in your survey"
+            },
+            "options": {
+                "label": "Options",
+                "placeholder": "Option {{index}}",
+                "required": "All options must have text",
+                "min_options": "Each question must have at least 2 options"
+            }
+        },
+        "question_types": {
+            "single_choice": "Single Choice",
+            "multiple_choice": "Multiple Choice"
+        },
+        "buttons": {
+            "add_question": "Add Question",
+            "add_option": "Add Option",
+            "save_draft": "Save as Draft",
+            "submit": "Submit for Moderation"
+        },
+        "toast": {
+            "error": {
+                "title": "Error",
+                "title_required": "Please enter a survey title",
+                "description_required": "Please enter a survey description",
+                "question_text_required": "All questions must have text",
+                "option_text_required": "All options must have text",
+                "min_options": "Each question must have at least 2 options",
+                "min_questions": "You need at least one question in your survey"
+            },
+            "success": {
+                "title": "Success",
+                "submitted": "Survey submitted for moderation",
+                "updated": "Survey updated successfully"
+            }
+        }
+    },
+    "add_petition": {
+        "title_create": "Create Petition",
+        "title_edit": "Edit Petition",
+        "back_button": "Back",
+        "fields": {
+            "title": {
+                "label": "Petition Title",
+                "placeholder": "Enter a clear, descriptive title",
+                "required": "Please enter a petition title"
+            },
+            "description": {
+                "label": "Brief Description",
+                "placeholder": "Provide a short summary of your petition",
+                "required": "Please enter a petition description"
+            },
+            "problem": {
+                "label": "Problem Statement",
+                "placeholder": "Describe the issue or problem that needs to be addressed",
+                "required": "Please describe the problem your petition addresses"
+            },
+            "solution": {
+                "label": "Proposed Solution",
+                "placeholder": "What changes or actions do you propose to resolve the problem",
+                "required": "Please describe your proposed solution"
+            },
+            "target_supporters": {
+                "label": "Target Number of Supporters",
+                "placeholder": "Enter target number (e.g., 1000)",
+                "required": "Please enter a valid target number of supporters"
+            },
+            "categories": {
+                "label": "Categories",
+                "instruction": "Select at least one category that best describes your petition",
+                "required": "Please select at least one category",
+                "options": {
+                    "environment": "Environment",
+                    "transportation": "Transportation",
+                    "healthcare": "Healthcare",
+                    "education": "Education",
+                    "housing": "Housing",
+                    "public_safety": "Public Safety",
+                    "arts_culture": "Arts & Culture",
+                    "parks_recreation": "Parks & Recreation",
+                    "community_development": "Community Development",
+                    "other": "Other"
+                }
+            }
+        },
+        "buttons": {
+            "save_draft": "Save as Draft",
+            "submit": "Submit for Moderation"
+        },
+        "toast": {
+            "error": {
+                "title": "Error",
+                "title_required": "Please enter a petition title",
+                "description_required": "Please enter a petition description",
+                "problem_required": "Please describe the problem your petition addresses",
+                "solution_required": "Please describe your proposed solution",
+                "target_supporters_required": "Please enter a valid target number of supporters",
+                "categories_required": "Please select at least one category"
+            },
+            "success": {
+                "title": "Success",
+                "submitted": "Petition submitted for moderation",
+                "updated": "Petition updated successfully"
+            }
+        }
+    }
+}

@@ -12,8 +12,10 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
+import { useTranslation } from "react-i18next";
 
 const AddPetitionPage = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const params = useLocalSearchParams();
     const [title, setTitle] = useState("");
@@ -26,17 +28,20 @@ const AddPetitionPage = () => {
 
     // Available categories
     const availableCategories = [
-        "Environment",
-        "Transportation",
-        "Healthcare",
-        "Education",
-        "Housing",
-        "Public Safety",
-        "Arts & Culture",
-        "Parks & Recreation",
-        "Community Development",
-        "Other",
-    ];
+        "environment",
+        "transportation",
+        "healthcare",
+        "education",
+        "housing",
+        "public_safety",
+        "arts_culture",
+        "parks_recreation",
+        "community_development",
+        "other",
+    ].map((categoryKey) => ({
+        key: categoryKey,
+        label: t(`add_petition.fields.categories.options.${categoryKey}`),
+    }));
 
     // Sample petition data for editing (in a real app, this would come from an API/database)
     const petitionSample = {
@@ -50,9 +55,9 @@ const AddPetitionPage = () => {
         targetSupporters: 700,
         isPublicByDefault: true,
         categories: [
-            "Transportation",
-            "Public Safety",
-            "Community Development",
+            "transportation",
+            "public_safety",
+            "community_development",
         ],
     };
 
@@ -69,11 +74,11 @@ const AddPetitionPage = () => {
         }
     }, [params.petitionId]);
 
-    const toggleCategory = (category) => {
-        if (categories.includes(category)) {
-            setCategories(categories.filter((c) => c !== category));
+    const toggleCategory = (categoryKey) => {
+        if (categories.includes(categoryKey)) {
+            setCategories(categories.filter((c) => c !== categoryKey));
         } else {
-            setCategories([...categories, category]);
+            setCategories([...categories, categoryKey]);
         }
     };
 
@@ -81,8 +86,8 @@ const AddPetitionPage = () => {
         if (!title.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter a petition title",
+                text1: t("add_petition.toast.error.title"),
+                text2: t("add_petition.toast.error.title_required"),
             });
             return false;
         }
@@ -90,8 +95,8 @@ const AddPetitionPage = () => {
         if (!description.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter a petition description",
+                text1: t("add_petition.toast.error.title"),
+                text2: t("add_petition.toast.error.description_required"),
             });
             return false;
         }
@@ -99,8 +104,8 @@ const AddPetitionPage = () => {
         if (!problem.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please describe the problem your petition addresses",
+                text1: t("add_petition.toast.error.title"),
+                text2: t("add_petition.toast.error.problem_required"),
             });
             return false;
         }
@@ -108,8 +113,8 @@ const AddPetitionPage = () => {
         if (!solution.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please describe your proposed solution",
+                text1: t("add_petition.toast.error.title"),
+                text2: t("add_petition.toast.error.solution_required"),
             });
             return false;
         }
@@ -121,8 +126,8 @@ const AddPetitionPage = () => {
         ) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter a valid target number of supporters",
+                text1: t("add_petition.toast.error.title"),
+                text2: t("add_petition.toast.error.target_supporters_required"),
             });
             return false;
         }
@@ -130,8 +135,8 @@ const AddPetitionPage = () => {
         if (categories.length === 0) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please select at least one category",
+                text1: t("add_petition.toast.error.title"),
+                text2: t("add_petition.toast.error.categories_required"),
             });
             return false;
         }
@@ -148,7 +153,6 @@ const AddPetitionPage = () => {
             problem,
             solution,
             targetSupporters,
-            isPublicByDefault,
             categories,
             asDraft,
             isEditing,
@@ -156,10 +160,10 @@ const AddPetitionPage = () => {
 
         Toast.show({
             type: "success",
-            text1: "Success",
+            text1: t("add_petition.toast.success.title"),
             text2: isEditing
-                ? "Petition updated successfully"
-                : "Petition submitted for moderation",
+                ? t("add_petition.toast.success.updated")
+                : t("add_petition.toast.success.submitted"),
         });
 
         router.push("/pages/my-petitions");
@@ -172,6 +176,7 @@ const AddPetitionPage = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
+                    accessibilityLabel={t("add_petition.back_button")}
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
@@ -180,7 +185,9 @@ const AddPetitionPage = () => {
                     numberOfLines={2}
                     adjustsFontSizeToFit
                 >
-                    {isEditing ? "Edit Petition" : "Create Petition"}
+                    {isEditing
+                        ? t("add_petition.title_edit")
+                        : t("add_petition.title_create")}
                 </Text>
             </View>
 
@@ -191,11 +198,11 @@ const AddPetitionPage = () => {
                 {/* Petition Title */}
                 <View className="mb-4 mt-4">
                     <Text className="font-msemibold text-black mb-2">
-                        Petition Title
+                        {t("add_petition.fields.title.label")}
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
-                        placeholder="Enter a clear, descriptive title"
+                        placeholder={t("add_petition.fields.title.placeholder")}
                         value={title}
                         onChangeText={setTitle}
                     />
@@ -204,11 +211,13 @@ const AddPetitionPage = () => {
                 {/* Petition Description */}
                 <View className="mb-4">
                     <Text className="font-msemibold text-black mb-2">
-                        Brief Description
+                        {t("add_petition.fields.description.label")}
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
-                        placeholder="Provide a short summary of your petition"
+                        placeholder={t(
+                            "add_petition.fields.description.placeholder"
+                        )}
                         value={description}
                         onChangeText={setDescription}
                         multiline
@@ -220,11 +229,13 @@ const AddPetitionPage = () => {
                 {/* Problem Statement */}
                 <View className="mb-4">
                     <Text className="font-msemibold text-black mb-2">
-                        Problem Statement
+                        {t("add_petition.fields.problem.label")}
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
-                        placeholder="Describe the issue or problem that needs to be addressed"
+                        placeholder={t(
+                            "add_petition.fields.problem.placeholder"
+                        )}
                         value={problem}
                         onChangeText={setProblem}
                         multiline
@@ -236,11 +247,13 @@ const AddPetitionPage = () => {
                 {/* Proposed Solution */}
                 <View className="mb-4">
                     <Text className="font-msemibold text-black mb-2">
-                        Proposed Solution
+                        {t("add_petition.fields.solution.label")}
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
-                        placeholder="What changes or actions do you propose to resolve the problem"
+                        placeholder={t(
+                            "add_petition.fields.solution.placeholder"
+                        )}
                         value={solution}
                         onChangeText={setSolution}
                         multiline
@@ -252,11 +265,13 @@ const AddPetitionPage = () => {
                 {/* Target Supporters */}
                 <View className="mb-4">
                     <Text className="font-msemibold text-black mb-2">
-                        Target Number of Supporters
+                        {t("add_petition.fields.target_supporters.label")}
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
-                        placeholder="Enter target number (e.g., 1000)"
+                        placeholder={t(
+                            "add_petition.fields.target_supporters.placeholder"
+                        )}
                         value={targetSupporters}
                         onChangeText={setTargetSupporters}
                         keyboardType="numeric"
@@ -265,32 +280,31 @@ const AddPetitionPage = () => {
 
                 {/* Categories Section */}
                 <Text className="font-mbold text-lg text-gray-800 mb-3">
-                    Categories
+                    {t("add_petition.fields.categories.label")}
                 </Text>
                 <Text className="text-gray-600 text-sm mb-3">
-                    Select at least one category that best describes your
-                    petition
+                    {t("add_petition.fields.categories.instruction")}
                 </Text>
 
                 <View className="flex-row flex-wrap mb-4">
-                    {availableCategories.map((category) => (
+                    {availableCategories.map(({ key, label }) => (
                         <TouchableOpacity
-                            key={category}
+                            key={key}
                             className={`mr-2 mb-2 px-3 py-1 rounded-full ${
-                                categories.includes(category)
+                                categories.includes(key)
                                     ? "bg-primary"
                                     : "bg-gray-200"
                             }`}
-                            onPress={() => toggleCategory(category)}
+                            onPress={() => toggleCategory(key)}
                         >
                             <Text
                                 className={`${
-                                    categories.includes(category)
+                                    categories.includes(key)
                                         ? "text-white"
                                         : "text-gray-700"
                                 } font-mlight`}
                             >
-                                {category}
+                                {label}
                             </Text>
                         </TouchableOpacity>
                     ))}
@@ -303,7 +317,7 @@ const AddPetitionPage = () => {
                         onPress={() => savePetition(true)}
                     >
                         <Text className="font-mmedium text-gray-700 text-center">
-                            Save as Draft
+                            {t("add_petition.buttons.save_draft")}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -311,7 +325,7 @@ const AddPetitionPage = () => {
                         onPress={() => savePetition(false)}
                     >
                         <Text className="font-mmedium text-white text-center">
-                            Submit for Moderation
+                            {t("add_petition.buttons.submit")}
                         </Text>
                     </TouchableOpacity>
                 </View>

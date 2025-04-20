@@ -1,0 +1,449 @@
+{
+  "home_layout": {
+      "app_title": "Активный гражданин",
+      "tabs": {
+          "news": "Новости",
+          "events": "События",
+          "surveys": "Опросы",
+          "petitions": "Петиции"
+      },
+      "search_placeholder": "Поиск {{item}}..."
+  },
+  "language_selector": {
+    "select_language": "Выбрать язык",
+    "languages": {
+        "english": "Английский",
+        "russian": "Русский",
+        "kazakh": "Казахский"
+    }
+},
+  "tabs_layout": {
+      "request": "Заявка",
+      "home": "Домой",
+      "profile": "Профиль"
+  },
+  "profile_layout": {
+      "title": "Профиль",
+      "tabs": {
+          "account": "Аккаунт",
+          "settings": "Настройки"
+      },
+      "logout_alert": {
+          "title": "Выйти",
+          "message": "Вы уверены, что хотите выйти? Вам придется снова войти, чтобы использовать приложение.",
+          "primary_button": "Выйти",
+          "secondary_button": "Отмена"
+      },
+      "toast": {
+          "error_title": "Ошибка",
+          "gallery_permission_error": "Необходимо разрешение на доступ к галерее для смены аватара.",
+          "image_selection_error": "Произошла ошибка при выборе изображения.",
+          "auth_error": "Вы должны быть авторизованы для смены аватара.",
+          "upload_error": "Произошла ошибка при загрузке аватара."
+      }
+  },
+  "account": {
+      "settings": {
+          "edit_profile": "Редактировать профиль",
+          "privacy_settings": "Настройки конфиденциальности",
+          "delete_account": "Удалить аккаунт"
+      },
+      "delete_alert": {
+          "title": "Удалить аккаунт",
+          "message": "Вы уверены, что хотите удалить свой аккаунт? Это действие необратимо, и все ваши данные будут навсегда удалены.",
+          "primary_button": "Удалить",
+          "secondary_button": "Отмена"
+      },
+      "toast": {
+          "success_title": "Успех",
+          "success_message": "Ваш аккаунт успешно удален.",
+          "error_title": "Ошибка",
+          "error_message": "Не удалось удалить аккаунт. Пожалуйста, попробуйте снова."
+      }
+  },
+  "settings": {
+      "notification_preferences": "Настройки уведомлений",
+      "language": "Язык",
+      "select_language": "Выбрать язык",
+      "languages": {
+          "english": "Английский",
+          "russian": "Русский",
+          "kazakh": "Казахский"
+      }
+  },
+  "request_layout": {
+      "title": "Заявки",
+      "tabs": {
+          "send_request": "Отправить заявку",
+          "my_requests": "Мои заявки"
+      },
+      "search_placeholder": "Поиск заявок"
+  },
+  "send_request": {
+      "fields": {
+          "title": "Заголовок",
+          "description": "Описание",
+          "category": "Категория",
+          "contact": "Контакт"
+      },
+      "categories": {
+          "lighting": "Освещение",
+          "trash": "Мусор",
+          "roads": "Дороги",
+          "green_zones": "Зеленые зоны",
+          "other": "Прочее"
+      },
+      "data_processing_agreement": "Я согласен на обработку моих данных",
+      "buttons": {
+          "save_as_draft": "Сохранить как черновик",
+          "submit": "Отправить",
+          "update": "Обновить"
+      },
+      "toast": {
+          "error": {
+              "title": "Ошибка",
+              "missing_title": "Пожалуйста, введите заголовок",
+              "missing_description": "Пожалуйста, введите описание",
+              "missing_category": "Пожалуйста, выберите категорию",
+              "missing_contact": "Пожалуйста, введите контактную информацию",
+              "missing_data_agreement": "Вы должны согласиться на обработку данных"
+          },
+          "success": {
+              "title": "Успех",
+              "saved_as_draft": "Заявка сохранена как черновик",
+              "submitted": "Заявка успешно отправлена",
+              "draft_updated": "Черновик успешно обновлен",
+              "updated": "Заявка успешно обновлена"
+          }
+      }
+  },
+  "my_requests": {
+      "statuses": {
+          "all": "Все",
+          "draft": "Черновик",
+          "in_progress": "В процессе",
+          "rejected": "Отклонено",
+          "completed": "Завершено"
+      },
+      "created_label": "Создано",
+      "actions": {
+          "view_rejection_reason": "Посмотреть причину отказа",
+          "edit": "Редактировать",
+          "delete": "Удалить",
+          "view_details": "Посмотреть детали"
+      },
+      "empty_state": {
+          "no_requests": "Заявки не найдены",
+          "search_advice": "Попробуйте изменить поисковые термины",
+          "filter_advice": "Попробуйте другой фильтр"
+      },
+      "rejection_reason_modal": {
+          "title": "Причина отказа",
+          "close_button": "Закрыть"
+      },
+      "delete_modal": {
+          "title": "Удалить заявку",
+          "message": "Вы уверены, что хотите удалить эту заявку? Это действие необратимо.",
+          "cancel_button": "Отмена",
+          "delete_button": "Удалить",
+          "deleting": "Удаление..."
+      },
+      "filter_modal": {
+        "title": "Фильтр заявок",
+        "status": "Статус",
+        "reset": "Сбросить"
+      }
+  },
+  "my_surveys": {
+      "title": "Мои опросы",
+      "search_placeholder": "Поиск опросов",
+      "create_button": "Создать опрос",
+      "votes_label": "голосов",
+      "statuses": {
+          "all": "Все",
+          "draft": "Черновик",
+          "under_moderation": "На модерации",
+          "approved": "Одобрено",
+          "rejected": "Отклонено",
+          "published": "Опубликовано",
+          "completed": "Завершено"
+      },
+      "created_label": "Создано",
+      "actions": {
+          "view_rejection_reason": "Посмотреть причину отказа",
+          "edit": "Редактировать",
+          "delete": "Удалить",
+          "view_details": "Посмотреть детали"
+      },
+      "empty_state": {
+          "no_surveys": "Опросы не найдены",
+          "search_advice": "Попробуйте изменить поисковые термины",
+          "create_advice": "Создайте свой первый опрос"
+      },
+      "rejection_reason_modal": {
+          "title": "Причина отказа",
+          "close_button": "Закрыть"
+      },
+      "delete_modal": {
+          "title": "Удалить опрос",
+          "message": "Вы уверены, что хотите удалить этот опрос? Это действие необратимо.",
+          "cancel_button": "Отмена",
+          "delete_button": "Удалить",
+          "deleting": "Удаление..."
+      },
+      "filter_modal": {
+        "title": "Фильтр опросов",
+        "status": "Статус",
+        "reset": "Сбросить"
+      }
+  },
+  "my_petitions": {
+      "title": "Мои петиции",
+      "search_placeholder": "Поиск петиций",
+      "create_button": "Создать петицию",
+      "statuses": {
+          "all": "Все",
+          "draft": "Черновик",
+          "under_moderation": "На модерации",
+          "approved": "Одобрено",
+          "rejected": "Отклонено",
+          "published": "Опубликовано",
+          "completed": "Завершено"
+      },
+      "created_label": "Создано",
+      "supporters_label": "поддерживающих",
+      "target_label": "Цель",
+      "actions": {
+          "view_rejection_reason": "Посмотреть причину отказа",
+          "edit": "Редактировать",
+          "delete": "Удалить",
+          "view_details": "Посмотреть детали"
+      },
+      "empty_state": {
+          "no_petitions": "Петиции не найдены",
+          "search_advice": "Попробуйте изменить поисковые термины",
+          "create_advice": "Создайте свою первую петицию"
+      },
+      "rejection_reason_modal": {
+          "title": "Причина отказа",
+          "close_button": "Закрыть"
+      },
+      "delete_modal": {
+          "title": "Удалить петицию",
+          "message": "Вы уверены, что хотите удалить эту петицию? Это действие необратимо.",
+          "cancel_button": "Отмена",
+          "delete_button": "Удалить",
+          "deleting": "Удаление..."
+      },
+      "filter_modal": {
+        "title": "Фильтр опросов",
+        "status": "Статус",
+        "reset": "Сбросить"
+      }
+  },
+  "edit_profile": {
+    "title": "Редактировать профиль",
+    "back_button": "Назад",
+    "fields": {
+        "first_name": {
+            "label": "Имя",
+            "placeholder": "Введите ваше имя",
+            "required": "Имя обязательно"
+        },
+        "last_name": {
+            "label": "Фамилия",
+            "placeholder": "Введите вашу фамилию",
+            "required": "Фамилия обязательна"
+        },
+        "city": {
+            "label": "Город",
+            "placeholder": "Выберите ваш город",
+            "required": "Город обязателен",
+            "options": {
+                "almaty": "Алматы",
+                "astana": "Астана",
+                "shymkent": "Шымкент",
+                "karaganda": "Караганда",
+                "aktobe": "Актобе",
+                "taraz": "Тараз",
+                "pavlodar": "Павлодар",
+                "ust_kamenogorsk": "Усть-Каменогорск",
+                "semey": "Семей",
+                "atyrau": "Атырау",
+                "kyzylorda": "Кызылорда",
+                "kostanay": "Костанай",
+                "uralsk": "Уральск",
+                "petropavlovsk": "Петропавловск",
+                "aktau": "Актау",
+                "temirtau": "Темиртау",
+                "turkestan": "Туркестан",
+                "kokshetau": "Кокшетау",
+                "taldykorgan": "Талдыкорган",
+                "ekibastuz": "Экибастуз",
+                "zhezkazgan": "Жезказган",
+                "balkhash": "Балхаш",
+                "kentau": "Кентау",
+                "rudny": "Рудный",
+                "zhanaozen": "Жанаозен"
+            }
+        },
+        "gender": {
+            "label": "Пол",
+            "placeholder": "Выберите ваш пол",
+            "required": "Пол обязателен",
+            "options": {
+                "male": "Мужской",
+                "female": "Женский"
+            }
+        }
+    },
+    "buttons": {
+        "update": "Обновить профиль"
+    },
+    "toast": {
+        "error": {
+            "title": "Ошибка",
+            "all_fields_required": "Все поля обязательны",
+            "load_error": "Не удалось загрузить данные профиля",
+            "update_error": "Не удалось обновить профиль"
+        },
+        "success": {
+            "title": "Успех",
+            "update_success": "Профиль успешно обновлен!"
+        }
+    }
+},
+"dropdown_field": {
+  "modal_title": "Выбрать {{title}}",
+  "search_placeholder": "Поиск...",
+  "empty_state": {
+      "no_results": "Результаты не найдены",
+      "search_advice": "Попробуйте другие поисковые термины"
+  }
+},
+"add_survey": {
+  "title_create": "Создать опрос",
+  "title_edit": "Редактировать опрос",
+  "back_button": "Назад",
+  "fields": {
+      "title": {
+          "label": "Название опроса",
+          "placeholder": "Введите название опроса",
+          "required": "Пожалуйста, введите название опроса"
+      },
+      "description": {
+          "label": "Описание",
+          "placeholder": "Введите описание опроса",
+          "required": "Пожалуйста, введите описание опроса"
+      },
+      "questions": {
+          "label": "Вопросы",
+          "question_label": "Вопрос {{index}}",
+          "placeholder": "Введите вопрос",
+          "required": "Все вопросы должны содержать текст",
+          "min_questions": "В опросе должен быть хотя бы один вопрос"
+      },
+      "options": {
+          "label": "Варианты",
+          "placeholder": "Вариант {{index}}",
+          "required": "Все варианты должны содержать текст",
+          "min_options": "Каждый вопрос должен иметь минимум 2 варианта"
+      }
+  },
+  "question_types": {
+      "single_choice": "Одиночный выбор",
+      "multiple_choice": "Множественный выбор"
+  },
+  "buttons": {
+      "add_question": "Добавить вопрос",
+      "add_option": "Добавить вариант",
+      "save_draft": "Сохранить как черновик",
+      "submit": "Отправить на модерацию"
+  },
+  "toast": {
+      "error": {
+          "title": "Ошибка",
+          "title_required": "Пожалуйста, введите название опроса",
+          "description_required": "Пожалуйста, введите описание опроса",
+          "question_text_required": "Все вопросы должны содержать текст",
+          "option_text_required": "Все варианты должны содержать текст",
+          "min_options": "Каждый вопрос должен иметь минимум 2 варианта",
+          "min_questions": "В опросе должен быть хотя бы один вопрос"
+      },
+      "success": {
+          "title": "Успех",
+          "submitted": "Опрос отправлен на модерацию",
+          "updated": "Опрос успешно обновлен"
+      }
+  }
+},
+"add_petition": {
+  "title_create": "Создать петицию",
+  "title_edit": "Редактировать петицию",
+  "back_button": "Назад",
+  "fields": {
+      "title": {
+          "label": "Название петиции",
+          "placeholder": "Введите ясное и описательное название",
+          "required": "Пожалуйста, введите название петиции"
+      },
+      "description": {
+          "label": "Краткое описание",
+          "placeholder": "Предоставьте краткое резюме вашей петиции",
+          "required": "Пожалуйста, введите описание петиции"
+      },
+      "problem": {
+          "label": "Описание проблемы",
+          "placeholder": "Опишите проблему или вопрос, который необходимо решить",
+          "required": "Пожалуйста, опишите проблему, которую решает ваша петиция"
+      },
+      "solution": {
+          "label": "Предлагаемое решение",
+          "placeholder": "Какие изменения или действия вы предлагаете для решения проблемы",
+          "required": "Пожалуйста, опишите ваше предлагаемое решение"
+      },
+      "target_supporters": {
+          "label": "Целевое количество сторонников",
+          "placeholder": "Введите целевое число (например, 1000)",
+          "required": "Пожалуйста, введите действительное целевое количество сторонников"
+      },
+      "categories": {
+          "label": "Категории",
+          "instruction": "Выберите хотя бы одну категорию, которая лучше всего описывает вашу петицию",
+          "required": "Пожалуйста, выберите хотя бы одну категорию",
+          "options": {
+              "environment": "Окружающая среда",
+              "transportation": "Транспорт",
+              "healthcare": "Здравоохранение",
+              "education": "Образование",
+              "housing": "Жилье",
+              "public_safety": "Общественная безопасность",
+              "arts_culture": "Искусство и культура",
+              "parks_recreation": "Парки и отдых",
+              "community_development": "Развитие сообщества",
+              "other": "Другое"
+          }
+      }
+  },
+  "buttons": {
+      "save_draft": "Сохранить как черновик",
+      "submit": "Отправить на модерацию"
+  },
+  "toast": {
+      "error": {
+          "title": "Ошибка",
+          "title_required": "Пожалуйста, введите название петиции",
+          "description_required": "Пожалуйста, введите описание петиции",
+          "problem_required": "Пожалуйста, опишите проблему, которую решает ваша петиция",
+          "solution_required": "Пожалуйста, опишите ваше предлагаемое решение",
+          "target_supporters_required": "Пожалуйста, введите действительное целевое количество сторонников",
+          "categories_required": "Пожалуйста, выберите хотя бы одну категорию"
+      },
+      "success": {
+          "title": "Успех",
+          "submitted": "Петиция отправлена на модерацию",
+          "updated": "Петиция успешно обновлена"
+      }
+  }
+}
+}

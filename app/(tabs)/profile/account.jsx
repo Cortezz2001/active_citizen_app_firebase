@@ -8,104 +8,78 @@ import auth from "@react-native-firebase/auth";
 import { useFirestore } from "../../../hooks/useFirestore";
 import Toast from "react-native-toast-message";
 import { getStorage, ref, listAll, deleteObject } from "firebase/storage";
+import { useTranslation } from "react-i18next";
 
 const Account = () => {
+    const { t } = useTranslation();
     const { deleteDocument } = useFirestore();
     const { user, logout } = useAuthContext();
     const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const storage = getStorage();
 
-    // Функция для показа алерта подтверждения удаления
     const handleDeleteAccount = () => {
         setDeleteAlertVisible(true);
     };
 
-    // Функция для удаления всех аватаров пользователя из Storage
     const deleteUserAvatars = async (userId) => {
         try {
-            // Создаем ссылку на папку с аватарами пользователя
             const avatarsRef = ref(storage, `avatars/${userId}`);
-
-            // Получаем список всех файлов в папке
             const fileList = await listAll(avatarsRef);
-
-            // Удаляем каждый файл
             const deletePromises = fileList.items.map((fileRef) => {
                 return deleteObject(fileRef);
             });
-
-            // Ждем завершения всех операций удаления
             await Promise.all(deletePromises);
-
             console.log("All user avatars deleted successfully");
         } catch (error) {
-            // Если папка не существует или другие ошибки, логируем и продолжаем
             console.log("Error deleting avatars or no avatars found:", error);
-            // Не выбрасываем ошибку, чтобы не прерывать процесс удаления аккаунта
         }
     };
 
-    // Функция для фактического удаления аккаунта
     const confirmDeleteAccount = async () => {
         try {
             setIsDeleting(true);
-
             if (user && user.uid) {
-                // 1. Удаляем аватары пользователя из Storage
                 await deleteUserAvatars(user.uid);
-
-                // 2. Удаляем данные пользователя из Firestore
                 await deleteDocument("users", user.uid);
             }
-
-            // 3. Удаляем аккаунт из Firebase Auth
             await auth().currentUser.delete();
-
-            // Закрываем алерт
             setDeleteAlertVisible(false);
-
-            // Перенаправляем на страницу входа
             router.replace("/sign-in");
-
             Toast.show({
                 type: "success",
-                text1: "Success",
-                text2: "Your account has been deleted successfully.",
+                text1: t("account.toast.success_title"),
+                text2: t("account.toast.success_message"),
             });
         } catch (error) {
             console.error("Error deleting account:", error);
-
-            // Показываем ошибку пользователю
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2:
-                    error.message ||
-                    "Failed to delete account. Please try again.",
+                text1: t("account.toast.error_title"),
+                text2: error.message || t("account.toast.error_message"),
             });
         } finally {
             setIsDeleting(false);
         }
     };
 
-    // Profile settings data
+    // Profile settings data with IDs and translated labels
     const accountSettingsData = [
         {
-            id: 1,
-            title: "Edit Profile",
+            id: "edit_profile",
+            title: t("account.settings.edit_profile"),
             icon: "edit",
             action: () => router.push("/pages/edit-profile"),
         },
         {
-            id: 2,
-            title: "Privacy Settings",
+            id: "privacy_settings",
+            title: t("account.settings.privacy_settings"),
             icon: "privacy-tip",
             action: () => router.push("/pages/privacy-settings"),
         },
         {
-            id: 3,
-            title: "Delete account",
+            id: "delete_account",
+            title: t("account.settings.delete_account"),
             icon: "delete",
             action: handleDeleteAccount,
         },
@@ -119,20 +93,20 @@ const Account = () => {
                         key={item.id}
                         className="bg-white rounded-lg mb-4 p-4 shadow-md flex-row items-center"
                         onPress={item.action}
-                        disabled={isDeleting && item.id === 3}
+                        disabled={isDeleting && item.id === "delete_account"}
                     >
                         <MaterialIcons
                             name={item.icon}
                             size={24}
                             color={
-                                item.title === "Delete account"
+                                item.id === "delete_account"
                                     ? "#EF4444"
                                     : "#006FFD"
                             }
                         />
                         <Text
                             className={`flex-1 ml-4 font-mmedium text-lg ${
-                                item.title === "Delete account"
+                                item.id === "delete_account"
                                     ? "text-red-500"
                                     : "text-black"
                             }`}
@@ -143,7 +117,7 @@ const Account = () => {
                             name="chevron-right"
                             size={24}
                             color={
-                                item.title === "Delete account"
+                                item.id === "delete_account"
                                     ? "#EF4444"
                                     : "#006FFD"
                             }
@@ -152,13 +126,12 @@ const Account = () => {
                 ))}
             </View>
 
-            {/* Custom Alert для подтверждения удаления аккаунта */}
             <CustomAlert
                 visible={deleteAlertVisible}
-                title="Delete Account"
-                message="Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed."
-                primaryButtonText="Delete"
-                secondaryButtonText="Cancel"
+                title={t("account.delete_alert.title")}
+                message={t("account.delete_alert.message")}
+                primaryButtonText={t("account.delete_alert.primary_button")}
+                secondaryButtonText={t("account.delete_alert.secondary_button")}
                 onPrimaryButtonPress={confirmDeleteAccount}
                 onSecondaryButtonPress={() => setDeleteAlertVisible(false)}
                 onClose={() => setDeleteAlertVisible(false)}

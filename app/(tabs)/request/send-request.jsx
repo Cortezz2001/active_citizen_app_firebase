@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Switch } from "react-native";
 import FormField from "../../../components/FormField";
 import Toast from "react-native-toast-message";
 import { useRouter, useLocalSearchParams } from "expo-router";
-
+import { useTranslation } from "react-i18next";
 // Sample request data (in a real app, this would come from an API/database)
 const myRequestsData = [
     {
@@ -92,9 +92,10 @@ const myRequestsData = [
     },
 ];
 
-const categories = ["Lighting", "Trash", "Roads", "Green Zones", "Other"];
+const categories = ["lighting", "trash", "roads", "green_zones", "other"];
 
 const SendRequestTab = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const params = useLocalSearchParams();
     const [title, setTitle] = useState("");
@@ -104,7 +105,6 @@ const SendRequestTab = () => {
     const [isDataProcessingAgreed, setIsDataProcessingAgreed] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
-    // Load request data if editing
     useEffect(() => {
         if (params.requestId) {
             const request = myRequestsData.find(
@@ -113,7 +113,7 @@ const SendRequestTab = () => {
             if (request) {
                 setTitle(request.title);
                 setDescription(request.description);
-                setCategory(request.category);
+                setCategory(request.category.toLowerCase());
                 setContactInfo(request.contactInfo);
                 setIsDataProcessingAgreed(request.isDataProcessingAgreed);
                 setIsEditing(true);
@@ -121,57 +121,50 @@ const SendRequestTab = () => {
         }
     }, [params.requestId]);
 
-    // Validation function for form fields
     const validateRequest = () => {
         if (!title.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter a title",
+                text1: t("send_request.toast.error.title"),
+                text2: t("send_request.toast.error.missing_title"),
             });
             return false;
         }
-
         if (!description.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter a description",
+                text1: t("send_request.toast.error.title"),
+                text2: t("send_request.toast.error.missing_description"),
             });
             return false;
         }
-
         if (!category) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please select a category",
+                text1: t("send_request.toast.error.title"),
+                text2: t("send_request.toast.error.missing_category"),
             });
             return false;
         }
-
         if (!contactInfo.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter contact information",
+                text1: t("send_request.toast.error.title"),
+                text2: t("send_request.toast.error.missing_contact"),
             });
             return false;
         }
-
         if (!isDataProcessingAgreed) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "You must agree to data processing",
+                text1: t("send_request.toast.error.title"),
+                text2: t("send_request.toast.error.missing_data_agreement"),
             });
             return false;
         }
-
         return true;
     };
 
-    // Function to handle saving as draft or submitting
     const handleRequest = (asDraft = false) => {
         if (!validateRequest()) return;
 
@@ -187,17 +180,16 @@ const SendRequestTab = () => {
 
         Toast.show({
             type: "success",
-            text1: "Success",
+            text1: t("send_request.toast.success.title"),
             text2: isEditing
                 ? asDraft
-                    ? "Draft updated successfully"
-                    : "Request updated successfully"
+                    ? t("send_request.toast.success.draft_updated")
+                    : t("send_request.toast.success.updated")
                 : asDraft
-                ? "Request saved as draft"
-                : "Request submitted successfully",
+                ? t("send_request.toast.success.saved_as_draft")
+                : t("send_request.toast.success.submitted"),
         });
 
-        // Reset form after submission (optional, depending on requirements)
         if (!asDraft) {
             setTitle("");
             setDescription("");
@@ -205,31 +197,29 @@ const SendRequestTab = () => {
             setContactInfo("");
             setIsDataProcessingAgreed(false);
             setIsEditing(false);
-            router.push("/my-requests"); // Navigate back to requests list
+            router.push("/request/my-requests");
         }
     };
 
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Complaint Title */}
             <Text className="text-black font-msemibold text-left mb-2">
-                Title
+                {t("send_request.fields.title")}
             </Text>
             <FormField
-                title="Title"
-                placeholder="Title"
+                title={t("send_request.fields.title")}
+                placeholder={t("send_request.fields.title")}
                 value={title}
                 handleChangeText={setTitle}
                 className="bg-ghostwhite rounded-lg p-2 border border-gray-200"
             />
 
-            {/* Problem Description */}
             <Text className="text-black font-msemibold text-left mb-2">
-                Description
+                {t("send_request.fields.description")}
             </Text>
             <FormField
-                title="Description"
-                placeholder="Description"
+                title={t("send_request.fields.description")}
+                placeholder={t("send_request.fields.description")}
                 value={description}
                 handleChangeText={setDescription}
                 multiline
@@ -237,10 +227,9 @@ const SendRequestTab = () => {
                 className="bg-ghostwhite rounded-lg p-2 h-32 border border-gray-200"
             />
 
-            {/* Category */}
             <View className="mb-4">
                 <Text className="text-black font-msemibold text-left mb-2">
-                    Category
+                    {t("send_request.fields.category")}
                 </Text>
                 <View className="flex-row flex-wrap justify-evenly">
                     {categories.map((cat) => (
@@ -261,26 +250,24 @@ const SendRequestTab = () => {
                                         : "text-gray-600"
                                 }`}
                             >
-                                {cat}
+                                {t(`send_request.categories.${cat}`)}
                             </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
             </View>
 
-            {/* Contact Information */}
             <Text className="text-black font-msemibold text-left mb-2">
-                Contact
+                {t("send_request.fields.contact")}
             </Text>
             <FormField
-                title="Contact"
-                placeholder="Contact phone or email"
+                title={t("send_request.fields.contact")}
+                placeholder={t("send_request.fields.contact")}
                 value={contactInfo}
                 handleChangeText={setContactInfo}
                 className="bg-ghostwhite rounded-lg p-2 border border-gray-200"
             />
 
-            {/* Data Processing Agreement */}
             <View className="flex-row items-center bg-white p-2 rounded-lg mb-4">
                 <Switch
                     value={isDataProcessingAgreed}
@@ -289,29 +276,30 @@ const SendRequestTab = () => {
                     thumbColor={isDataProcessingAgreed ? "#ffffff" : "#f4f3f4"}
                 />
                 <Text className="ml-3">
-                    I agree to the processing of my data
+                    {t("send_request.data_processing_agreement")}
                 </Text>
             </View>
 
-            {/* Action Buttons */}
             <View className="flex-row justify-between mb-4">
                 <TouchableOpacity
-                    className="flex-1 mr-2 bg-gray-200 p-4 rounded-lg items-center"
+                    className="flex-1 mr-2 bg-gray-200 p-4 rounded-lg items-center justify-center"
                     onPress={() => handleRequest(true)}
                 >
-                    <Text className="text-gray-700 font-mmedium">
-                        Save as Draft
+                    <Text className="text-gray-700 font-mmedium text-center">
+                        {t("send_request.buttons.save_as_draft")}
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    className={`flex-1 ml-2 p-4 rounded-lg items-center ${
+                    className={`flex-1 ml-2 p-4 rounded-lg items-center justify-center ${
                         isDataProcessingAgreed ? "bg-primary" : "bg-gray-400"
                     }`}
                     onPress={() => handleRequest(false)}
                     disabled={!isDataProcessingAgreed}
                 >
-                    <Text className="text-white font-mbold">
-                        {isEditing ? "Update" : "Submit"}
+                    <Text className="text-white font-mbold text-center">
+                        {isEditing
+                            ? t("send_request.buttons.update")
+                            : t("send_request.buttons.submit")}
                     </Text>
                 </TouchableOpacity>
             </View>

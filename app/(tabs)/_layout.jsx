@@ -4,6 +4,7 @@ import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { icons } from "../../constants";
 import { useKeyboard } from "../../hooks/useKeyboard";
+import { useTranslation } from "react-i18next";
 
 const TabIcon = ({ icon, color, name, focused }) => {
     return (
@@ -29,6 +30,7 @@ const TabIcon = ({ icon, color, name, focused }) => {
 
 const TabsLayout = () => {
     const { isKeyboardVisible } = useKeyboard();
+    const { t } = useTranslation();
 
     return (
         <>
@@ -61,7 +63,7 @@ const TabsLayout = () => {
                             <TabIcon
                                 icon={icons.request}
                                 color={color}
-                                name="Request"
+                                name={t("tabs_layout.request")}
                                 focused={focused}
                             />
                         ),
@@ -77,7 +79,7 @@ const TabsLayout = () => {
                             <TabIcon
                                 icon={icons.home}
                                 color={color}
-                                name="Home"
+                                name={t("tabs_layout.home")}
                                 focused={focused}
                             />
                         ),
@@ -93,7 +95,7 @@ const TabsLayout = () => {
                             <TabIcon
                                 icon={icons.profile}
                                 color={color}
-                                name="Profile"
+                                name={t("tabs_layout.profile")}
                                 focused={focused}
                             />
                         ),

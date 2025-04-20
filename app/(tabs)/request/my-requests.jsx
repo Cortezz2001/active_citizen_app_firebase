@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useContext } from "react";
 import { ScrollView, View, Text, TouchableOpacity, Modal } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { SearchContext } from "./_layout";
+import { SearchContext, FilterContext } from "./_layout";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 const myRequestsData = [
     {
         id: 1,
         title: "Street light not working",
         date: "15.06.2023",
-        status: "In progress",
+        status: "in_progress",
     },
     {
         id: 2,
         title: "Trash on the playground",
         date: "10.06.2023",
-        status: "Rejected",
+        status: "rejected",
         rejectionReason:
             "This area is not maintained by the city services. Please contact your community management.",
     },
@@ -23,25 +24,25 @@ const myRequestsData = [
         id: 3,
         title: "Pothole on the road",
         date: "05.06.2023",
-        status: "Completed",
+        status: "completed",
     },
     {
         id: 4,
         title: "Broken bench in the park",
         date: "01.06.2023",
-        status: "In progress",
+        status: "in_progress",
     },
     {
         id: 5,
         title: "Leaking drainpipe",
         date: "25.05.2023",
-        status: "Completed",
+        status: "completed",
     },
     {
         id: 6,
         title: "Graffiti on public wall",
         date: "20.05.2023",
-        status: "Rejected",
+        status: "rejected",
         rejectionReason:
             "The wall is private property. We've notified the owner about the issue.",
     },
@@ -49,37 +50,36 @@ const myRequestsData = [
         id: 7,
         title: "New park benches needed",
         date: "18.05.2023",
-        status: "Draft",
+        status: "draft",
     },
     {
         id: 8,
         title: "Sidewalk repair",
         date: "15.05.2023",
-        status: "Draft",
+        status: "draft",
     },
 ];
 
-// Define status colors and icons similar to MyPetitionsPage
 const statusColors = {
-    Draft: {
+    draft: {
         bg: "bg-gray-200",
         text: "text-gray-700",
         icon: "edit",
         iconColor: "#374151",
     },
-    "In progress": {
+    in_progress: {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "pending",
         iconColor: "#B45309",
     },
-    Rejected: {
+    rejected: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "cancel",
         iconColor: "#B91C1C",
     },
-    Completed: {
+    completed: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "check-circle",
@@ -88,9 +88,15 @@ const statusColors = {
 };
 
 const MyRequestsTab = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const { searchText } = useContext(SearchContext);
-    const [activeStatus, setActiveStatus] = useState("All");
+    const {
+        showFilterModal,
+        setShowFilterModal,
+        selectedStatuses,
+        setSelectedStatuses,
+    } = useContext(FilterContext);
     const [requestsData, setRequestsData] = useState(myRequestsData);
     const [filteredRequests, setFilteredRequests] = useState(myRequestsData);
     const [showRejectionReason, setShowRejectionReason] = useState(null);
@@ -100,40 +106,26 @@ const MyRequestsTab = () => {
     });
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // Status filters
-    const statusFilters = [
-        "All",
-        "Draft",
-        "In progress",
-        "Rejected",
-        "Completed",
-    ];
+    const statusFilters = ["draft", "in_progress", "rejected", "completed"];
 
-    // Filter requests based on search text and active status
     useEffect(() => {
         let result = [...requestsData];
-
-        // Filter by search text
         if (searchText) {
             result = result.filter((request) =>
                 request.title.toLowerCase().includes(searchText.toLowerCase())
             );
         }
-
-        // Filter by status
-        if (activeStatus !== "All") {
-            result = result.filter(
-                (request) => request.status === activeStatus
+        if (selectedStatuses.length > 0) {
+            result = result.filter((request) =>
+                selectedStatuses.includes(request.status)
             );
         }
-
         setFilteredRequests(result);
-    }, [searchText, activeStatus, requestsData]);
+    }, [searchText, selectedStatuses, requestsData]);
 
     const handleEdit = (requestId) => {
-        // Assuming navigation to a request editing page (similar to add-petition)
         router.push({
-            pathname: "./send-request", // Update with actual path
+            pathname: "./send-request",
             params: { requestId },
         });
     };
@@ -147,9 +139,7 @@ const MyRequestsTab = () => {
 
     const handleDelete = async () => {
         setIsDeleting(true);
-
         try {
-            // Simulate API call to delete the request
             setTimeout(() => {
                 setRequestsData(
                     requestsData.filter(
@@ -158,7 +148,7 @@ const MyRequestsTab = () => {
                 );
                 setDeleteAlert({ visible: false, requestId: null });
                 setIsDeleting(false);
-            }, 1000); // Simulating network request
+            }, 1000);
         } catch (error) {
             console.error("Error deleting request:", error);
             setIsDeleting(false);
@@ -169,64 +159,43 @@ const MyRequestsTab = () => {
         setShowRejectionReason(reasonText);
     };
 
+    const toggleStatus = (status) => {
+        setSelectedStatuses((prev) =>
+            prev.includes(status)
+                ? prev.filter((s) => s !== status)
+                : [...prev, status]
+        );
+    };
+
+    const resetFilters = () => {
+        setSelectedStatuses([]);
+    };
+
     const canEdit = (status) => {
-        return status === "Draft";
+        return status === "draft";
     };
 
     const canDelete = (status) => {
-        return status === "Draft";
+        return status === "draft";
     };
 
     const EmptyStateMessage = () => (
         <View className="flex-1 items-center justify-center py-10 bg-secondary">
             <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
             <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
-                No requests found
+                {t("my_requests.empty_state.no_requests")}
             </Text>
             <Text className="text-gray-400 mt-2 text-center">
                 {searchText
-                    ? "Try adjusting your search terms"
-                    : "Try a different filter"}
+                    ? t("my_requests.empty_state.search_advice")
+                    : t("my_requests.empty_state.filter_advice")}
             </Text>
         </View>
     );
 
     return (
         <View className="flex-1">
-            {/* Status Filter */}
-            <View className="mb-4">
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{
-                        alignItems: "center",
-                        height: 40,
-                    }}
-                >
-                    {statusFilters.map((status) => (
-                        <TouchableOpacity
-                            key={status}
-                            className={`mr-2 px-4 h-10 rounded-full flex items-center justify-center ${
-                                activeStatus === status
-                                    ? "bg-primary"
-                                    : "bg-white border border-gray-300"
-                            }`}
-                            onPress={() => setActiveStatus(status)}
-                        >
-                            <Text
-                                className={`font-mmedium ${
-                                    activeStatus === status
-                                        ? "text-white"
-                                        : "text-gray-700"
-                                }`}
-                            >
-                                {status}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
-
+            {/* Request List */}
             <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
                 {filteredRequests.length === 0 ? (
                     <EmptyStateMessage />
@@ -263,17 +232,19 @@ const MyRequestsTab = () => {
                                                     .text
                                             }`}
                                         >
-                                            {request.status}
+                                            {t(
+                                                `my_requests.statuses.${request.status}`
+                                            )}
                                         </Text>
                                     </View>
                                 </View>
 
                                 <Text className="text-gray-500 text-sm mb-3 font-mmedium">
-                                    Created: {request.date}
+                                    {t("my_requests.created_label")}:{" "}
+                                    {request.date}
                                 </Text>
 
-                                {/* Rejection reason for rejected requests */}
-                                {request.status === "Rejected" &&
+                                {request.status === "rejected" &&
                                     request.rejectionReason && (
                                         <TouchableOpacity
                                             className="mb-3"
@@ -290,19 +261,19 @@ const MyRequestsTab = () => {
                                                     color="#EF4444"
                                                 />
                                                 <Text className="ml-1 text-red-500 font-mmedium">
-                                                    View Rejection Reason
+                                                    {t(
+                                                        "my_requests.actions.view_rejection_reason"
+                                                    )}
                                                 </Text>
                                             </View>
                                         </TouchableOpacity>
                                     )}
 
-                                {/* Action buttons */}
-                                <View className="flex-row justify-between items-center">
-                                    <View className="flex-row">
-                                        {/* Edit button for draft requests */}
+                                <View className="flex-col">
+                                    <View className="flex-row flex-wrap mb-2">
                                         {canEdit(request.status) && (
                                             <TouchableOpacity
-                                                className="mr-3"
+                                                className="mr-3 mb-2"
                                                 onPress={() =>
                                                     handleEdit(request.id)
                                                 }
@@ -314,15 +285,17 @@ const MyRequestsTab = () => {
                                                         color="#006FFD"
                                                     />
                                                     <Text className="ml-1 text-primary font-mmedium">
-                                                        Edit
+                                                        {t(
+                                                            "my_requests.actions.edit"
+                                                        )}
                                                     </Text>
                                                 </View>
                                             </TouchableOpacity>
                                         )}
 
-                                        {/* Delete button for draft requests */}
                                         {canDelete(request.status) && (
                                             <TouchableOpacity
+                                                className="mb-2"
                                                 onPress={() =>
                                                     handleDeleteConfirm(
                                                         request.id
@@ -336,32 +309,120 @@ const MyRequestsTab = () => {
                                                         color="#EF4444"
                                                     />
                                                     <Text className="ml-1 text-red-500 font-mmedium">
-                                                        Delete
+                                                        {t(
+                                                            "my_requests.actions.delete"
+                                                        )}
                                                     </Text>
                                                 </View>
                                             </TouchableOpacity>
                                         )}
                                     </View>
 
-                                    {/* View details button */}
-                                    <TouchableOpacity
-                                        className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
-                                        onPress={() => {
-                                            console.log(
-                                                `Viewing details for request ${request.id}`
-                                            );
-                                        }}
-                                    >
-                                        <Text className="text-gray-700 font-mmedium">
-                                            View Details
-                                        </Text>
-                                    </TouchableOpacity>
+                                    {request.status !== "draft" && (
+                                        <View className="flex-row justify-end">
+                                            <TouchableOpacity
+                                                className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
+                                                onPress={() => {
+                                                    console.log(
+                                                        `Viewing details for request ${request.id}`
+                                                    );
+                                                }}
+                                            >
+                                                <Text className="text-gray-700 font-mmedium">
+                                                    {t(
+                                                        "my_requests.actions.view_details"
+                                                    )}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                         </View>
                     ))
                 )}
             </ScrollView>
+
+            {/* Filter Modal */}
+            <Modal
+                transparent={true}
+                visible={showFilterModal}
+                animationType="fade"
+                onRequestClose={() => setShowFilterModal(false)}
+            >
+                <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    activeOpacity={1}
+                    onPress={() => setShowFilterModal(false)}
+                >
+                    <View className="flex-1 justify-end">
+                        <View className="bg-white rounded-t-xl p-5 h-1/2">
+                            <View className="flex-row justify-between items-center mb-4">
+                                <Text className="text-lg font-mbold">
+                                    {t("my_requests.filter_modal.title")}
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => setShowFilterModal(false)}
+                                >
+                                    <MaterialIcons
+                                        name="close"
+                                        size={24}
+                                        color="#374151"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* Status Filter */}
+                            <View className="mb-6">
+                                <Text className="text-base font-mmedium mb-2">
+                                    {t("my_requests.filter_modal.status")}
+                                </Text>
+                                <View className="flex-row flex-wrap">
+                                    {statusFilters.map((status) => (
+                                        <TouchableOpacity
+                                            key={status}
+                                            className={`mr-2 mb-2 px-4 h-10 rounded-full flex items-center justify-center ${
+                                                selectedStatuses.includes(
+                                                    status
+                                                )
+                                                    ? "bg-primary"
+                                                    : "bg-white border border-gray-300"
+                                            }`}
+                                            onPress={() => toggleStatus(status)}
+                                        >
+                                            <Text
+                                                className={`font-mmedium ${
+                                                    selectedStatuses.includes(
+                                                        status
+                                                    )
+                                                        ? "text-white"
+                                                        : "text-gray-700"
+                                                }`}
+                                            >
+                                                {t(
+                                                    `my_requests.statuses.${status}`
+                                                )}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+
+                            {/* Reset Button */}
+                            <View className="flex-row justify-end">
+                                <TouchableOpacity
+                                    className="p-3 bg-gray-200 rounded-full"
+                                    onPress={resetFilters}
+                                >
+                                    <Text className="text-center text-gray-700 font-mmedium">
+                                        {t("my_requests.filter_modal.reset")}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
 
             {/* Rejection Reason Modal */}
             <Modal
@@ -378,7 +439,7 @@ const MyRequestsTab = () => {
                     <View className="flex-1 justify-center items-center">
                         <View className="bg-white rounded-xl p-5 mx-5 w-4/5 shadow-lg">
                             <Text className="text-lg font-mbold mb-2">
-                                Rejection Reason
+                                {t("my_requests.rejection_reason_modal.title")}
                             </Text>
                             <Text className="text-gray-600 mb-4">
                                 {showRejectionReason}
@@ -388,7 +449,9 @@ const MyRequestsTab = () => {
                                 onPress={() => setShowRejectionReason(null)}
                             >
                                 <Text className="text-white font-mmedium">
-                                    Close
+                                    {t(
+                                        "my_requests.rejection_reason_modal.close_button"
+                                    )}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -415,11 +478,10 @@ const MyRequestsTab = () => {
                     <View className="flex-1 justify-center items-center">
                         <View className="bg-white rounded-xl p-5 mx-5 w-4/5 shadow-lg">
                             <Text className="text-lg font-mbold mb-2">
-                                Delete Request
+                                {t("my_requests.delete_modal.title")}
                             </Text>
                             <Text className="text-gray-600 mb-4">
-                                Are you sure you want to delete this request?
-                                This action cannot be undone.
+                                {t("my_requests.delete_modal.message")}
                             </Text>
                             <View className="flex-row justify-end">
                                 <TouchableOpacity
@@ -433,7 +495,9 @@ const MyRequestsTab = () => {
                                     disabled={isDeleting}
                                 >
                                     <Text className="text-gray-700 font-mmedium">
-                                        Cancel
+                                        {t(
+                                            "my_requests.delete_modal.cancel_button"
+                                        )}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
@@ -442,7 +506,13 @@ const MyRequestsTab = () => {
                                     disabled={isDeleting}
                                 >
                                     <Text className="text-white font-mmedium">
-                                        {isDeleting ? "Deleting..." : "Delete"}
+                                        {isDeleting
+                                            ? t(
+                                                  "my_requests.delete_modal.deleting"
+                                              )
+                                            : t(
+                                                  "my_requests.delete_modal.delete_button"
+                                              )}
                                     </Text>
                                 </TouchableOpacity>
                             </View>

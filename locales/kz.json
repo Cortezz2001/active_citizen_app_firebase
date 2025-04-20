@@ -1,0 +1,451 @@
+{
+  "home_layout": {
+      "app_title": "Белсенді Азамат",
+      "tabs": {
+          "news": "Жаңалықтар",
+          "events": "Оқиғалар",
+          "surveys": "Сауалнамалар",
+          "petitions": "Петициялар"
+      },
+      "search_placeholder": "{{item}} іздеу..."
+  },
+  "language_selector": {
+    "select_language": "Тіл таңдау",
+    "languages": {
+        "english": "Ағылшын",
+        "russian": "Орыс",
+        "kazakh": "Қазақ"
+    }
+},
+  "tabs_layout": {
+      "request": "Сұраныс",
+      "home": "Үй",
+      "profile": "Профиль"
+  },
+  "profile_layout": {
+      "title": "Профиль",
+      "tabs": {
+          "account": "Есептік жазба",
+          "settings": "Баптаулар"
+      },
+      "logout_alert": {
+          "title": "Шығу",
+          "message": "Сіз шығуға сенімдісіз бе? Қолданбаны пайдалану үшін қайта кіру керек болады.",
+          "primary_button": "Шығу",
+          "secondary_button": "Болдырмау"
+      },
+      "toast": {
+          "error_title": "Қате",
+          "gallery_permission_error": "Аватарды өзгерту үшін галереяға кіру рұқсаты қажет.",
+          "image_selection_error": "Суретті таңдау кезінде қате пайда болды.",
+          "auth_error": "Аватарды өзгерту үшін сіз авторизацияланған болуыңыз керек.",
+          "upload_error": "Аватарды жүктеу кезінде қате пайда болды."
+      }
+  },
+  "account": {
+      "settings": {
+          "edit_profile": "Профильді өңдеу",
+          "privacy_settings": "Құпиялылық баптаулары",
+          "delete_account": "Есептік жазбаны жою"
+      },
+      "delete_alert": {
+          "title": "Есептік жазбаны жою",
+          "message": "Есептік жазбаңызды жоюға сенімдісіз бе? Бұл әрекет қайтымсыз, және сіздің барлық деректеріңіз біржола жойылады.",
+          "primary_button": "Жою",
+          "secondary_button": "Болдырмау"
+      },
+      "toast": {
+          "success_title": "Сәтті",
+          "success_message": "Сіздің есептік жазбаңыз сәтті жойылды.",
+          "error_title": "Қате",
+          "error_message": "Есептік жазбаны жою мүмкін болмады. Қайтадан көріңіз."
+      }
+  },
+  "settings": {
+      "notification_preferences": "Хабарландыру баптаулары",
+      "language": "Тіл",
+      "select_language": "Тіл таңдау",
+      "languages": {
+          "english": "Ағылшын",
+          "russian": "Орыс",
+          "kazakh": "Қазақ"
+      }
+  },
+  "request_layout": {
+      "title": "Өтініштер",
+      "tabs": {
+          "send_request": "Өтініш жіберу",
+          "my_requests": "Менің өтініштерім"
+      },
+      "search_placeholder": "Өтініштерді іздеу"
+  },
+  "send_request": {
+      "fields": {
+          "title": "Тақырып",
+          "description": "Сипаттама",
+          "category": "Санат",
+          "contact": "Байланыс"
+      },
+      "categories": {
+          "lighting": "Жарықтандыру",
+          "trash": "Қоқыс",
+          "roads": "Жолдар",
+          "green_zones": "Жасыл аймақтар",
+          "other": "Басқа"
+      },
+      "data_processing_agreement": "Мен деректерімді өңдеуге келісемін",
+      "buttons": {
+          "save_as_draft": "Жоба ретінде сақтау",
+          "submit": "Жіберу",
+          "update": "Жаңарту"
+      },
+      "toast": {
+          "error": {
+              "title": "Қате",
+              "missing_title": "Тақырыпты енгізіңіз",
+              "missing_description": "Сипаттаманы енгізіңіз",
+              "missing_category": "Санатты таңдаңыз",
+              "missing_contact": "Байланыс ақпаратын енгізіңіз",
+              "missing_data_agreement": "Деректерді өңдеуге келісуіңіз керек"
+          },
+          "success": {
+              "title": "Сәтті",
+              "saved_as_draft": "Өтініш жоба ретінде сақталды",
+              "submitted": "Өтініш сәтті жіберілді",
+              "draft_updated": "Жоба сәтті жаңартылды",
+              "updated": "Өтініш сәтті жаңартылды"
+          }
+      }
+  },
+  "my_requests": {
+      "statuses": {
+          "all": "Барлығы",
+          "draft": "Жоба",
+          "in_progress": "Жұмыс үстінде",
+          "rejected": "Қабылданбады",
+          "completed": "Аяқталды"
+      },
+      "created_label": "Құрылды",
+      "actions": {
+          "view_rejection_reason": "Қабылданбау себебін көру",
+          "edit": "Өңдеу",
+          "delete": "Жою",
+          "view_details": "Толығырақ көру"
+      },
+      "empty_state": {
+          "no_requests": "Өтініштер табылмады",
+          "search_advice": "Іздеу шарттарын өзгертіп көріңіз",
+          "filter_advice": "Басқа сүзгіні қолданып көріңіз"
+      },
+      "rejection_reason_modal": {
+          "title": "Қабылданбау себебі",
+          "close_button": "Жабу"
+      },
+      "delete_modal": {
+          "title": "Өтінішті жою",
+          "message": "Бұл өтінішті жоюға сенімдісіз бе? Бұл әрекет қайтарылмайды.",
+          "cancel_button": "Болдырмау",
+          "delete_button": "Жою",
+          "deleting": "Жойылуда..."
+      },
+      "filter_modal": {
+        "title": "Қолданба сүзгісі",
+        "status": "Күй",
+        "reset": "Қалпына келтіру"
+      }
+  },
+"my_surveys": {
+  "title": "Менің сауалнамаларым",
+  "search_placeholder": "Сауалнамалардан іздеу",
+  "create_button": "Сауалнама жасау",
+  "votes_label": "дауыс",
+  "statuses": {
+    "all": "Барлығы",
+    "draft": "Жоба",
+    "under_moderation": "Модерацияда",
+    "approved": "Бекітілген",
+    "rejected": "Қабылданбаған",
+    "published": "Жарияланған",
+    "completed": "Аяқталған"
+  },
+  "created_label": "Жасалған күні",
+  "actions": {
+    "view_rejection_reason": "Қабылдамау себебін көру",
+    "edit": "Өңдеу",
+    "delete": "Жою",
+    "view_details": "Мәліметтерді көру"
+  },
+  "empty_state": {
+    "no_surveys": "Сауалнамалар табылмады",
+    "search_advice": "Іздеу сөздерін өзгертіп көріңіз",
+    "create_advice": "Алғашқы сауалнамаңызды жасаңыз"
+  },
+  "rejection_reason_modal": {
+    "title": "Қабылдамау себебі",
+    "close_button": "Жабу"
+  },
+  "delete_modal": {
+    "title": "Сауалнаманы жою",
+    "message": "Бұл сауалнаманы жойғыңыз келетініне сенімдісіз бе? Бұл әрекет қайтарылмайды.",
+    "cancel_button": "Бас тарту",
+    "delete_button": "Жою",
+    "deleting": "Жойылуда..."
+  },
+  "filter_modal": {
+    "title": "Қолданба сүзгісі",
+    "status": "Күй",
+    "reset": "Қалпына келтіру"
+  }
+},
+"my_petitions": {
+  "title": "Менің петицияларым",
+  "search_placeholder": "Петициялардан іздеу",
+  "create_button": "Петиция жасау",
+  "statuses": {
+    "all": "Барлығы",
+    "draft": "Жоба",
+    "under_moderation": "Модерацияда",
+    "approved": "Бекітілген",
+    "rejected": "Қабылданбаған",
+    "published": "Жарияланған",
+    "completed": "Аяқталған"
+  },
+  "created_label": "Жасалған күні",
+  "supporters_label": "қолдаушы",
+  "target_label": "Мақсат",
+  "actions": {
+    "view_rejection_reason": "Қабылдамау себебін көру",
+    "edit": "Өңдеу",
+    "delete": "Жою",
+    "view_details": "Мәліметтерді көру"
+  },
+  "empty_state": {
+    "no_petitions": "Петициялар табылмады",
+    "search_advice": "Іздеу сөздерін өзгертіп көріңіз",
+    "create_advice": "Алғашқы петицияңызды жасаңыз"
+  },
+  "rejection_reason_modal": {
+    "title": "Қабылдамау себебі",
+    "close_button": "Жабу"
+  },
+  "delete_modal": {
+    "title": "Петицияны жою",
+    "message": "Бұл петицияны жойғыңыз келетініне сенімдісіз бе? Бұл әрекет қайтарылмайды.",
+    "cancel_button": "Бас тарту",
+    "delete_button": "Жою",
+    "deleting": "Жойылуда..."
+  },
+  "filter_modal": {
+    "title": "Қолданба сүзгісі",
+    "status": "Күй",
+    "reset": "Қалпына келтіру"
+  }
+},
+"edit_profile": {
+  "title": "Профильді өңдеу",
+  "back_button": "Артқа",
+  "fields": {
+      "first_name": {
+          "label": "Аты",
+          "placeholder": "Атыңызды енгізіңіз",
+          "required": "Аты міндетті"
+      },
+      "last_name": {
+          "label": "Тегі",
+          "placeholder": "Тегіңізді енгізіңіз",
+          "required": "Тегі міндетті"
+      },
+      "city": {
+          "label": "Қала",
+          "placeholder": "Қалаңызды таңдаңыз",
+          "required": "Қала міндетті",
+          "options": {
+              "almaty": "Алматы",
+              "astana": "Астана",
+              "shymkent": "Шымкент",
+              "karaganda": "Қарағанды",
+              "aktobe": "Ақтөбе",
+              "taraz": "Тараз",
+              "pavlodar": "Павлодар",
+              "ust_kamenogorsk": "Өскемен",
+              "semey": "Семей",
+              "atyrau": "Атырау",
+              "kyzylorda": "Қызылорда",
+              "kostanay": "Қостанай",
+              "uralsk": "Орал",
+              "petropavlovsk": "Петропавл",
+              "aktau": "Ақтау",
+              "temirtau": "Теміртау",
+              "turkestan": "Түркістан",
+              "kokshetau": "Көкшетау",
+              "taldykorgan": "Талдықорған",
+              "ekibastuz": "Екібастұз",
+              "zhezkazgan": "Жезқазған",
+              "balkhash": "Балқаш",
+              "kentau": "Кентау",
+              "rudny": "Рудный",
+              "zhanaozen": "Жаңаөзен"
+          }
+      },
+      "gender": {
+          "label": "Жыныс",
+          "placeholder": "Жынысыңызды таңдаңыз",
+          "required": "Жыныс міндетті",
+          "options": {
+              "male": "Ер",
+              "female": "Әйел"
+          }
+      }
+  },
+  "buttons": {
+      "update": "Профильді жаңарту"
+  },
+  "toast": {
+      "error": {
+          "title": "Қате",
+          "all_fields_required": "Барлық өрістер міндетті",
+          "load_error": "Профиль деректерін жүктеу мүмкін болмады",
+          "update_error": "Профильді жаңарту мүмкін болмады"
+      },
+      "success": {
+          "title": "Сәтті",
+          "update_success": "Профиль сәтті жаңартылды!"
+      }
+  }
+},
+"dropdown_field": {
+  "modal_title": "{{title}} таңдау",
+  "search_placeholder": "Іздеу...",
+  "empty_state": {
+      "no_results": "Ешқандай нәтиже табылмады",
+      "search_advice": "Басқа іздеу шарттарын қолданып көріңіз"
+  }
+},
+"add_survey": {
+  "title_create": "Сауалнама жасау",
+  "title_edit": "Сауалнаманы өңдеу",
+  "back_button": "Артқа",
+  "fields": {
+      "title": {
+          "label": "Сауалнама тақырыбы",
+          "placeholder": "Сауалнама тақырыбын енгізіңіз",
+          "required": "Сауалнама тақырыбын енгізіңіз"
+      },
+      "description": {
+          "label": "Сипаттама",
+          "placeholder": "Сауалнама сипаттамасын енгізіңіз",
+          "required": "Сауалнама сипаттамасын енгізіңіз"
+      },
+      "questions": {
+          "label": "Сұрақтар",
+          "question_label": "{{index}}-сұрақ",
+          "placeholder": "Сұрақты енгізіңіз",
+          "required": "Барлық сұрақтардың мәтіні болуы керек",
+          "min_questions": "Сауалнамада кем дегенде бір сұрақ болуы керек"
+      },
+      "options": {
+          "label": "Нұсқалар",
+          "placeholder": "{{index}}-нұсқа",
+          "required": "Барлық нұсқалардың мәтіні болуы керек",
+          "min_options": "Әр сұрақта кем дегенде 2 нұсқа болуы керек"
+      }
+  },
+  "question_types": {
+      "single_choice": "Жалғыз таңдау",
+      "multiple_choice": "Бірнеше таңдау"
+  },
+  "buttons": {
+      "add_question": "Сұрақ қосу",
+      "add_option": "Нұсқа қосу",
+      "save_draft": "Жоба ретінде сақтау",
+      "submit": "Модерацияға жіберу"
+  },
+  "toast": {
+      "error": {
+          "title": "Қате",
+          "title_required": "Сауалнама тақырыбын енгізіңіз",
+          "description_required": "Сауалнама сипаттамасын енгізіңіз",
+          "question_text_required": "Барлық сұрақтардың мәтіні болуы керек",
+          "option_text_required": "Барлық нұсқалардың мәтіні болуы керек",
+          "min_options": "Әр сұрақта кем дегенде 2 нұсқа болуы керек",
+          "min_questions": "Сауалнамада кем дегенде бір сұрақ болуы керек"
+      },
+      "success": {
+          "title": "Сәтті",
+          "submitted": "Сауалнама модерацияға жіберілді",
+          "updated": "Сауалнама сәтті жаңартылды"
+      }
+  }
+},
+"add_petition": {
+  "title_create": "Петиция жасау",
+  "title_edit": "Петицияны өңдеу",
+  "back_button": "Артқа",
+  "fields": {
+      "title": {
+          "label": "Петиция тақырыбы",
+          "placeholder": "Анық және сипаттамалы тақырып енгізіңіз",
+          "required": "Петиция тақырыбын енгізіңіз"
+      },
+      "description": {
+          "label": "Қысқаша сипаттама",
+          "placeholder": "Петицияның қысқаша түйіндемесін беріңіз",
+          "required": "Петиция сипаттамасын енгізіңіз"
+      },
+      "problem": {
+          "label": "Мәселе сипаттамасы",
+          "placeholder": "Шешілуі қажет мәселе немесе проблеманы сипаттаңыз",
+          "required": "Петиция шешетін мәселені сипаттаңыз"
+      },
+      "solution": {
+          "label": "Ұсынылған шешім",
+          "placeholder": "Мәселені шешу үшін қандай өзгерістер немесе әрекеттер ұсынасыз",
+          "required": "Ұсынылған шешімді сипаттаңыз"
+      },
+      "target_supporters": {
+          "label": "Мақсатты қолдаушылар саны",
+          "placeholder": "Мақсатты санды енгізіңіз (мысалы, 1000)",
+          "required": "Жарамды мақсатты қолдаушылар санын енгізіңіз"
+      },
+      "categories": {
+          "label": "Санаттар",
+          "instruction": "Петицияңызды ең жақсы сипаттайтын кем дегенде бір санатты таңдаңыз",
+          "required": "Кем дегенде бір санатты таңдаңыз",
+          "options": {
+              "environment": "Қоршаған орта",
+              "transportation": "Көлік",
+              "healthcare": "Денсаулық сақтау",
+              "education": "Білім",
+              "housing": "Тұрғын үй",
+              "public_safety": "Қоғамдық қауіпсіздік",
+              "arts_culture": "Өнер және мәдениет",
+              "parks_recreation": "Саябақтар және демалыс",
+              "community_development": "Қоғамдық даму",
+              "other": "Басқа"
+          }
+      }
+  },
+  "buttons": {
+      "save_draft": "Жоба ретінде сақтау",
+      "submit": "Модерацияға жіберу"
+  },
+  "toast": {
+      "error": {
+          "title": "Қате",
+          "title_required": "Петиция тақырыбын енгізіңіз",
+          "description_required": "Петиция сипаттамасын енгізіңіз",
+          "problem_required": "Петиция шешетін мәселені сипаттаңыз",
+          "solution_required": "Ұсынылған шешімді сипаттаңыз",
+          "target_supporters_required": "Жарамды мақсатты қолдаушылар санын енгізіңіз",
+          "categories_required": "Кем дегенде бір санатты таңдаңыз"
+      },
+      "success": {
+          "title": "Сәтті",
+          "submitted": "Петиция модерацияға жіберілді",
+          "updated": "Петиция сәтті жаңартылды"
+      }
+  }
+}
+
+
+}

@@ -11,8 +11,10 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
+import { useTranslation } from "react-i18next";
 
 const AddSurveyPage = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const params = useLocalSearchParams();
     const [title, setTitle] = useState("");
@@ -51,7 +53,7 @@ const AddSurveyPage = () => {
             setQuestions(surveySample.questions);
             setIsEditing(true);
         }
-    }, [params.surveyId]);
+    }, [params.surveyId, t]);
 
     const addQuestion = () => {
         const newQuestion = {
@@ -109,8 +111,8 @@ const AddSurveyPage = () => {
         if (questions.length <= 1) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "You need at least one question in your survey.",
+                text1: t("add_survey.toast.error.title"),
+                text2: t("add_survey.toast.error.min_questions"),
             });
             return;
         }
@@ -127,8 +129,8 @@ const AddSurveyPage = () => {
         if (!title.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter a survey title",
+                text1: t("add_survey.toast.error.title"),
+                text2: t("add_survey.toast.error.title_required"),
             });
             return false;
         }
@@ -136,8 +138,8 @@ const AddSurveyPage = () => {
         if (!description.trim()) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter a survey description",
+                text1: t("add_survey.toast.error.title"),
+                text2: t("add_survey.toast.error.description_required"),
             });
             return false;
         }
@@ -146,8 +148,8 @@ const AddSurveyPage = () => {
             if (!question.text.trim()) {
                 Toast.show({
                     type: "error",
-                    text1: "Error",
-                    text2: "All questions must have text",
+                    text1: t("add_survey.toast.error.title"),
+                    text2: t("add_survey.toast.error.question_text_required"),
                 });
                 return false;
             }
@@ -156,8 +158,8 @@ const AddSurveyPage = () => {
                 if (!option.trim()) {
                     Toast.show({
                         type: "error",
-                        text1: "Error",
-                        text2: "All options must have text",
+                        text1: t("add_survey.toast.error.title"),
+                        text2: t("add_survey.toast.error.option_text_required"),
                     });
                     return false;
                 }
@@ -166,8 +168,8 @@ const AddSurveyPage = () => {
             if (question.options.length < 2) {
                 Toast.show({
                     type: "error",
-                    text1: "Error",
-                    text2: "Each question must have at least 2 options",
+                    text1: t("add_survey.toast.error.title"),
+                    text2: t("add_survey.toast.error.min_options"),
                 });
                 return false;
             }
@@ -189,10 +191,10 @@ const AddSurveyPage = () => {
 
         Toast.show({
             type: "success",
-            text1: "Success",
+            text1: t("add_survey.toast.success.title"),
             text2: isEditing
-                ? "Survey updated successfully"
-                : "Survey submitted for moderation",
+                ? t("add_survey.toast.success.updated")
+                : t("add_survey.toast.success.submitted"),
         });
 
         router.push("/pages/my-surveys");
@@ -205,6 +207,7 @@ const AddSurveyPage = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
+                    accessibilityLabel={t("add_survey.back_button")}
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
@@ -213,7 +216,9 @@ const AddSurveyPage = () => {
                     numberOfLines={2}
                     adjustsFontSizeToFit
                 >
-                    {isEditing ? "Edit Survey" : "Create Survey"}
+                    {isEditing
+                        ? t("add_survey.title_edit")
+                        : t("add_survey.title_create")}
                 </Text>
             </View>
 
@@ -224,11 +229,11 @@ const AddSurveyPage = () => {
                 {/* Survey Title */}
                 <View className="mb-4 mt-4">
                     <Text className="font-msemibold text-black mb-2">
-                        Survey Title
+                        {t("add_survey.fields.title.label")}
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
-                        placeholder="Enter survey title"
+                        placeholder={t("add_survey.fields.title.placeholder")}
                         value={title}
                         onChangeText={setTitle}
                     />
@@ -237,11 +242,13 @@ const AddSurveyPage = () => {
                 {/* Survey Description */}
                 <View className="mb-4">
                     <Text className="font-msemibold text-black mb-2">
-                        Description
+                        {t("add_survey.fields.description.label")}
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
-                        placeholder="Enter survey description"
+                        placeholder={t(
+                            "add_survey.fields.description.placeholder"
+                        )}
                         value={description}
                         onChangeText={setDescription}
                         multiline
@@ -252,7 +259,7 @@ const AddSurveyPage = () => {
 
                 {/* Questions Section */}
                 <Text className="font-mbold text-lg text-gray-800 mb-4">
-                    Questions
+                    {t("add_survey.fields.questions.label")}
                 </Text>
 
                 {questions.map((question, index) => (
@@ -262,7 +269,10 @@ const AddSurveyPage = () => {
                     >
                         <View className="flex-row justify-between items-center mb-2">
                             <Text className="font-mmedium text-gray-700">
-                                Question {index + 1}
+                                {t(
+                                    "add_survey.fields.questions.question_label",
+                                    { index: index + 1 }
+                                )}
                             </Text>
                             <TouchableOpacity
                                 onPress={() => removeQuestion(question.id)}
@@ -278,7 +288,9 @@ const AddSurveyPage = () => {
                         {/* Question Text */}
                         <TextInput
                             className="bg-ghostwhite border border-gray-300 rounded-lg p-3 mb-3 font-mregular"
-                            placeholder="Enter question"
+                            placeholder={t(
+                                "add_survey.fields.questions.placeholder"
+                            )}
                             value={question.text}
                             onChangeText={(text) =>
                                 updateQuestionText(question.id, text)
@@ -286,9 +298,9 @@ const AddSurveyPage = () => {
                         />
 
                         {/* Question Type Selector */}
-                        <View className="flex-row mb-3">
+                        <View className="flex-row mb-3 flex-wrap">
                             <TouchableOpacity
-                                className={`mr-2 px-3 py-1 rounded-full ${
+                                className={`mr-2 px-3 py-1 mb-1 rounded-full ${
                                     question.type === "singleChoice"
                                         ? "bg-primary"
                                         : "bg-gray-200"
@@ -306,8 +318,11 @@ const AddSurveyPage = () => {
                                             ? "text-white"
                                             : "text-gray-700"
                                     } font-mlight`}
+                                    style={{ flexShrink: 1 }}
                                 >
-                                    Single Choice
+                                    {t(
+                                        "add_survey.question_types.single_choice"
+                                    )}
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
@@ -329,8 +344,11 @@ const AddSurveyPage = () => {
                                             ? "text-white"
                                             : "text-gray-700"
                                     } font-mlight`}
+                                    style={{ flexShrink: 1 }}
                                 >
-                                    Multiple Choice
+                                    {t(
+                                        "add_survey.question_types.multiple_choice"
+                                    )}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -338,7 +356,7 @@ const AddSurveyPage = () => {
                         {/* Options */}
                         <View>
                             <Text className="font-mmedium text-gray-700 mb-2">
-                                Options
+                                {t("add_survey.fields.options.label")}
                             </Text>
                             {question.options.map((option, optIndex) => (
                                 <View
@@ -357,7 +375,10 @@ const AddSurveyPage = () => {
                                     />
                                     <TextInput
                                         className="flex-1 bg-ghostwhite border border-gray-300 rounded-lg p-2 font-mregular"
-                                        placeholder={`Option ${optIndex + 1}`}
+                                        placeholder={t(
+                                            "add_survey.fields.options.placeholder",
+                                            { index: optIndex + 1 }
+                                        )}
                                         value={option}
                                         onChangeText={(text) =>
                                             updateOption(
@@ -396,7 +417,7 @@ const AddSurveyPage = () => {
                                     color="#006FFD"
                                 />
                                 <Text className="ml-2 text-primary font-mmedium">
-                                    Add Option
+                                    {t("add_survey.buttons.add_option")}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -408,9 +429,14 @@ const AddSurveyPage = () => {
                     className="flex-row items-center justify-center bg-white py-3 rounded-lg mb-6 border border-primary"
                     onPress={addQuestion}
                 >
-                    <MaterialIcons name="add" size={20} color="#006FFD" />
+                    <MaterialIcons
+                        name="add"
+                        size={20}
+                        commonwealth="true"
+                        color="#006FFD"
+                    />
                     <Text className="ml-2 text-primary font-mmedium">
-                        Add Question
+                        {t("add_survey.buttons.add_question")}
                     </Text>
                 </TouchableOpacity>
 
@@ -421,7 +447,7 @@ const AddSurveyPage = () => {
                         onPress={() => saveSurvey(true)}
                     >
                         <Text className="font-mmedium text-gray-700 text-center">
-                            Save as Draft
+                            {t("add_survey.buttons.save_draft")}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -429,7 +455,7 @@ const AddSurveyPage = () => {
                         onPress={() => saveSurvey(false)}
                     >
                         <Text className="font-mmedium text-white text-center">
-                            Submit for Moderation
+                            {t("add_survey.buttons.submit")}
                         </Text>
                     </TouchableOpacity>
                 </View>

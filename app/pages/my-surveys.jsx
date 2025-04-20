@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import {
     View,
     Text,
@@ -12,6 +12,12 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import CustomAlertTwoButtons from "../../components/CustomAlertTwoButtons";
+import { useTranslation } from "react-i18next";
+
+export const FilterContext = createContext({
+    showFilterModal: false,
+    setShowFilterModal: () => {},
+});
 
 // Sample survey data (in a real app, this would come from an API/database)
 const initialSurveysData = [
@@ -100,21 +106,22 @@ const statusColors = {
 };
 
 const MySurveysPage = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const [surveysData, setSurveysData] = useState(initialSurveysData);
     const [filteredSurveys, setFilteredSurveys] = useState(initialSurveysData);
     const [searchText, setSearchText] = useState("");
-    const [activeStatus, setActiveStatus] = useState("All");
+    const [selectedStatuses, setSelectedStatuses] = useState([]);
     const [deleteAlert, setDeleteAlert] = useState({
         visible: false,
         surveyId: null,
     });
     const [isDeleting, setIsDeleting] = useState(false);
     const [showRejectionReason, setShowRejectionReason] = useState(null);
+    const [showFilterModal, setShowFilterModal] = useState(false);
 
-    // Status filters
+    // Status filters using API status values
     const statusFilters = [
-        "All",
         "Draft",
         "Under Moderation",
         "Approved",
@@ -123,7 +130,7 @@ const MySurveysPage = () => {
         "Completed",
     ];
 
-    // Filter surveys based on search text and active status
+    // Filter surveys based on search text and selected statuses
     useEffect(() => {
         let result = [...surveysData];
 
@@ -135,12 +142,14 @@ const MySurveysPage = () => {
         }
 
         // Filter by status
-        if (activeStatus !== "All") {
-            result = result.filter((survey) => survey.status === activeStatus);
+        if (selectedStatuses.length > 0) {
+            result = result.filter((survey) =>
+                selectedStatuses.includes(survey.status)
+            );
         }
 
         setFilteredSurveys(result);
-    }, [searchText, activeStatus, surveysData]);
+    }, [searchText, selectedStatuses, surveysData]);
 
     const handleEdit = (surveyId) => {
         router.push({
@@ -180,24 +189,46 @@ const MySurveysPage = () => {
         setShowRejectionReason(reasonText);
     };
 
+    const toggleStatus = (status) => {
+        setSelectedStatuses((prev) =>
+            prev.includes(status)
+                ? prev.filter((s) => s !== status)
+                : [...prev, status]
+        );
+    };
+
+    const resetFilters = () => {
+        setSelectedStatuses([]);
+    };
+
     const canEdit = (status) => {
-        return status === "Draft" || status === "Rejected";
+        return status === "Draft";
     };
 
     const canDelete = (status) => {
-        return status === "Draft" || status === "Rejected";
+        return status === "Draft";
+    };
+
+    // Map API status values to translation keys
+    const translationKeyMapping = {
+        Draft: "draft",
+        "Under Moderation": "under_moderation",
+        Approved: "approved",
+        Rejected: "rejected",
+        Published: "published",
+        Completed: "completed",
     };
 
     const EmptyStateMessage = () => (
         <View className="flex-1 items-center justify-center py-10 bg-secondary">
             <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
             <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
-                No surveys found
+                {t("my_surveys.empty_state.no_surveys")}
             </Text>
             <Text className="text-gray-400 mt-2 text-center">
                 {searchText
-                    ? "Try adjusting your search terms"
-                    : "Create your first survey"}
+                    ? t("my_surveys.empty_state.search_advice")
+                    : t("my_surveys.empty_state.create_advice")}
             </Text>
             {!searchText && (
                 <TouchableOpacity
@@ -205,7 +236,7 @@ const MySurveysPage = () => {
                     onPress={() => router.push("/pages/add-survey")}
                 >
                     <Text className="text-white font-mmedium">
-                        Create Survey
+                        {t("my_surveys.create_button")}
                     </Text>
                 </TouchableOpacity>
             )}
@@ -222,238 +253,336 @@ const MySurveysPage = () => {
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text
-                    className="text-2xl font-mbold text-black"
-                    numberOfLines={2}
-                    adjustsFontSizeToFit
-                >
-                    My Surveys
-                </Text>
-                <View className="flex-1 items-end">
-                    <TouchableOpacity
-                        onPress={() => router.push("/pages/add-survey")}
+                <View className="flex-1">
+                    <Text
+                        className="text-2xl font-mbold text-black"
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.6}
                     >
-                        <MaterialIcons name="add" size={24} color="#006FFD" />
-                    </TouchableOpacity>
+                        {t("my_surveys.title")}
+                    </Text>
                 </View>
+                <TouchableOpacity
+                    onPress={() => router.push("/pages/add-survey")}
+                    className="ml-4"
+                >
+                    <MaterialIcons name="add" size={24} color="#006FFD" />
+                </TouchableOpacity>
             </View>
 
-            <View className="flex-1 px-4 mt-4">
-                {/* Search Bar */}
-                <View className="bg-ghostwhite rounded-3xl flex-row items-center px-3 mb-4 border border-gray-200">
-                    <View className="flex-row items-center">
+            <FilterContext.Provider
+                value={{ showFilterModal, setShowFilterModal }}
+            >
+                <View className="flex-1 px-4 mt-4">
+                    {/* Search Bar */}
+                    <View className="bg-ghostwhite rounded-3xl flex-row items-center px-3 p-1 mb-4 border border-gray-200">
                         <MaterialIcons
+                            style={{ marginLeft: 4 }}
                             name="search"
-                            size={20}
+                            size={24}
                             color="#9CA3AF"
                         />
                         <TextInput
                             className="flex-1 py-2 px-2 font-mregular"
-                            placeholder="Search surveys"
+                            placeholder={t("my_surveys.search_placeholder")}
                             value={searchText}
                             onChangeText={setSearchText}
                         />
-                        {searchText ? (
+                        {searchText && (
                             <TouchableOpacity onPress={() => setSearchText("")}>
                                 <MaterialIcons
                                     name="close"
-                                    size={20}
+                                    size={24}
                                     color="#9CA3AF"
                                 />
                             </TouchableOpacity>
-                        ) : null}
+                        )}
+                        <TouchableOpacity
+                            className="mx-2"
+                            onPress={() => setShowFilterModal(true)}
+                            accessibilityRole="button"
+                            accessibilityLabel={
+                                selectedStatuses.length > 0
+                                    ? `${t(
+                                          "my_surveys.filter_modal.title"
+                                      )} ${t("my_surveys.filter_modal.active")}`
+                                    : t("my_surveys.filter_modal.title")
+                            }
+                        >
+                            <MaterialIcons
+                                name="filter-list"
+                                size={24}
+                                color={
+                                    selectedStatuses.length > 0
+                                        ? "#006FFD"
+                                        : "#9CA3AF"
+                                }
+                            />
+                        </TouchableOpacity>
                     </View>
-                </View>
 
-                {/* Status Filter */}
-                <View className="mb-4">
+                    {/* Survey List */}
                     <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{
-                            alignItems: "center",
-                            height: 40,
-                        }}
+                        showsVerticalScrollIndicator={false}
+                        className="flex-1"
                     >
-                        {statusFilters.map((status) => (
-                            <TouchableOpacity
-                                key={status}
-                                className={`mr-2 px-4 h-10 rounded-full flex items-center justify-center ${
-                                    activeStatus === status
-                                        ? "bg-primary"
-                                        : "bg-white border border-gray-300"
-                                }`}
-                                onPress={() => setActiveStatus(status)}
-                            >
-                                <Text
-                                    className={`font-mmedium ${
-                                        activeStatus === status
-                                            ? "text-white"
-                                            : "text-gray-700"
-                                    }`}
+                        {filteredSurveys.length === 0 ? (
+                            <EmptyStateMessage />
+                        ) : (
+                            filteredSurveys.map((survey) => (
+                                <View
+                                    key={survey.id}
+                                    className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden"
                                 >
-                                    {status}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
+                                    <View className="p-4">
+                                        <View className="flex-row justify-between items-start mb-2">
+                                            <Text className="font-mmedium text-lg text-gray-900 flex-1 mr-2">
+                                                {survey.title}
+                                            </Text>
+                                            <View
+                                                className={`px-2 py-1 rounded-full flex-row items-center ${
+                                                    statusColors[survey.status]
+                                                        .bg
+                                                }`}
+                                            >
+                                                <MaterialIcons
+                                                    name={
+                                                        statusColors[
+                                                            survey.status
+                                                        ].icon
+                                                    }
+                                                    size={16}
+                                                    color={
+                                                        statusColors[
+                                                            survey.status
+                                                        ].iconColor
+                                                    }
+                                                />
+                                                <Text
+                                                    className={`ml-1 text-xs font-mmedium ${
+                                                        statusColors[
+                                                            survey.status
+                                                        ].text
+                                                    }`}
+                                                >
+                                                    {t(
+                                                        `my_surveys.statuses.${
+                                                            translationKeyMapping[
+                                                                survey.status
+                                                            ]
+                                                        }`
+                                                    )}
+                                                </Text>
+                                            </View>
+                                        </View>
+
+                                        <Text className="text-gray-500 text-sm mb-3 font-mmedium">
+                                            {t("my_surveys.created_label")}:{" "}
+                                            {survey.createdDate}
+                                        </Text>
+
+                                        {(survey.status === "Published" ||
+                                            survey.status === "Completed") && (
+                                            <View className="flex-row items-center mb-3">
+                                                <MaterialIcons
+                                                    name="how-to-vote"
+                                                    size={18}
+                                                    color="#006FFD"
+                                                />
+                                                <Text className="ml-1 text-primary font-mmedium">
+                                                    {survey.votes}{" "}
+                                                    {t(
+                                                        "my_surveys.votes_label"
+                                                    )}
+                                                </Text>
+                                            </View>
+                                        )}
+
+                                        {survey.status === "Rejected" && (
+                                            <TouchableOpacity
+                                                className="mb-3"
+                                                onPress={() =>
+                                                    handleViewRejectionReason(
+                                                        survey.rejectionReason
+                                                    )
+                                                }
+                                            >
+                                                <View className="flex-row items-center">
+                                                    <MaterialIcons
+                                                        name="info"
+                                                        size={18}
+                                                        color="#EF4444"
+                                                    />
+                                                    <Text className="ml-1 text-red-500 font-mmedium">
+                                                        {t(
+                                                            "my_surveys.actions.view_rejection_reason"
+                                                        )}
+                                                    </Text>
+                                                </View>
+                                            </TouchableOpacity>
+                                        )}
+
+                                        <View className="flex-row justify-between items-center">
+                                            <View className="flex-row">
+                                                {canEdit(survey.status) && (
+                                                    <TouchableOpacity
+                                                        className="mr-3"
+                                                        onPress={() =>
+                                                            handleEdit(
+                                                                survey.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <View className="flex-row items-center">
+                                                            <MaterialIcons
+                                                                name="edit"
+                                                                size={18}
+                                                                color="#006FFD"
+                                                            />
+                                                            <Text className="ml-1 text-primary font-mmedium">
+                                                                {t(
+                                                                    "my_surveys.actions.edit"
+                                                                )}
+                                                            </Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                )}
+
+                                                {canDelete(survey.status) && (
+                                                    <TouchableOpacity
+                                                        onPress={() =>
+                                                            handleDeleteConfirm(
+                                                                survey.id
+                                                            )
+                                                        }
+                                                    >
+                                                        <View className="flex-row items-center">
+                                                            <MaterialIcons
+                                                                name="delete"
+                                                                size={18}
+                                                                color="#EF4444"
+                                                            />
+                                                            <Text className="ml-1 text-red-500 font-mmedium">
+                                                                {t(
+                                                                    "my_surveys.actions.delete"
+                                                                )}
+                                                            </Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                )}
+                                            </View>
+
+                                            {survey.status !== "Draft" && (
+                                                <TouchableOpacity className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300">
+                                                    <Text className="text-gray-700 font-mmedium">
+                                                        {t(
+                                                            "my_surveys.actions.view_details"
+                                                        )}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                    </View>
+                                </View>
+                            ))
+                        )}
                     </ScrollView>
                 </View>
 
-                {/* Survey List */}
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    className="flex-1"
+                {/* Filter Modal */}
+                <Modal
+                    transparent={true}
+                    visible={showFilterModal}
+                    animationType="fade"
+                    onRequestClose={() => setShowFilterModal(false)}
                 >
-                    {filteredSurveys.length === 0 ? (
-                        <EmptyStateMessage />
-                    ) : (
-                        filteredSurveys.map((survey) => (
-                            <View
-                                key={survey.id}
-                                className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden"
-                            >
-                                <View className="p-4">
-                                    <View className="flex-row justify-between items-start mb-2">
-                                        <Text className="font-mmedium text-lg text-gray-900 flex-1 mr-2">
-                                            {survey.title}
-                                        </Text>
-                                        <View
-                                            className={`px-2 py-1 rounded-full flex-row items-center ${
-                                                statusColors[survey.status].bg
-                                            }`}
-                                        >
-                                            <MaterialIcons
-                                                name={
-                                                    statusColors[survey.status]
-                                                        .icon
-                                                }
-                                                size={16}
-                                                color={
-                                                    statusColors[survey.status]
-                                                        .iconColor
-                                                }
-                                            />
-                                            <Text
-                                                className={`ml-1 text-xs font-mmedium ${
-                                                    statusColors[survey.status]
-                                                        .text
-                                                }`}
-                                            >
-                                                {survey.status}
-                                            </Text>
-                                        </View>
-                                    </View>
-
-                                    <Text className="text-gray-500 text-sm mb-3 font-mmedium">
-                                        Created: {survey.createdDate}
+                    <TouchableOpacity
+                        style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                        activeOpacity={1}
+                        onPress={() => setShowFilterModal(false)}
+                    >
+                        <View className="flex-1 justify-end">
+                            <View className="bg-white rounded-t-xl p-5 h-1/2">
+                                <View className="flex-row justify-between items-center mb-4">
+                                    <Text className="text-lg font-mbold">
+                                        {t("my_surveys.filter_modal.title")}
                                     </Text>
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            setShowFilterModal(false)
+                                        }
+                                    >
+                                        <MaterialIcons
+                                            name="close"
+                                            size={24}
+                                            color="#374151"
+                                        />
+                                    </TouchableOpacity>
+                                </View>
 
-                                    {/* Vote count for published/completed surveys */}
-                                    {(survey.status === "Published" ||
-                                        survey.status === "Completed") && (
-                                        <View className="flex-row items-center mb-3">
-                                            <MaterialIcons
-                                                name="how-to-vote"
-                                                size={18}
-                                                color="#006FFD"
-                                            />
-                                            <Text className="ml-1 text-primary font-mmedium">
-                                                {survey.votes} votes
-                                            </Text>
-                                        </View>
-                                    )}
-
-                                    {/* Rejection reason for rejected surveys */}
-                                    {survey.status === "Rejected" && (
-                                        <TouchableOpacity
-                                            className="mb-3"
-                                            onPress={() =>
-                                                handleViewRejectionReason(
-                                                    survey.rejectionReason
-                                                )
-                                            }
-                                        >
-                                            <View className="flex-row items-center">
-                                                <MaterialIcons
-                                                    name="info"
-                                                    size={18}
-                                                    color="#EF4444"
-                                                />
-                                                <Text className="ml-1 text-red-500 font-mmedium">
-                                                    View Rejection Reason
-                                                </Text>
-                                            </View>
-                                        </TouchableOpacity>
-                                    )}
-
-                                    {/* Action buttons */}
-                                    <View className="flex-row justify-between items-center">
-                                        <View className="flex-row">
-                                            {/* Edit button for draft and rejected */}
-                                            {canEdit(survey.status) && (
-                                                <TouchableOpacity
-                                                    className="mr-3"
-                                                    onPress={() =>
-                                                        handleEdit(survey.id)
-                                                    }
-                                                >
-                                                    <View className="flex-row items-center">
-                                                        <MaterialIcons
-                                                            name="edit"
-                                                            size={18}
-                                                            color="#006FFD"
-                                                        />
-                                                        <Text className="ml-1 text-primary font-mmedium">
-                                                            Edit
-                                                        </Text>
-                                                    </View>
-                                                </TouchableOpacity>
-                                            )}
-
-                                            {/* Delete button for draft and rejected */}
-                                            {canDelete(survey.status) && (
-                                                <TouchableOpacity
-                                                    onPress={() =>
-                                                        handleDeleteConfirm(
-                                                            survey.id
+                                {/* Status Filter */}
+                                <View className="mb-6">
+                                    <Text className="text-base font-mmedium mb-2">
+                                        {t("my_surveys.filter_modal.status")}
+                                    </Text>
+                                    <View className="flex-row flex-wrap">
+                                        {statusFilters.map((status) => (
+                                            <TouchableOpacity
+                                                key={status}
+                                                className={`mr-2 mb-2 px-4 h-10 rounded-full flex items-center justify-center ${
+                                                    selectedStatuses.includes(
+                                                        status
+                                                    )
+                                                        ? "bg-primary"
+                                                        : "bg-white border border-gray-300"
+                                                }`}
+                                                onPress={() =>
+                                                    toggleStatus(status)
+                                                }
+                                            >
+                                                <Text
+                                                    className={`font-mmedium ${
+                                                        selectedStatuses.includes(
+                                                            status
                                                         )
-                                                    }
+                                                            ? "text-white"
+                                                            : "text-gray-700"
+                                                    }`}
                                                 >
-                                                    <View className="flex-row items-center">
-                                                        <MaterialIcons
-                                                            name="delete"
-                                                            size={18}
-                                                            color="#EF4444"
-                                                        />
-                                                        <Text className="ml-1 text-red-500 font-mmedium">
-                                                            Delete
-                                                        </Text>
-                                                    </View>
-                                                </TouchableOpacity>
-                                            )}
-                                        </View>
-
-                                        {/* View details button */}
-                                        <TouchableOpacity className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300">
-                                            <Text className="text-gray-700 font-mmedium">
-                                                View Details
-                                            </Text>
-                                        </TouchableOpacity>
+                                                    {t(
+                                                        `my_surveys.statuses.${translationKeyMapping[status]}`
+                                                    )}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
                                     </View>
                                 </View>
+
+                                {/* Reset Button */}
+                                <View className="flex-row justify-end">
+                                    <TouchableOpacity
+                                        className="p-3 bg-gray-200 rounded-full"
+                                        onPress={resetFilters}
+                                    >
+                                        <Text className="text-center text-gray-700 font-mmedium">
+                                            {t("my_surveys.filter_modal.reset")}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        ))
-                    )}
-                </ScrollView>
-            </View>
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
+            </FilterContext.Provider>
 
             {/* Delete Confirmation Alert */}
             <CustomAlertTwoButtons
                 visible={deleteAlert.visible}
-                title="Delete Survey"
-                message="Are you sure you want to delete this survey? This action cannot be undone."
-                primaryButtonText="Delete"
-                secondaryButtonText="Cancel"
+                title={t("my_surveys.delete_modal.title")}
+                message={t("my_surveys.delete_modal.message")}
+                primaryButtonText={t("my_surveys.delete_modal.delete_button")}
+                secondaryButtonText={t("my_surveys.delete_modal.cancel_button")}
                 onPrimaryButtonPress={handleDelete}
                 onSecondaryButtonPress={() =>
                     setDeleteAlert({ visible: false, surveyId: null })
@@ -479,7 +608,7 @@ const MySurveysPage = () => {
                     <View className="flex-1 justify-center items-center">
                         <View className="bg-white rounded-xl p-5 mx-5 w-4/5 shadow-lg">
                             <Text className="text-lg font-mbold mb-2">
-                                Rejection Reason
+                                {t("my_surveys.rejection_reason_modal.title")}
                             </Text>
                             <Text className="text-gray-600 mb-4">
                                 {showRejectionReason}
@@ -489,7 +618,9 @@ const MySurveysPage = () => {
                                 onPress={() => setShowRejectionReason(null)}
                             >
                                 <Text className="text-white font-mmedium">
-                                    Close
+                                    {t(
+                                        "my_surveys.rejection_reason_modal.close_button"
+                                    )}
                                 </Text>
                             </TouchableOpacity>
                         </View>

@@ -1,57 +1,81 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Modal } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-
-// Иконки флагов
-const flags = {
-    ru: require("@/assets/icons/russian.png"),
-    en: require("@/assets/icons/english.png"),
-    kz: require("@/assets/icons/kazakh.png"),
-};
+import { changeLanguage } from "../i18n"; // Путь к вашему файлу i18n.js
 
 const LanguageSelector = () => {
-    const { i18n } = useTranslation();
-    const [selectedLanguage, setSelectedLanguage] = useState("ru");
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const { i18n, t } = useTranslation();
+    const [modalVisible, setModalVisible] = useState(false);
 
-    const handleLanguageChange = (lang) => {
-        setSelectedLanguage(lang);
-        i18n.changeLanguage(lang);
-        setIsDropdownOpen(false);
+    const languages = [
+        { code: "en", name: t("language_selector.languages.english") },
+        { code: "ru", name: t("language_selector.languages.russian") },
+        { code: "kz", name: t("language_selector.languages.kazakh") },
+    ];
+
+    const selectLanguage = async (langCode) => {
+        await changeLanguage(langCode);
+        setModalVisible(false);
     };
 
     return (
-        <View className="absolute top-4 right-4 z-10 mt-4">
-            <TouchableOpacity
-                className="flex-row items-center bg-white p-2 rounded-lg border border-gray-300 shadow"
-                onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-                <Image
-                    source={flags[selectedLanguage]}
-                    className="w-6 h-4 mr-2"
-                />
-                <Text className="text-sm font-medium text-gray-700">▼</Text>
+        <>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <MaterialIcons name="language" size={24} color="black" />
             </TouchableOpacity>
-            {isDropdownOpen && (
-                <View className="absolute top-10 right-0 bg-white rounded-lg border border-gray-300 shadow p-2 w-28">
-                    {Object.keys(flags).map((lang) => (
-                        <TouchableOpacity
-                            key={lang}
-                            className="flex-row items-center py-2"
-                            onPress={() => handleLanguageChange(lang)}
-                        >
-                            <Image
-                                source={flags[lang]}
-                                className="w-6 h-4 mr-2"
-                            />
-                            <Text className="ml-2 text-sm font-medium text-gray-700">
-                                {lang.toUpperCase()}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            )}
-        </View>
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    activeOpacity={1}
+                    onPress={() => setModalVisible(false)}
+                >
+                    <View
+                        className="bg-white m-6 p-4 rounded-xl shadow-lg"
+                        style={{ marginTop: 100 }}
+                    >
+                        <Text className="text-lg font-mbold mb-4">
+                            {t("language_selector.select_language")}
+                        </Text>
+
+                        {languages.map((lang) => (
+                            <TouchableOpacity
+                                key={lang.code}
+                                className={`p-3 rounded-lg mb-2 flex-row items-center justify-between ${
+                                    i18n.language === lang.code
+                                        ? "bg-primary"
+                                        : "bg-ghostwhite"
+                                }`}
+                                onPress={() => selectLanguage(lang.code)}
+                            >
+                                <Text
+                                    className={`font-mmedium ${
+                                        i18n.language === lang.code
+                                            ? "text-white"
+                                            : "text-gray-800"
+                                    }`}
+                                >
+                                    {lang.name}
+                                </Text>
+                                {i18n.language === lang.code && (
+                                    <MaterialIcons
+                                        name="check"
+                                        size={20}
+                                        color="white"
+                                    />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+        </>
     );
 };
 

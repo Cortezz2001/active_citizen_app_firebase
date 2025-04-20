@@ -19,8 +19,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 import FormField from "@/components/FormField";
 import DropdownField from "@/components/DropdownField";
 import LoadingIndicator from "../../components/LoadingIndicator";
+import { useTranslation } from "react-i18next";
 
 const EditProfile = () => {
+    const { t } = useTranslation();
     const { user, refreshUser } = useAuthContext();
     const { getDocument, updateDocument } = useFirestore();
 
@@ -51,8 +53,8 @@ const EditProfile = () => {
                 console.error("Error fetching user data:", error);
                 Toast.show({
                     type: "error",
-                    text1: "Error",
-                    text2: "Could not load profile data",
+                    text1: t("edit_profile.toast.error.title"),
+                    text2: t("edit_profile.toast.error.load_error"),
                 });
             } finally {
                 setIsLoading(false);
@@ -60,7 +62,7 @@ const EditProfile = () => {
         };
 
         fetchUserData();
-    }, [user]);
+    }, [user, t]);
 
     const handleUpdate = async () => {
         const { fname, lname, city, gender } = form;
@@ -68,8 +70,8 @@ const EditProfile = () => {
         if (!fname || !lname || !city || !gender) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "All fields are required",
+                text1: t("edit_profile.toast.error.title"),
+                text2: t("edit_profile.toast.error.all_fields_required"),
             });
             return;
         }
@@ -91,8 +93,8 @@ const EditProfile = () => {
 
             Toast.show({
                 type: "success",
-                text1: "Success",
-                text2: "Profile updated successfully!",
+                text1: t("edit_profile.toast.success.title"),
+                text2: t("edit_profile.toast.success.update_success"),
             });
 
             router.back();
@@ -100,42 +102,47 @@ const EditProfile = () => {
             console.error("Error updating profile:", err);
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Could not update profile.",
+                text1: t("edit_profile.toast.error.title"),
+                text2: t("edit_profile.toast.error.update_error"),
             });
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const genderOptions = ["Male", "Female"];
+    const genderOptions = [
+        t("edit_profile.fields.gender.options.male"),
+        t("edit_profile.fields.gender.options.female"),
+    ];
     const kazakhstanCities = [
-        "Almaty",
-        "Astana",
-        "Shymkent",
-        "Karaganda",
-        "Aktobe",
-        "Taraz",
-        "Pavlodar",
-        "Ust-Kamenogorsk",
-        "Semey",
-        "Atyrau",
-        "Kyzylorda",
-        "Kostanay",
-        "Uralsk",
-        "Petropavlovsk",
-        "Aktau",
-        "Temirtau",
-        "Turkestan",
-        "Kokshetau",
-        "Taldykorgan",
-        "Ekibastuz",
-        "Zhezkazgan",
-        "Balkhash",
-        "Kentau",
-        "Rudny",
-        "Zhanaozen",
-    ].sort();
+        "almaty",
+        "astana",
+        "shymkent",
+        "karaganda",
+        "aktobe",
+        "taraz",
+        "pavlodar",
+        "ust_kamenogorsk",
+        "semey",
+        "atyrau",
+        "kyzylorda",
+        "kostanay",
+        "uralsk",
+        "petropavlovsk",
+        "aktau",
+        "temirtau",
+        "turkestan",
+        "kokshetau",
+        "taldykorgan",
+        "ekibastuz",
+        "zhezkazgan",
+        "balkhash",
+        "kentau",
+        "rudny",
+        "zhanaozen",
+    ]
+        .map((cityKey) => t(`edit_profile.fields.city.options.${cityKey}`))
+        .sort();
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -144,15 +151,16 @@ const EditProfile = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
+                    accessibilityLabel={t("edit_profile.back_button")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} />
+                    <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
                 <Text
                     className="text-2xl font-mbold text-black"
                     numberOfLines={2}
                     adjustsFontSizeToFit
                 >
-                    Edit Your Profile
+                    {t("edit_profile.title")}
                 </Text>
             </View>
 
@@ -172,11 +180,14 @@ const EditProfile = () => {
                 >
                     <View className="w-full max-w-md">
                         <Text className="text-black font-msemibold text-left mb-2">
-                            First Name <Text className="text-red-500">*</Text>
+                            {t("edit_profile.fields.first_name.label")}{" "}
+                            <Text className="text-red-500">*</Text>
                         </Text>
                         <FormField
-                            title="First name"
-                            placeholder="Enter your first name"
+                            title={t("edit_profile.fields.first_name.label")}
+                            placeholder={t(
+                                "edit_profile.fields.first_name.placeholder"
+                            )}
                             value={form.fname}
                             handleChangeText={(e) =>
                                 setForm({ ...form, fname: e })
@@ -185,11 +196,14 @@ const EditProfile = () => {
                         />
 
                         <Text className="text-black font-msemibold text-left mb-2">
-                            Last Name <Text className="text-red-500">*</Text>
+                            {t("edit_profile.fields.last_name.label")}{" "}
+                            <Text className="text-red-500">*</Text>
                         </Text>
                         <FormField
-                            title="Last Name"
-                            placeholder="Enter your last name"
+                            title={t("edit_profile.fields.last_name.label")}
+                            placeholder={t(
+                                "edit_profile.fields.last_name.placeholder"
+                            )}
                             value={form.lname}
                             handleChangeText={(e) =>
                                 setForm({ ...form, lname: e })
@@ -198,12 +212,14 @@ const EditProfile = () => {
                         />
 
                         <Text className="text-black font-msemibold text-left mb-2">
-                            City <Text className="text-red-500">*</Text>
+                            {t("edit_profile.fields.city.label")}{" "}
+                            <Text className="text-red-500">*</Text>
                         </Text>
-
                         <DropdownField
-                            title="City"
-                            placeholder="Select your city"
+                            title={t("edit_profile.fields.city.label")}
+                            placeholder={t(
+                                "edit_profile.fields.city.placeholder"
+                            )}
                             value={form.city}
                             options={kazakhstanCities}
                             onSelect={(city) => setForm({ ...form, city })}
@@ -211,11 +227,14 @@ const EditProfile = () => {
                         />
 
                         <Text className="text-black font-msemibold text-left mb-2">
-                            Gender <Text className="text-red-500">*</Text>
+                            {t("edit_profile.fields.gender.label")}{" "}
+                            <Text className="text-red-500">*</Text>
                         </Text>
                         <DropdownField
-                            title="Gender"
-                            placeholder="Select your gender"
+                            title={t("edit_profile.fields.gender.label")}
+                            placeholder={t(
+                                "edit_profile.fields.gender.placeholder"
+                            )}
                             value={form.gender}
                             options={genderOptions}
                             onSelect={(gender) => setForm({ ...form, gender })}
@@ -223,7 +242,7 @@ const EditProfile = () => {
                         />
 
                         <CustomButton
-                            title="Update Profile"
+                            title={t("edit_profile.buttons.update")}
                             handlePress={handleUpdate}
                             containerStyles="rounded-lg py-3 bg-primary mt-4"
                             isLoading={isSubmitting}
