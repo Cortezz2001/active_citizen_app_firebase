@@ -1,3 +1,4 @@
+// _layout.jsx
 import React, { useState, useEffect } from "react";
 import { Slot, usePathname, useRouter } from "expo-router";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
@@ -16,6 +17,10 @@ export const FilterContext = createContext({
     setShowFilterModal: () => {},
     selectedStatuses: [],
     setSelectedStatuses: () => {},
+    startDate: null,
+    setStartDate: () => {},
+    endDate: null,
+    setEndDate: () => {},
 });
 
 const RequestLayout = () => {
@@ -25,6 +30,8 @@ const RequestLayout = () => {
     const [searchText, setSearchText] = useState("");
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
 
     const getCurrentTab = () => {
         const path = pathname.split("/").pop();
@@ -34,7 +41,9 @@ const RequestLayout = () => {
 
     useEffect(() => {
         setSearchText("");
-        setSelectedStatuses([]); // Reset filters when switching tabs
+        setSelectedStatuses([]);
+        setStartDate(null);
+        setEndDate(null); // Reset filters when switching tabs
     }, [pathname]);
 
     const navigateToTab = (tabId) => {
@@ -111,7 +120,9 @@ const RequestLayout = () => {
                             onPress={() => setShowFilterModal(true)}
                             accessibilityRole="button"
                             accessibilityLabel={
-                                selectedStatuses.length > 0
+                                selectedStatuses.length > 0 ||
+                                startDate ||
+                                endDate
                                     ? `${t(
                                           "my_requests.filter_modal.title"
                                       )} ${t(
@@ -124,7 +135,9 @@ const RequestLayout = () => {
                                 name="filter-list"
                                 size={24}
                                 color={
-                                    selectedStatuses.length > 0
+                                    selectedStatuses.length > 0 ||
+                                    startDate ||
+                                    endDate
                                         ? "#006FFD"
                                         : "#9CA3AF"
                                 }
@@ -140,6 +153,10 @@ const RequestLayout = () => {
                             setShowFilterModal,
                             selectedStatuses,
                             setSelectedStatuses,
+                            startDate,
+                            setStartDate,
+                            endDate,
+                            setEndDate,
                         }}
                     >
                         <Slot />

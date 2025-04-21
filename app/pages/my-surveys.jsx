@@ -13,10 +13,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import CustomAlertTwoButtons from "../../components/CustomAlertTwoButtons";
 import { useTranslation } from "react-i18next";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export const FilterContext = createContext({
     showFilterModal: false,
     setShowFilterModal: () => {},
+    selectedStatuses: [],
+    setSelectedStatuses: () => {},
+    startDate: null,
+    setStartDate: () => {},
+    endDate: null,
+    setEndDate: () => {},
 });
 
 // Sample survey data (in a real app, this would come from an API/database)
@@ -112,6 +119,8 @@ const MySurveysPage = () => {
     const [filteredSurveys, setFilteredSurveys] = useState(initialSurveysData);
     const [searchText, setSearchText] = useState("");
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [deleteAlert, setDeleteAlert] = useState({
         visible: false,
         surveyId: null,
@@ -119,6 +128,8 @@ const MySurveysPage = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showRejectionReason, setShowRejectionReason] = useState(null);
     const [showFilterModal, setShowFilterModal] = useState(false);
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
     // Status filters using API status values
     const statusFilters = [
@@ -130,7 +141,7 @@ const MySurveysPage = () => {
         "Completed",
     ];
 
-    // Filter surveys based on search text and selected statuses
+    // Filter surveys based on search text, selected statuses, and date range
     useEffect(() => {
         let result = [...surveysData];
 
@@ -148,8 +159,25 @@ const MySurveysPage = () => {
             );
         }
 
+        // Filter by date range
+        if (startDate || endDate) {
+            result = result.filter((survey) => {
+                const surveyDate = new Date(
+                    survey.createdDate.split(".").reverse().join("-")
+                );
+                if (startDate && endDate) {
+                    return surveyDate >= startDate && surveyDate <= endDate;
+                } else if (startDate) {
+                    return surveyDate >= startDate;
+                } else if (endDate) {
+                    return surveyDate <= endDate;
+                }
+                return true;
+            });
+        }
+
         setFilteredSurveys(result);
-    }, [searchText, selectedStatuses, surveysData]);
+    }, [searchText, selectedStatuses, startDate, endDate, surveysData]);
 
     const handleEdit = (surveyId) => {
         router.push({
@@ -199,6 +227,8 @@ const MySurveysPage = () => {
 
     const resetFilters = () => {
         setSelectedStatuses([]);
+        setStartDate(null);
+        setEndDate(null);
     };
 
     const canEdit = (status) => {
@@ -207,6 +237,15 @@ const MySurveysPage = () => {
 
     const canDelete = (status) => {
         return status === "Draft";
+    };
+
+    const formatDate = (date) => {
+        if (!date) return "";
+        return date.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        });
     };
 
     // Map API status values to translation keys
@@ -272,7 +311,16 @@ const MySurveysPage = () => {
             </View>
 
             <FilterContext.Provider
-                value={{ showFilterModal, setShowFilterModal }}
+                value={{
+                    showFilterModal,
+                    setShowFilterModal,
+                    selectedStatuses,
+                    setSelectedStatuses,
+                    startDate,
+                    setStartDate,
+                    endDate,
+                    setEndDate,
+                }}
             >
                 <View className="flex-1 px-4 mt-4">
                     {/* Search Bar */}
@@ -303,7 +351,9 @@ const MySurveysPage = () => {
                             onPress={() => setShowFilterModal(true)}
                             accessibilityRole="button"
                             accessibilityLabel={
-                                selectedStatuses.length > 0
+                                selectedStatuses.length > 0 ||
+                                startDate ||
+                                endDate
                                     ? `${t(
                                           "my_surveys.filter_modal.title"
                                       )} ${t("my_surveys.filter_modal.active")}`
@@ -314,7 +364,9 @@ const MySurveysPage = () => {
                                 name="filter-list"
                                 size={24}
                                 color={
-                                    selectedStatuses.length > 0
+                                    selectedStatuses.length > 0 ||
+                                    startDate ||
+                                    endDate
                                         ? "#006FFD"
                                         : "#9CA3AF"
                                 }
@@ -503,7 +555,7 @@ const MySurveysPage = () => {
                         onPress={() => setShowFilterModal(false)}
                     >
                         <View className="flex-1 justify-end">
-                            <View className="bg-white rounded-t-xl p-5 h-1/2">
+                            <View className="bg-white rounded-t-xl p-5 h-3/4">
                                 <View className="flex-row justify-between items-center mb-4">
                                     <Text className="text-lg font-mbold">
                                         {t("my_surveys.filter_modal.title")}
@@ -557,6 +609,71 @@ const MySurveysPage = () => {
                                             </TouchableOpacity>
                                         ))}
                                     </View>
+                                </View>
+
+                                {/* Date Range Filter */}
+                                <View className="mb-6">
+                                    <Text className="text-base font-mmedium mb-2">
+                                        {t(
+                                            "my_surveys.filter_modal.date_range"
+                                        )}
+                                    </Text>
+                                    <View className="flex-row justify-between">
+                                        <TouchableOpacity
+                                            className="flex-1 mr-2 p-3 bg-white border border-gray-300 rounded-lg"
+                                            onPress={() =>
+                                                setShowStartDatePicker(true)
+                                            }
+                                        >
+                                            <Text className="text-gray-700 font-mmedium">
+                                                {startDate
+                                                    ? formatDate(startDate)
+                                                    : t(
+                                                          "my_surveys.filter_modal.from"
+                                                      )}
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            className="flex-1 ml-2 p-3 bg-white border border-gray-300 rounded-lg"
+                                            onPress={() =>
+                                                setShowEndDatePicker(true)
+                                            }
+                                        >
+                                            <Text className="text-gray-700 font-mmedium">
+                                                {endDate
+                                                    ? formatDate(endDate)
+                                                    : t(
+                                                          "my_surveys.filter_modal.to"
+                                                      )}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    {showStartDatePicker && (
+                                        <DateTimePicker
+                                            value={startDate || new Date()}
+                                            mode="date"
+                                            display="default"
+                                            onChange={(event, selectedDate) => {
+                                                setShowStartDatePicker(false);
+                                                if (selectedDate) {
+                                                    setStartDate(selectedDate);
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                    {showEndDatePicker && (
+                                        <DateTimePicker
+                                            value={endDate || new Date()}
+                                            mode="date"
+                                            display="default"
+                                            onChange={(event, selectedDate) => {
+                                                setShowEndDatePicker(false);
+                                                if (selectedDate) {
+                                                    setEndDate(selectedDate);
+                                                }
+                                            }}
+                                        />
+                                    )}
                                 </View>
 
                                 {/* Reset Button */}

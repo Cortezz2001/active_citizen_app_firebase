@@ -151,7 +151,10 @@
       "filter_modal": {
         "title": "Фильтр заявок",
         "status": "Статус",
-        "reset": "Сбросить"
+        "reset": "Сбросить",
+        "date_range": "Диапазон дат",
+        "from": "От",
+        "to": "До"  
       }
   },
   "my_surveys": {
@@ -194,7 +197,10 @@
       "filter_modal": {
         "title": "Фильтр опросов",
         "status": "Статус",
-        "reset": "Сбросить"
+        "reset": "Сбросить",
+        "date_range": "Диапазон дат",
+        "from": "От",
+        "to": "До"  
       }
   },
   "my_petitions": {
@@ -236,9 +242,12 @@
           "deleting": "Удаление..."
       },
       "filter_modal": {
-        "title": "Фильтр опросов",
+        "title": "Фильтр петиций",
         "status": "Статус",
-        "reset": "Сбросить"
+        "reset": "Сбросить",
+        "date_range": "Диапазон дат",
+        "from": "От",
+        "to": "До"  
       }
   },
   "edit_profile": {

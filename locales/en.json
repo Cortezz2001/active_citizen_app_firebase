@@ -148,11 +148,15 @@
             "delete_button": "Delete",
             "deleting": "Deleting..."
         },
-        "filter_modal": {
-            "title": "Filter Requests",
-            "status": "Status",
-            "reset": "Reset"
-          }
+"filter_modal": {
+      "title": "Filter Requests",
+      "status": "Status",
+      "date_range": "Date Range",
+      "from": "From",
+      "to": "To",
+      "reset": "Reset Filters",
+      "active": "Active"
+    }
     },
     "my_surveys": {
         "title": "My Surveys",
@@ -194,7 +198,10 @@
         "filter_modal": {
             "title": "Filter Surveys",
             "status": "Status",
-            "reset": "Reset"
+            "reset": "Reset",
+            "date_range": "Date Range",
+            "from": "From",
+            "to": "To"
           }
     },
     "my_petitions": {
@@ -236,9 +243,12 @@
             "deleting": "Deleting..."
         },
         "filter_modal": {
-            "title": "Filter Surveys",
+            "title": "Filter Petitions",
             "status": "Status",
-            "reset": "Reset"
+            "reset": "Reset",
+            "date_range": "Date Range",
+            "from": "From",
+            "to": "To"
           }
     },
     "edit_profile": {

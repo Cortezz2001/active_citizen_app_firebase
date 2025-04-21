@@ -4,6 +4,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { SearchContext, FilterContext } from "./_layout";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const myRequestsData = [
     {
@@ -96,6 +97,10 @@ const MyRequestsTab = () => {
         setShowFilterModal,
         selectedStatuses,
         setSelectedStatuses,
+        startDate,
+        setStartDate,
+        endDate,
+        setEndDate,
     } = useContext(FilterContext);
     const [requestsData, setRequestsData] = useState(myRequestsData);
     const [filteredRequests, setFilteredRequests] = useState(myRequestsData);
@@ -105,6 +110,8 @@ const MyRequestsTab = () => {
         requestId: null,
     });
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
     const statusFilters = ["draft", "in_progress", "rejected", "completed"];
 
@@ -120,8 +127,23 @@ const MyRequestsTab = () => {
                 selectedStatuses.includes(request.status)
             );
         }
+        if (startDate || endDate) {
+            result = result.filter((request) => {
+                const requestDate = new Date(
+                    request.date.split(".").reverse().join("-")
+                );
+                if (startDate && endDate) {
+                    return requestDate >= startDate && requestDate <= endDate;
+                } else if (startDate) {
+                    return requestDate >= startDate;
+                } else if (endDate) {
+                    return requestDate <= endDate;
+                }
+                return true;
+            });
+        }
         setFilteredRequests(result);
-    }, [searchText, selectedStatuses, requestsData]);
+    }, [searchText, selectedStatuses, startDate, endDate, requestsData]);
 
     const handleEdit = (requestId) => {
         router.push({
@@ -169,6 +191,8 @@ const MyRequestsTab = () => {
 
     const resetFilters = () => {
         setSelectedStatuses([]);
+        setStartDate(null);
+        setEndDate(null);
     };
 
     const canEdit = (status) => {
@@ -177,6 +201,15 @@ const MyRequestsTab = () => {
 
     const canDelete = (status) => {
         return status === "draft";
+    };
+
+    const formatDate = (date) => {
+        if (!date) return "";
+        return date.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        });
     };
 
     const EmptyStateMessage = () => (
@@ -356,7 +389,7 @@ const MyRequestsTab = () => {
                     onPress={() => setShowFilterModal(false)}
                 >
                     <View className="flex-1 justify-end">
-                        <View className="bg-white rounded-t-xl p-5 h-1/2">
+                        <View className="bg-white rounded-t-xl p-5 h-3/4">
                             <View className="flex-row justify-between items-center mb-4">
                                 <Text className="text-lg font-mbold">
                                     {t("my_requests.filter_modal.title")}
@@ -406,6 +439,69 @@ const MyRequestsTab = () => {
                                         </TouchableOpacity>
                                     ))}
                                 </View>
+                            </View>
+
+                            {/* Date Range Filter */}
+                            <View className="mb-6">
+                                <Text className="text-base font-mmedium mb-2">
+                                    {t("my_requests.filter_modal.date_range")}
+                                </Text>
+                                <View className="flex-row justify-between">
+                                    <TouchableOpacity
+                                        className="flex-1 mr-2 p-3 bg-white border border-gray-300 rounded-lg"
+                                        onPress={() =>
+                                            setShowStartDatePicker(true)
+                                        }
+                                    >
+                                        <Text className="text-gray-700 font-mmedium">
+                                            {startDate
+                                                ? formatDate(startDate)
+                                                : t(
+                                                      "my_requests.filter_modal.from"
+                                                  )}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        className="flex-1 ml-2 p-3 bg-white border border-gray-300 rounded-lg"
+                                        onPress={() =>
+                                            setShowEndDatePicker(true)
+                                        }
+                                    >
+                                        <Text className="text-gray-700 font-mmedium">
+                                            {endDate
+                                                ? formatDate(endDate)
+                                                : t(
+                                                      "my_requests.filter_modal.to"
+                                                  )}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {showStartDatePicker && (
+                                    <DateTimePicker
+                                        value={startDate || new Date()}
+                                        mode="date"
+                                        display="default"
+                                        onChange={(event, selectedDate) => {
+                                            setShowStartDatePicker(false);
+                                            if (selectedDate) {
+                                                setStartDate(selectedDate);
+                                            }
+                                        }}
+                                    />
+                                )}
+                                {showEndDatePicker && (
+                                    <DateTimePicker
+                                        value={endDate || new Date()}
+                                        mode="date"
+                                        display="default"
+                                        onChange={(event, selectedDate) => {
+                                            setShowEndDatePicker(false);
+                                            if (selectedDate) {
+                                                setEndDate(selectedDate);
+                                            }
+                                        }}
+                                    />
+                                )}
                             </View>
 
                             {/* Reset Button */}

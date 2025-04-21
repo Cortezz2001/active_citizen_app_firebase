@@ -13,10 +13,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import CustomAlertTwoButtons from "../../components/CustomAlertTwoButtons";
 import { useTranslation } from "react-i18next";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export const FilterContext = createContext({
     showFilterModal: false,
     setShowFilterModal: () => {},
+    selectedStatuses: [],
+    setSelectedStatuses: () => {},
+    startDate: null,
+    setStartDate: () => {},
+    endDate: null,
+    setEndDate: () => {},
 });
 
 // Sample petition data (in a real app, this would come from an API/database)
@@ -120,6 +127,8 @@ const MyPetitionsPage = () => {
         useState(initialPetitionsData);
     const [searchText, setSearchText] = useState("");
     const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
     const [deleteAlert, setDeleteAlert] = useState({
         visible: false,
         petitionId: null,
@@ -127,6 +136,8 @@ const MyPetitionsPage = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showRejectionReason, setShowRejectionReason] = useState(null);
     const [showFilterModal, setShowFilterModal] = useState(false);
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
     // Status filters using API status values
     const statusFilters = [
@@ -138,7 +149,7 @@ const MyPetitionsPage = () => {
         "Completed",
     ];
 
-    // Filter petitions based on search text and selected statuses
+    // Filter petitions based on search text, selected statuses, and date range
     useEffect(() => {
         let result = [...petitionsData];
 
@@ -156,8 +167,25 @@ const MyPetitionsPage = () => {
             );
         }
 
+        // Filter by date range
+        if (startDate || endDate) {
+            result = result.filter((petition) => {
+                const petitionDate = new Date(
+                    petition.createdDate.split(".").reverse().join("-")
+                );
+                if (startDate && endDate) {
+                    return petitionDate >= startDate && petitionDate <= endDate;
+                } else if (startDate) {
+                    return petitionDate >= startDate;
+                } else if (endDate) {
+                    return petitionDate <= endDate;
+                }
+                return true;
+            });
+        }
+
         setFilteredPetitions(result);
-    }, [searchText, selectedStatuses, petitionsData]);
+    }, [searchText, selectedStatuses, startDate, endDate, petitionsData]);
 
     const handleEdit = (petitionId) => {
         router.push({
@@ -207,6 +235,8 @@ const MyPetitionsPage = () => {
 
     const resetFilters = () => {
         setSelectedStatuses([]);
+        setStartDate(null);
+        setEndDate(null);
     };
 
     const canEdit = (status) => {
@@ -215,6 +245,15 @@ const MyPetitionsPage = () => {
 
     const canDelete = (status) => {
         return status === "Draft";
+    };
+
+    const formatDate = (date) => {
+        if (!date) return "";
+        return date.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        });
     };
 
     // Map API status values to translation keys
@@ -280,7 +319,16 @@ const MyPetitionsPage = () => {
             </View>
 
             <FilterContext.Provider
-                value={{ showFilterModal, setShowFilterModal }}
+                value={{
+                    showFilterModal,
+                    setShowFilterModal,
+                    selectedStatuses,
+                    setSelectedStatuses,
+                    startDate,
+                    setStartDate,
+                    endDate,
+                    setEndDate,
+                }}
             >
                 <View className="flex-1 px-4 mt-4">
                     {/* Search Bar */}
@@ -311,7 +359,9 @@ const MyPetitionsPage = () => {
                             onPress={() => setShowFilterModal(true)}
                             accessibilityRole="button"
                             accessibilityLabel={
-                                selectedStatuses.length > 0
+                                selectedStatuses.length > 0 ||
+                                startDate ||
+                                endDate
                                     ? `${t(
                                           "my_petitions.filter_modal.title"
                                       )} ${t(
@@ -324,7 +374,9 @@ const MyPetitionsPage = () => {
                                 name="filter-list"
                                 size={24}
                                 color={
-                                    selectedStatuses.length > 0
+                                    selectedStatuses.length > 0 ||
+                                    startDate ||
+                                    endDate
                                         ? "#006FFD"
                                         : "#9CA3AF"
                                 }
@@ -544,7 +596,7 @@ const MyPetitionsPage = () => {
                         onPress={() => setShowFilterModal(false)}
                     >
                         <View className="flex-1 justify-end">
-                            <View className="bg-white rounded-t-xl p-5 h-1/2">
+                            <View className="bg-white rounded-t-xl p-5 h-3/4">
                                 <View className="flex-row justify-between items-center mb-4">
                                     <Text className="text-lg font-mbold">
                                         {t("my_petitions.filter_modal.title")}
@@ -598,6 +650,71 @@ const MyPetitionsPage = () => {
                                             </TouchableOpacity>
                                         ))}
                                     </View>
+                                </View>
+
+                                {/* Date Range Filter */}
+                                <View className="mb-6">
+                                    <Text className="text-base font-mmedium mb-2">
+                                        {t(
+                                            "my_petitions.filter_modal.date_range"
+                                        )}
+                                    </Text>
+                                    <View className="flex-row justify-between">
+                                        <TouchableOpacity
+                                            className="flex-1 mr-2 p-3 bg-white border border-gray-300 rounded-lg"
+                                            onPress={() =>
+                                                setShowStartDatePicker(true)
+                                            }
+                                        >
+                                            <Text className="text-gray-700 font-mmedium">
+                                                {startDate
+                                                    ? formatDate(startDate)
+                                                    : t(
+                                                          "my_petitions.filter_modal.from"
+                                                      )}
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            className="flex-1 ml-2 p-3 bg-white border border-gray-300 rounded-lg"
+                                            onPress={() =>
+                                                setShowEndDatePicker(true)
+                                            }
+                                        >
+                                            <Text className="text-gray-700 font-mmedium">
+                                                {endDate
+                                                    ? formatDate(endDate)
+                                                    : t(
+                                                          "my_petitions.filter_modal.to"
+                                                      )}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    {showStartDatePicker && (
+                                        <DateTimePicker
+                                            value={startDate || new Date()}
+                                            mode="date"
+                                            display="default"
+                                            onChange={(event, selectedDate) => {
+                                                setShowStartDatePicker(false);
+                                                if (selectedDate) {
+                                                    setStartDate(selectedDate);
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                    {showEndDatePicker && (
+                                        <DateTimePicker
+                                            value={endDate || new Date()}
+                                            mode="date"
+                                            display="default"
+                                            onChange={(event, selectedDate) => {
+                                                setShowEndDatePicker(false);
+                                                if (selectedDate) {
+                                                    setEndDate(selectedDate);
+                                                }
+                                            }}
+                                        />
+                                    )}
                                 </View>
 
                                 {/* Reset Button */}
