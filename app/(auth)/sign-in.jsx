@@ -10,8 +10,10 @@ import GoogleButton from "@/components/GoogleButton";
 import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
 import { useFirestore } from "../../hooks/useFirestore";
+import { useTranslation } from "react-i18next";
 
 export default function SignIn() {
+    const { t } = useTranslation();
     const { sendPhoneVerificationCode, signInWithGoogle } = useAuth();
     const [isSubmitting, setSubmitting] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -39,27 +41,24 @@ export default function SignIn() {
                 await checkProfileAndRedirect(result.user);
                 Toast.show({
                     type: "success",
-                    text1: "Success",
-                    text2: "Successfully signed in!",
+                    text1: t("sign_in.toast.success.title"),
+                    text2: t("sign_in.toast.success.message"),
                 });
             } else {
                 Toast.show({
                     type: "error",
-                    text1: "Error",
-                    text2: "Failed to verify the code. No user data returned.",
+                    text1: t("sign_in.toast.error.title"),
+                    text2: t("sign_in.toast.error.no_user_data"),
                 });
             }
-            Toast.show({
-                type: "success",
-                text1: "Success",
-                text2: "Successfully signed in!",
-            });
         } catch (error) {
             console.log("Error details:", error);
             Toast.show({
                 type: "error",
-                text1: "Authentication Error",
-                text2: error.message || "Failed to sign in with Google",
+                text1: t("sign_in.toast.error.authentication_error"),
+                text2:
+                    error.message ||
+                    t("sign_in.toast.error.failed_google_sign_in"),
             });
         }
     };
@@ -68,8 +67,8 @@ export default function SignIn() {
         if (!phoneNumber) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter your phone number",
+                text1: t("sign_in.toast.error.title"),
+                text2: t("sign_in.toast.error.no_phone_number"),
             });
             return;
         }
@@ -79,8 +78,8 @@ export default function SignIn() {
         if (!phoneRegex.test(phoneNumber)) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter a valid phone number with country code (e.g. +123456789012)",
+                text1: t("sign_in.toast.error.title"),
+                text2: t("sign_in.toast.error.invalid_phone_number"),
             });
             return;
         }
@@ -94,14 +93,13 @@ export default function SignIn() {
                 params: { phoneNumber },
             });
         } catch (error) {
-            let message = "An error occurred during sign in";
+            let message = t("sign_in.toast.error.general_error");
             if (error.message.includes("invalid-phone-number")) {
-                message =
-                    "Invalid phone number. Please check your number and try again.";
+                message = t("sign_in.toast.error.invalid_phone_format");
             }
             Toast.show({
                 type: "error",
-                text1: "Error",
+                text1: t("sign_in.toast.error.title"),
                 text2: message,
             });
         } finally {
@@ -119,11 +117,11 @@ export default function SignIn() {
                 }}
             >
                 <Text className="text-3xl font-mbold text-black text-center mb-8">
-                    Welcome!
+                    {t("sign_in.title")}
                 </Text>
 
                 <Text className="text-black font-msemibold text-left mb-2">
-                    Phone Number
+                    {t("sign_in.fields.phone_number.label")}
                 </Text>
                 <PhoneField
                     value={phoneNumber}
@@ -132,7 +130,7 @@ export default function SignIn() {
                 />
 
                 <CustomButton
-                    title="Login"
+                    title={t("sign_in.buttons.login")}
                     handlePress={handleSignIn}
                     containerStyles="rounded-lg py-3 mb-6 bg-primary"
                     isLoading={isSubmitting}
@@ -141,7 +139,7 @@ export default function SignIn() {
                 <View className="flex-row items-center justify-center mb-6 mt-3">
                     <View className="flex-1 h-[1px] bg-gray-300" />
                     <Text className="text-gray-500 px-2 font-mmedium">
-                        Or continue with
+                        {t("sign_in.divider")}
                     </Text>
                     <View className="flex-1 h-[1px] bg-gray-300" />
                 </View>

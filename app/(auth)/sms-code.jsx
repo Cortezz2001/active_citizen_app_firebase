@@ -8,8 +8,10 @@ import { TextInput } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
 import { useFirestore } from "../../hooks/useFirestore";
+import { useTranslation } from "react-i18next";
 
 export default function SmsCode() {
+    const { t } = useTranslation();
     const { phoneNumber } = useLocalSearchParams();
     const { verifyPhoneCode, sendPhoneVerificationCode } = useAuth();
     const [isSubmitting, setSubmitting] = useState(false);
@@ -60,7 +62,7 @@ export default function SmsCode() {
     };
 
     const handleCodeChange = (text, index) => {
-        // Разрешаем только цифры
+        // Allow only digits
         if (/^[0-9]*$/.test(text)) {
             const newCode = [...verificationCode];
             newCode[index] = text;
@@ -88,8 +90,8 @@ export default function SmsCode() {
         if (code.length !== 6) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Please enter the 6-digit verification code",
+                text1: t("sms_code.toast.error.title"),
+                text2: t("sms_code.toast.error.incomplete_code"),
             });
             return;
         }
@@ -102,25 +104,25 @@ export default function SmsCode() {
                 await checkProfileAndRedirect(result);
                 Toast.show({
                     type: "success",
-                    text1: "Success",
-                    text2: "Successfully signed in!",
+                    text1: t("sms_code.toast.success.title"),
+                    text2: t("sms_code.toast.success.signed_in"),
                 });
             } else {
                 Toast.show({
                     type: "error",
-                    text1: "Error",
-                    text2: "Failed to verify the code. No user data returned.",
+                    text1: t("sms_code.toast.error.title"),
+                    text2: t("sms_code.toast.error.no_user_data"),
                 });
             }
         } catch (error) {
-            let message = "Failed to verify the code. Please try again.";
+            let message = t("sms_code.toast.error.invalid_code");
             if (error.message.includes("invalid-verification-code")) {
-                message = "Invalid verification code. Please try again.";
+                message = t("sms_code.toast.error.invalid_code");
             }
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Invalid verification code. Please try again.",
+                text1: t("sms_code.toast.error.title"),
+                text2: message,
             });
         } finally {
             setSubmitting(false);
@@ -146,14 +148,14 @@ export default function SmsCode() {
 
             Toast.show({
                 type: "success",
-                text1: "Success",
-                text2: "A new verification code has been sent",
+                text1: t("sms_code.toast.success.title"),
+                text2: t("sms_code.toast.success.code_sent"),
             });
         } catch (error) {
             Toast.show({
                 type: "error",
-                text1: "Error",
-                text2: "Failed to resend verification code",
+                text1: t("sms_code.toast.error.title"),
+                text2: t("sms_code.toast.error.resend_failed"),
             });
         }
     };
@@ -163,10 +165,10 @@ export default function SmsCode() {
             <StatusBar style="dark" />
             <View className="items-center">
                 <Text className="text-2xl font-mbold text-black text-center mb-2">
-                    Enter confirmation code
+                    {t("sms_code.title")}
                 </Text>
                 <Text className="text-sm text-gray-500 text-center mb-8">
-                    A 6-digit code was sent to{"\n"}
+                    {t("sms_code.instruction")} {"\n"}
                     {phoneNumber}
                 </Text>
 
@@ -200,6 +202,11 @@ export default function SmsCode() {
                     onPress={handleResend}
                     disabled={resendDisabled}
                     className="mb-8"
+                    accessibilityLabel={
+                        resendDisabled
+                            ? t("sms_code.resend.disabled", { timer })
+                            : t("sms_code.resend.enabled")
+                    }
                 >
                     <Text
                         className={`text-center ${
@@ -207,13 +214,13 @@ export default function SmsCode() {
                         } font-mmedium`}
                     >
                         {resendDisabled
-                            ? `Resend code (${timer}s)`
-                            : "Resend code"}
+                            ? t("sms_code.resend.disabled", { timer })
+                            : t("sms_code.resend.enabled")}
                     </Text>
                 </TouchableOpacity>
 
                 <CustomButton
-                    title="Continue"
+                    title={t("sms_code.buttons.continue")}
                     handlePress={handleVerify}
                     containerStyles="rounded-lg py-3 bg-primary w-full"
                     isLoading={isSubmitting}
