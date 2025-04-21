@@ -258,34 +258,7 @@
       "city": {
           "label": "Қала",
           "placeholder": "Қалаңызды таңдаңыз",
-          "required": "Қала міндетті",
-          "options": {
-              "almaty": "Алматы",
-              "astana": "Астана",
-              "shymkent": "Шымкент",
-              "karaganda": "Қарағанды",
-              "aktobe": "Ақтөбе",
-              "taraz": "Тараз",
-              "pavlodar": "Павлодар",
-              "ust_kamenogorsk": "Өскемен",
-              "semey": "Семей",
-              "atyrau": "Атырау",
-              "kyzylorda": "Қызылорда",
-              "kostanay": "Қостанай",
-              "uralsk": "Орал",
-              "petropavlovsk": "Петропавл",
-              "aktau": "Ақтау",
-              "temirtau": "Теміртау",
-              "turkestan": "Түркістан",
-              "kokshetau": "Көкшетау",
-              "taldykorgan": "Талдықорған",
-              "ekibastuz": "Екібастұз",
-              "zhezkazgan": "Жезқазған",
-              "balkhash": "Балқаш",
-              "kentau": "Кентау",
-              "rudny": "Рудный",
-              "zhanaozen": "Жаңаөзен"
-          }
+          "required": "Қала міндетті"
       },
       "gender": {
           "label": "Жыныс",
@@ -547,34 +520,7 @@
       "city": {
           "label": "Қала",
           "placeholder": "Қалаңызды таңдаңыз",
-          "required": "Қала міндетті",
-          "options": {
-              "almaty": "Алматы",
-              "astana": "Астана",
-              "shymkent": "Шымкент",
-              "karaganda": "Қарағанды",
-              "aktobe": "Ақтөбе",
-              "taraz": "Тараз",
-              "pavlodar": "Павлодар",
-              "ust_kamenogorsk": "Өскемен",
-              "semey": "Семей",
-              "atyrau": "Атырау",
-              "kyzylorda": "Қызылорда",
-              "kostanay": "Қостанай",
-              "uralsk": "Орал",
-              "petropavlovsk": "Петропавл",
-              "aktau": "Ақтау",
-              "temirtau": "Теміртау",
-              "turkestan": "Түркістан",
-              "kokshetau": "Көкшетау",
-              "taldykorgan": "Талдықорған",
-              "ekibastuz": "Екібастұз",
-              "zhezkazgan": "Жезқазған",
-              "balkhash": "Балқаш",
-              "kentau": "Кентау",
-              "rudny": "Рудный",
-              "zhanaozen": "Жаңаөзен"
-          }
+          "required": "Қала міндетті"
       },
       "gender": {
           "label": "Жыныс",

@@ -258,34 +258,7 @@
         "city": {
             "label": "Город",
             "placeholder": "Выберите ваш город",
-            "required": "Город обязателен",
-            "options": {
-                "almaty": "Алматы",
-                "astana": "Астана",
-                "shymkent": "Шымкент",
-                "karaganda": "Караганда",
-                "aktobe": "Актобе",
-                "taraz": "Тараз",
-                "pavlodar": "Павлодар",
-                "ust_kamenogorsk": "Усть-Каменогорск",
-                "semey": "Семей",
-                "atyrau": "Атырау",
-                "kyzylorda": "Кызылорда",
-                "kostanay": "Костанай",
-                "uralsk": "Уральск",
-                "petropavlovsk": "Петропавловск",
-                "aktau": "Актау",
-                "temirtau": "Темиртау",
-                "turkestan": "Туркестан",
-                "kokshetau": "Кокшетау",
-                "taldykorgan": "Талдыкорган",
-                "ekibastuz": "Экибастуз",
-                "zhezkazgan": "Жезказган",
-                "balkhash": "Балхаш",
-                "kentau": "Кентау",
-                "rudny": "Рудный",
-                "zhanaozen": "Жанаозен"
-            }
+            "required": "Город обязателен"
         },
         "gender": {
             "label": "Пол",
@@ -547,34 +520,7 @@
       "city": {
           "label": "Город",
           "placeholder": "Выберите ваш город",
-          "required": "Город обязателен",
-          "options": {
-              "almaty": "Алматы",
-              "astana": "Астана",
-              "shymkent": "Шымкент",
-              "karaganda": "Караганда",
-              "aktobe": "Актобе",
-              "taraz": "Тараз",
-              "pavlodar": "Павлодар",
-              "ust_kamenogorsk": "Усть-Каменогорск",
-              "semey": "Семей",
-              "atyrau": "Атырау",
-              "kyzylorda": "Кызылорда",
-              "kostanay": "Костанай",
-              "uralsk": "Уральск",
-              "petropavlovsk": "Петропавловск",
-              "aktau": "Актау",
-              "temirtau": "Темиртау",
-              "turkestan": "Туркестан",
-              "kokshetau": "Кокшетау",
-              "taldykorgan": "Талдыкорган",
-              "ekibastuz": "Экибастуз",
-              "zhezkazgan": "Жезказган",
-              "balkhash": "Балхаш",
-              "kentau": "Кентау",
-              "rudny": "Рудный",
-              "zhanaozen": "Жанаозен"
-          }
+          "required": "Город обязателен"
       },
       "gender": {
           "label": "Пол",

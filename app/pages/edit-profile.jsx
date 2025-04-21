@@ -1,11 +1,6 @@
+// Modified parts of edit-profile.jsx
 import React, { useState, useEffect } from "react";
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    ScrollView,
-    ActivityIndicator,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
@@ -20,20 +15,37 @@ import FormField from "@/components/FormField";
 import DropdownField from "@/components/DropdownField";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { useTranslation } from "react-i18next";
+import { getCityNameByKey, getCityDropdownData } from "../../lib/cities";
+import {
+    getGenderNameByKey,
+    getGenderDropdownData,
+    getGenderKeyByName,
+} from "../../lib/genders";
 
 const EditProfile = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user, refreshUser } = useAuthContext();
     const { getDocument, updateDocument } = useFirestore();
+    const currentLanguage = i18n.language || "en";
 
     const [form, setForm] = useState({
         fname: "",
         lname: "",
-        city: "",
-        gender: "",
+        cityKey: "", // Store the city key, not the display name
+        genderKey: "", // Now storing genderKey instead of gender string
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Get cities in the current language for the dropdown
+    const cityOptions = getCityDropdownData(currentLanguage).map(
+        (city) => city.value
+    );
+
+    // Get genders in the current language for the dropdown
+    const genderOptions = getGenderDropdownData(currentLanguage).map(
+        (gender) => gender.value
+    );
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -44,8 +56,9 @@ const EditProfile = () => {
                         setForm({
                             fname: userData.fname || "",
                             lname: userData.lname || "",
-                            city: userData.city || "",
-                            gender: userData.gender || "",
+                            cityKey: userData.cityKey || "",
+                            genderKey:
+                                userData.genderKey || userData.gender || "", // For backward compatibility
                         });
                     }
                 }
@@ -65,9 +78,9 @@ const EditProfile = () => {
     }, [user, t]);
 
     const handleUpdate = async () => {
-        const { fname, lname, city, gender } = form;
+        const { fname, lname, cityKey, genderKey } = form;
 
-        if (!fname || !lname || !city || !gender) {
+        if (!fname || !lname || !cityKey || !genderKey) {
             Toast.show({
                 type: "error",
                 text1: t("edit_profile.toast.error.title"),
@@ -84,8 +97,8 @@ const EditProfile = () => {
             await updateDocument("users", user.uid, {
                 fname,
                 lname,
-                city,
-                gender,
+                cityKey,
+                genderKey, // Store the gender key in the database
                 updatedAt: serverTimestamp(),
             });
 
@@ -110,39 +123,39 @@ const EditProfile = () => {
         }
     };
 
-    const genderOptions = [
-        t("edit_profile.fields.gender.options.male"),
-        t("edit_profile.fields.gender.options.female"),
-    ];
-    const kazakhstanCities = [
-        "almaty",
-        "astana",
-        "shymkent",
-        "karaganda",
-        "aktobe",
-        "taraz",
-        "pavlodar",
-        "ust_kamenogorsk",
-        "semey",
-        "atyrau",
-        "kyzylorda",
-        "kostanay",
-        "uralsk",
-        "petropavlovsk",
-        "aktau",
-        "temirtau",
-        "turkestan",
-        "kokshetau",
-        "taldykorgan",
-        "ekibastuz",
-        "zhezkazgan",
-        "balkhash",
-        "kentau",
-        "rudny",
-        "zhanaozen",
-    ]
-        .map((cityKey) => t(`edit_profile.fields.city.options.${cityKey}`))
-        .sort();
+    // Handle city selection from dropdown
+    const handleCitySelect = (selectedCityName) => {
+        // Find the city object that matches the selected name
+        const cityData = getCityDropdownData(currentLanguage).find(
+            (city) => city.value === selectedCityName
+        );
+
+        if (cityData) {
+            setForm({ ...form, cityKey: cityData.key });
+        }
+    };
+
+    // Handle gender selection from dropdown
+    const handleGenderSelect = (selectedGenderName) => {
+        // Find the gender object that matches the selected name
+        const genderData = getGenderDropdownData(currentLanguage).find(
+            (gender) => gender.value === selectedGenderName
+        );
+
+        if (genderData) {
+            setForm({ ...form, genderKey: genderData.key });
+        }
+    };
+
+    // Get the display name for the current city key in the current language
+    const displayCityName = form.cityKey
+        ? getCityNameByKey(form.cityKey, currentLanguage)
+        : "";
+
+    // Get the display name for the current gender key in the current language
+    const displayGenderName = form.genderKey
+        ? getGenderNameByKey(form.genderKey, currentLanguage)
+        : "";
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -220,9 +233,9 @@ const EditProfile = () => {
                             placeholder={t(
                                 "edit_profile.fields.city.placeholder"
                             )}
-                            value={form.city}
-                            options={kazakhstanCities}
-                            onSelect={(city) => setForm({ ...form, city })}
+                            value={displayCityName}
+                            options={cityOptions}
+                            onSelect={handleCitySelect}
                             containerStyle="mb-4 bg-ghostwhite"
                         />
 
@@ -235,9 +248,9 @@ const EditProfile = () => {
                             placeholder={t(
                                 "edit_profile.fields.gender.placeholder"
                             )}
-                            value={form.gender}
+                            value={displayGenderName}
                             options={genderOptions}
-                            onSelect={(gender) => setForm({ ...form, gender })}
+                            onSelect={handleGenderSelect}
                             containerStyle="mb-6 bg-ghostwhite"
                         />
 

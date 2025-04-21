@@ -1,11 +1,6 @@
+// Modified parts of complete-registration.jsx
 import React, { useState } from "react";
-import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
@@ -19,24 +14,41 @@ import { MaterialIcons } from "@expo/vector-icons";
 import FormField from "@/components/FormField";
 import DropdownField from "@/components/DropdownField";
 import { useTranslation } from "react-i18next";
+import { getCityNameByKey, getCityDropdownData } from "../../lib/cities";
+import {
+    getGenderNameByKey,
+    getGenderDropdownData,
+    getGenderKeyByName,
+} from "../../lib/genders";
 
 const CompleteRegistration = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user, logout, refreshUser } = useAuthContext();
     const { setDocument } = useFirestore();
+    const currentLanguage = i18n.language || "en";
+
+    // Get cities in the current language for the dropdown
+    const cityOptions = getCityDropdownData(currentLanguage).map(
+        (city) => city.value
+    );
+
+    // Get genders in the current language for the dropdown
+    const genderOptions = getGenderDropdownData(currentLanguage).map(
+        (gender) => gender.value
+    );
 
     const [form, setForm] = useState({
         fname: "",
         lname: "",
-        city: "",
-        gender: "",
+        cityKey: "", // Store the city key, not the display name
+        genderKey: "", // Now storing genderKey instead of gender string
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleComplete = async () => {
-        const { fname, lname, city, gender } = form;
+        const { fname, lname, cityKey, genderKey } = form;
 
-        if (!fname || !lname || !city || !gender) {
+        if (!fname || !lname || !cityKey || !genderKey) {
             Toast.show({
                 type: "error",
                 text1: t("complete_registration.toast.error.title"),
@@ -55,8 +67,8 @@ const CompleteRegistration = () => {
             await setDocument("users", user.uid, {
                 fname,
                 lname,
-                city,
-                gender,
+                cityKey, // Store the city key in the database
+                genderKey, // Store the gender key in the database
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             });
@@ -98,42 +110,39 @@ const CompleteRegistration = () => {
         }
     };
 
-    const genderOptions = [
-        t("complete_registration.fields.gender.options.male"),
-        t("complete_registration.fields.gender.options.female"),
-    ];
+    // Handle city selection from dropdown
+    const handleCitySelect = (selectedCityName) => {
+        // Find the city object that matches the selected name
+        const cityData = getCityDropdownData(currentLanguage).find(
+            (city) => city.value === selectedCityName
+        );
 
-    const kazakhstanCities = [
-        "almaty",
-        "astana",
-        "shymkent",
-        "karaganda",
-        "aktobe",
-        "taraz",
-        "pavlodar",
-        "ust_kamenogorsk",
-        "semey",
-        "atyrau",
-        "kyzylorda",
-        "kostanay",
-        "uralsk",
-        "petropavlovsk",
-        "aktau",
-        "temirtau",
-        "turkestan",
-        "kokshetau",
-        "taldykorgan",
-        "ekibastuz",
-        "zhezkazgan",
-        "balkhash",
-        "kentau",
-        "rudny",
-        "zhanaozen",
-    ]
-        .map((cityKey) =>
-            t(`complete_registration.fields.city.options.${cityKey}`)
-        )
-        .sort();
+        if (cityData) {
+            setForm({ ...form, cityKey: cityData.key });
+        }
+    };
+
+    // Handle gender selection from dropdown
+    const handleGenderSelect = (selectedGenderName) => {
+        // Find the gender object that matches the selected name
+        const genderData = getGenderDropdownData(currentLanguage).find(
+            (gender) => gender.value === selectedGenderName
+        );
+
+        if (genderData) {
+            setForm({ ...form, genderKey: genderData.key });
+        }
+    };
+
+    // Get the display name for the current city key in the current language
+    const displayCityName = form.cityKey
+        ? getCityNameByKey(form.cityKey, currentLanguage)
+        : "";
+
+    // Get the display name for the current gender key in the current language
+    const displayGenderName = form.genderKey
+        ? getGenderNameByKey(form.genderKey, currentLanguage)
+        : "";
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -213,9 +222,9 @@ const CompleteRegistration = () => {
                         placeholder={t(
                             "complete_registration.fields.city.placeholder"
                         )}
-                        value={form.city}
-                        options={kazakhstanCities}
-                        onSelect={(city) => setForm({ ...form, city })}
+                        value={displayCityName}
+                        options={cityOptions}
+                        onSelect={handleCitySelect}
                         containerStyle="mb-4"
                     />
 
@@ -230,9 +239,9 @@ const CompleteRegistration = () => {
                         placeholder={t(
                             "complete_registration.fields.gender.placeholder"
                         )}
-                        value={form.gender}
+                        value={displayGenderName}
                         options={genderOptions}
-                        onSelect={(gender) => setForm({ ...form, gender })}
+                        onSelect={handleGenderSelect}
                         containerStyle="mb-6"
                     />
 

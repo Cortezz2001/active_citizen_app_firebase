@@ -258,34 +258,7 @@
             "city": {
                 "label": "City",
                 "placeholder": "Select your city",
-                "required": "City is required",
-                "options": {
-                    "almaty": "Almaty",
-                    "astana": "Astana",
-                    "shymkent": "Shymkent",
-                    "karaganda": "Karaganda",
-                    "aktobe": "Aktobe",
-                    "taraz": "Taraz",
-                    "pavlodar": "Pavlodar",
-                    "ust_kamenogorsk": "Ust-Kamenogorsk",
-                    "semey": "Semey",
-                    "atyrau": "Atyrau",
-                    "kyzylorda": "Kyzylorda",
-                    "kostanay": "Kostanay",
-                    "uralsk": "Uralsk",
-                    "petropavlovsk": "Petropavlovsk",
-                    "aktau": "Aktau",
-                    "temirtau": "Temirtau",
-                    "turkestan": "Turkestan",
-                    "kokshetau": "Kokshetau",
-                    "taldykorgan": "Taldykorgan",
-                    "ekibastuz": "Ekibastuz",
-                    "zhezkazgan": "Zhezkazgan",
-                    "balkhash": "Balkhash",
-                    "kentau": "Kentau",
-                    "rudny": "Rudny",
-                    "zhanaozen": "Zhanaozen"
-                }
+                "required": "City is required"
             },
             "gender": {
                 "label": "Gender",
@@ -547,34 +520,7 @@
             "city": {
                 "label": "City",
                 "placeholder": "Select your city",
-                "required": "City is required",
-                "options": {
-                    "almaty": "Almaty",
-                    "astana": "Astana",
-                    "shymkent": "Shymkent",
-                    "karaganda": "Karaganda",
-                    "aktobe": "Aktobe",
-                    "taraz": "Taraz",
-                    "pavlodar": "Pavlodar",
-                    "ust_kamenogorsk": "Ust-Kamenogorsk",
-                    "semey": "Semey",
-                    "atyrau": "Atyrau",
-                    "kyzylorda": "Kyzylorda",
-                    "kostanay": "Kostanay",
-                    "uralsk": "Uralsk",
-                    "petropavlovsk": "Petropavlovsk",
-                    "aktau": "Aktau",
-                    "temirtau": "Temirtau",
-                    "turkestan": "Turkestan",
-                    "kokshetau": "Kokshetau",
-                    "taldykorgan": "Taldykorgan",
-                    "ekibastuz": "Ekibastuz",
-                    "zhezkazgan": "Zhezkazgan",
-                    "balkhash": "Balkhash",
-                    "kentau": "Kentau",
-                    "rudny": "Rudny",
-                    "zhanaozen": "Zhanaozen"
-                }
+                "required": "City is required"
             },
             "gender": {
                 "label": "Gender",
