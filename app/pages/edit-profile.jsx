@@ -21,12 +21,14 @@ import {
     getGenderDropdownData,
     getGenderKeyByName,
 } from "../../lib/genders";
+import { useData } from "../../lib/datacontext";
 
 const EditProfile = () => {
     const { t, i18n } = useTranslation();
     const { user, refreshUser } = useAuthContext();
     const { getDocument, updateDocument } = useFirestore();
     const currentLanguage = i18n.language || "en";
+    const { refreshAllData } = useData();
 
     const [form, setForm] = useState({
         fname: "",
@@ -103,7 +105,7 @@ const EditProfile = () => {
             });
 
             await refreshUser();
-
+            refreshAllData();
             Toast.show({
                 type: "success",
                 text1: t("edit_profile.toast.success.title"),
