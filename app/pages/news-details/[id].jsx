@@ -152,7 +152,7 @@ const NewsDetailsScreen = () => {
                 />
 
                 {/* Content Card */}
-                <View className="bg-ghostwhite rounded-t-3xl -mt-6 p-6  shadow-sm border border-gray-200">
+                <View className="bg-white rounded-t-3xl -mt-6 p-6  shadow-sm border border-gray-200">
                     {/* Title */}
                     <Text className="text-2xl font-mbold text-gray-900 mb-3">
                         {newsItem.title[i18n.language] || newsItem.title.en}
