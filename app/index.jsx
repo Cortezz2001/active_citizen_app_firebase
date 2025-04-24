@@ -158,6 +158,8 @@ export default function Index() {
                     <View className="w-full h-64 mb-6">
                         <LottieView
                             source={require("@/assets/animations/login.json")}
+                            autoPlay
+                            loop
                             style={{ width: "100%", height: "100%" }}
                         />
                     </View>

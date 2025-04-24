@@ -70,7 +70,7 @@ function InitialLayout() {
     return (
         <Stack
             screenOptions={{
-                animation: "slide_from_right",
+                animation: "fade",
                 gestureEnabled: false,
             }}
         >
@@ -78,7 +78,7 @@ function InitialLayout() {
                 name="index"
                 options={{
                     headerShown: false,
-                    animation: "none",
+                    animation: "slide_from_right",
                 }}
             />
             <Stack.Screen
@@ -91,6 +91,7 @@ function InitialLayout() {
                     headerBackVisible: false,
                     // Делаем невозможным программный возврат назад
                     headerLeft: () => null,
+                    animation: "slide_from_right",
                 }}
             />
             <Stack.Screen
@@ -106,6 +107,7 @@ function InitialLayout() {
                 options={{
                     headerShown: false,
                     gestureEnabled: false,
+                    animation: "fade",
                 }}
             />
         </Stack>
