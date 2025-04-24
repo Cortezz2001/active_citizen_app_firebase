@@ -8,6 +8,7 @@ import Toast from "react-native-toast-message";
 import { View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { KeyboardProvider } from "@/hooks/useKeyboard";
+import { DataProvider } from "../lib/datacontext";
 
 const toastConfig = {
     success: ({ text1, text2 }) => (
@@ -137,12 +138,14 @@ export default function RootLayout() {
 
     return (
         <AuthProvider>
-            <KeyboardProvider>
-                <>
-                    <InitialLayout />
-                    <Toast config={toastConfig} />
-                </>
-            </KeyboardProvider>
+            <DataProvider>
+                <KeyboardProvider>
+                    <>
+                        <InitialLayout />
+                        <Toast config={toastConfig} />
+                    </>
+                </KeyboardProvider>
+            </DataProvider>
         </AuthProvider>
     );
 }
