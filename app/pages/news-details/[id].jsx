@@ -8,6 +8,7 @@ import {
     Share,
     TextInput,
     FlatList,
+    ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -37,6 +38,7 @@ const NewsDetailsScreen = () => {
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState("");
     const [commentsLoading, setCommentsLoading] = useState(true);
+    const [isCommentSubmitting, setIsCommentSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchNewsDetails = async () => {
@@ -126,7 +128,6 @@ const NewsDetailsScreen = () => {
                                         )
                                     );
                                     if (avatarList.items.length > 0) {
-                                        // Sort by name in descending order and take the last file
                                         const sortedAvatars =
                                             avatarList.items.sort((a, b) =>
                                                 b.name.localeCompare(a.name)
@@ -195,6 +196,7 @@ const NewsDetailsScreen = () => {
         if (!commentText.trim()) return;
 
         try {
+            setIsCommentSubmitting(true);
             const comment = {
                 content: commentText.trim(),
                 createdAt: serverTimestamp(),
@@ -229,7 +231,6 @@ const NewsDetailsScreen = () => {
                         avatarList.items.map((item) => item.name)
                     );
                     if (avatarList.items.length > 0) {
-                        // Sort by name in descending order and take the last file
                         const sortedAvatars = avatarList.items.sort((a, b) =>
                             b.name.localeCompare(a.name)
                         );
@@ -257,6 +258,8 @@ const NewsDetailsScreen = () => {
         } catch (error) {
             console.error("Error adding comment:", error);
             alert(t("comment_failed"));
+        } finally {
+            setIsCommentSubmitting(false);
         }
     };
 
@@ -277,9 +280,9 @@ const NewsDetailsScreen = () => {
     };
 
     const renderComment = ({ item }) => (
-        <View className="bg-gray-50 p-4 rounded-lg mb-2 border border-gray-200">
+        <View className="bg-ghostwhite p-4 rounded-lg mb-2 border border-gray-100 shadow-sm">
             <View className="flex-row items-center justify-between mb-2">
-                <View className="flex-row items-center">
+                <View className="flex-row items-center w-2/3">
                     {item.userAvatar ? (
                         <Image
                             source={{ uri: item.userAvatar }}
@@ -287,7 +290,7 @@ const NewsDetailsScreen = () => {
                             resizeMode="cover"
                         />
                     ) : (
-                        <View className="w-10 h-10 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
+                        <View className="w-10 h-10 rounded-full bg-gray-200 mr-2 flex items-center justify-center">
                             <MaterialIcons
                                 name="person"
                                 size={24}
@@ -295,11 +298,15 @@ const NewsDetailsScreen = () => {
                             />
                         </View>
                     )}
-                    <Text className="font-mmedium text-gray-800">
+                    <Text
+                        className="font-mmedium text-gray-800"
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                    >
                         {item.userName}
                     </Text>
                 </View>
-                <Text className="text-gray-500 text-sm font-mmedium">
+                <Text className="text-gray-500 text-sm font-mmedium w-1/3 text-right">
                     {formatCommentDate(item.createdAt)}
                 </Text>
             </View>
@@ -313,9 +320,9 @@ const NewsDetailsScreen = () => {
 
     if (error || !newsItem) {
         return (
-            <SafeAreaView className="flex-1 bg-white">
+            <SafeAreaView className="flex-1 bg-gray-50">
                 <StatusBar style="dark" />
-                <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+                <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white shadow-sm">
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center mr-4"
@@ -349,9 +356,9 @@ const NewsDetailsScreen = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-gray-50">
             <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center justify-between border-b border-gray-200 bg-white">
+            <View className="px-6 pt-4 pb-2 flex-row items-center justify-between border-b border-gray-200 bg-white shadow-sm">
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center"
@@ -359,7 +366,6 @@ const NewsDetailsScreen = () => {
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-
                 <TouchableOpacity
                     onPress={handleShare}
                     accessibilityLabel={t("share")}
@@ -368,14 +374,15 @@ const NewsDetailsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            <ScrollView className="flex-1 bg-white">
+            <ScrollView className="flex-1">
                 <Image
                     source={{ uri: newsItem.imageUrl }}
                     className="w-full h-64"
                     resizeMode="cover"
                 />
 
-                <View className="bg-white rounded-t-3xl -mt-6 p-6 shadow-sm border border-gray-200">
+                {/* Content Section */}
+                <View className="bg-white rounded-xl -mt-6 p-6 shadow-sm border border-gray-100 mb-4">
                     <Text className="text-2xl font-mbold text-gray-900 mb-3">
                         {newsItem.title[i18n.language] || newsItem.title.en}
                     </Text>
@@ -406,7 +413,7 @@ const NewsDetailsScreen = () => {
                         </View>
                     </View>
 
-                    <View className="bg-ghostwhite p-4 rounded-lg mb-6 border border-gray-200">
+                    <View className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-100">
                         <Text className="text-gray-800 font-mitalic">
                             {newsItem.shortDescription[i18n.language] ||
                                 newsItem.shortDescription.en}
@@ -433,22 +440,25 @@ const NewsDetailsScreen = () => {
                             </Text>
                         </View>
                     )}
+                </View>
 
-                    <View className="mb-6">
-                        <View className="flex-row items-center mb-4">
-                            <MaterialIcons
-                                name="comment"
-                                size={24}
-                                color="#374151"
-                            />
-                            <Text className="text-xl font-mbold text-gray-900 ml-2">
-                                {t("comments")} ({comments.length})
-                            </Text>
-                        </View>
+                {/* Comments Section */}
+                <View className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                    <View className="flex-row items-center mb-4">
+                        <MaterialIcons
+                            name="comment"
+                            size={24}
+                            color="#374151"
+                        />
+                        <Text className="text-xl font-mbold text-gray-900 ml-2">
+                            {t("comments")} ({comments.length})
+                        </Text>
+                    </View>
 
-                        <View className="mb-4">
+                    <View className="mb-4">
+                        <View className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex-row items-center">
                             <TextInput
-                                className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-2"
+                                className="flex-1 bg-transparent"
                                 placeholder={t("write_comment")}
                                 value={commentText}
                                 onChangeText={setCommentText}
@@ -456,47 +466,53 @@ const NewsDetailsScreen = () => {
                                 numberOfLines={3}
                             />
                             <TouchableOpacity
-                                className={`${
-                                    commentText.trim()
-                                        ? "bg-primary"
-                                        : "bg-gray-300"
-                                } rounded-full py-3 px-6 flex-row justify-center items-center`}
                                 onPress={handleAddComment}
-                                disabled={!commentText.trim()}
+                                disabled={
+                                    !commentText.trim() || isCommentSubmitting
+                                }
+                                accessibilityLabel={t("post_comment")}
                             >
-                                <MaterialIcons
-                                    name="send"
-                                    size={20}
-                                    color="white"
-                                />
-                                <Text className="ml-2 text-white font-mmedium">
-                                    {t("post_comment")}
-                                </Text>
+                                {isCommentSubmitting ? (
+                                    <ActivityIndicator
+                                        size="small"
+                                        color="#006FFD"
+                                    />
+                                ) : (
+                                    <MaterialIcons
+                                        name="send"
+                                        size={24}
+                                        color={
+                                            commentText.trim()
+                                                ? "#006FFD"
+                                                : "#9CA3AF"
+                                        }
+                                    />
+                                )}
                             </TouchableOpacity>
                         </View>
-
-                        {commentsLoading ? (
-                            <LoadingIndicator />
-                        ) : comments.length > 0 ? (
-                            <FlatList
-                                data={comments}
-                                renderItem={renderComment}
-                                keyExtractor={(item) => item.id}
-                                scrollEnabled={false}
-                            />
-                        ) : (
-                            <View className="bg-gray-50 p-8 rounded-lg border border-gray-200 items-center">
-                                <MaterialIcons
-                                    name="chat-bubble-outline"
-                                    size={40}
-                                    color="#9CA3AF"
-                                />
-                                <Text className="text-gray-500 text-center mt-2">
-                                    {t("no_comments")}
-                                </Text>
-                            </View>
-                        )}
                     </View>
+
+                    {commentsLoading ? (
+                        <LoadingIndicator />
+                    ) : comments.length > 0 ? (
+                        <FlatList
+                            data={comments}
+                            renderItem={renderComment}
+                            keyExtractor={(item) => item.id}
+                            scrollEnabled={false}
+                        />
+                    ) : (
+                        <View className="bg-gray-50 p-8 rounded-xl border border-gray-100 items-center">
+                            <MaterialIcons
+                                name="chat-bubble-outline"
+                                size={40}
+                                color="#9CA3AF"
+                            />
+                            <Text className="text-gray-500 text-center mt-2">
+                                {t("no_comments")}
+                            </Text>
+                        </View>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
