@@ -20,11 +20,13 @@ import {
     getGenderDropdownData,
     getGenderKeyByName,
 } from "../../lib/genders";
+import { useData } from "../../lib/datacontext";
 
 const CompleteRegistration = () => {
     const { t, i18n } = useTranslation();
     const { user, logout, refreshUser } = useAuthContext();
     const { setDocument } = useFirestore();
+    const { refreshAllData } = useData();
     const currentLanguage = i18n.language || "en";
 
     // Get cities in the current language for the dropdown
@@ -74,6 +76,7 @@ const CompleteRegistration = () => {
             });
 
             await refreshUser();
+            refreshAllData();
 
             Toast.show({
                 type: "success",
