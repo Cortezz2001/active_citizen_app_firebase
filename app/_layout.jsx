@@ -125,6 +125,7 @@ export default function RootLayout() {
         "Montserrat-Regular": require("../assets/fonts/Montserrat-Regular.ttf"),
         "Montserrat-SemiBold": require("../assets/fonts/Montserrat-SemiBold.ttf"),
         "Montserrat-Thin": require("../assets/fonts/Montserrat-Thin.ttf"),
+        "Montserrat-Italic": require("../assets/fonts/Montserrat-Italic.ttf"),
     });
 
     useEffect(() => {

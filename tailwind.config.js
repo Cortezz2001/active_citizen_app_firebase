@@ -24,6 +24,7 @@ module.exports = {
                 mbold: ["Montserrat-Bold", "sans-serif"],
                 mextrabold: ["Montserrat-ExtraBold", "sans-serif"],
                 mblack: ["Montserrat-Black", "sans-serif"],
+                mitalic: ["Montserrat-Italic", "sans-serif"],
             },
         },
     },

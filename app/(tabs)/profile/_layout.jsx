@@ -14,7 +14,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useAuthContext } from "../../../lib/context";
 import CustomAlert from "../../../components/CustomAlertTwoButtons";
 import * as ImagePicker from "expo-image-picker";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../../lib/firebase";
 import auth from "@react-native-firebase/auth";
 import { useTranslation } from "react-i18next";
 
@@ -25,7 +26,7 @@ const ProfileLayout = () => {
     const [alertVisible, setAlertVisible] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(user?.photoURL || null);
-    const storage = getStorage();
+
     const { t } = useTranslation();
 
     // Извлекаем текущую вкладку из пути
