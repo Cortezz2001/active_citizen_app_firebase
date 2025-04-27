@@ -95,7 +95,7 @@ const NewsDetailsScreen = () => {
 
                 const commentsWithUsers = await Promise.all(
                     commentsData.map(async (comment) => {
-                        let userName = "Anonymous";
+                        let userName = t("anonymous");
                         let userAvatar = null;
 
                         if (comment.userId) {
@@ -105,7 +105,7 @@ const NewsDetailsScreen = () => {
                             );
                             userName = userDoc
                                 ? `${userDoc.fname} ${userDoc.lname.charAt(0)}.`
-                                : "Anonymous";
+                                : t("anonymous");
 
                             const authUser = userDoc?.authData || {};
                             if (authUser?.photoURL) {
@@ -212,7 +212,7 @@ const NewsDetailsScreen = () => {
             const userDoc = await getDocument("users", user.uid);
             const userName = userDoc
                 ? `${userDoc.fname} ${userDoc.lname.charAt(0)}.`
-                : "Anonymous";
+                : t("anonymous");
 
             let userAvatar = null;
             if (user?.photoURL) {
