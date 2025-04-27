@@ -36,6 +36,8 @@
         },
         "toast": {
             "error_title": "Error",
+            "success_title": "Success",
+            "avatar_updated": "Avatar updated successfully",
             "gallery_permission_error": "Permission to access the gallery is required to change the avatar.",
             "image_selection_error": "An error occurred while selecting the image.",
             "auth_error": "You must be authorized to change the avatar.",

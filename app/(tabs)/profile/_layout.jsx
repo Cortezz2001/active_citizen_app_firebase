@@ -14,10 +14,16 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useAuthContext } from "../../../lib/context";
 import CustomAlert from "../../../components/CustomAlertTwoButtons";
 import * as ImagePicker from "expo-image-picker";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../lib/firebase";
 import auth from "@react-native-firebase/auth";
 import { useTranslation } from "react-i18next";
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL,
+    listAll,
+    deleteObject,
+} from "firebase/storage";
 
 const ProfileLayout = () => {
     const router = useRouter();
@@ -103,6 +109,9 @@ const ProfileLayout = () => {
         try {
             setUploadingImage(true);
 
+            // Удаляем старые аватары пользователя
+            await deleteOldAvatars(user.uid);
+
             // Преобразуем URI в blob
             const response = await fetch(uri);
             const blob = await response.blob();
@@ -125,6 +134,12 @@ const ProfileLayout = () => {
             // Обновляем локальное состояние и обновляем пользователя
             setAvatarUrl(downloadURL);
             await refreshUser();
+
+            Toast.show({
+                type: "success",
+                text1: t("profile_layout.toast.success_title"),
+                text2: t("profile_layout.toast.avatar_updated"),
+            });
         } catch (error) {
             console.error("Error uploading avatar:", error);
             Toast.show({
@@ -134,6 +149,31 @@ const ProfileLayout = () => {
             });
         } finally {
             setUploadingImage(false);
+        }
+    };
+
+    // Функция для удаления старых аватаров пользователя
+    const deleteOldAvatars = async (userId) => {
+        try {
+            // Получаем ссылку на папку с аватарами пользователя
+            const userAvatarsRef = ref(storage, `avatars/${userId}`);
+
+            // Получаем список всех файлов в папке
+            const filesList = await listAll(userAvatarsRef);
+
+            // Удаляем каждый файл
+            const deletePromises = filesList.items.map((fileRef) => {
+                console.log(`Deleting old avatar: ${fileRef.fullPath}`);
+                return deleteObject(fileRef);
+            });
+
+            // Ждем, пока все файлы будут удалены
+            await Promise.all(deletePromises);
+
+            console.log(`All old avatars for user ${userId} have been deleted`);
+        } catch (error) {
+            console.error("Error deleting old avatars:", error);
+            // Не прерываем процесс загрузки нового аватара, если удаление старых не удалось
         }
     };
 
