@@ -4,6 +4,8 @@ import auth from "@react-native-firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFirestore } from "@/hooks/useFirestore";
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 GoogleSignin.configure({
     webClientId: process.env.EXPO_PUBLIC_FIREBASE_GOOGLE_OAUTH_KEY,
@@ -94,24 +96,55 @@ export const useAuth = () => {
             console.log("Play Services OK");
             await GoogleSignin.signOut();
             console.log("Signed out from previous session");
-
+    
             const userInfo = await GoogleSignin.signIn();
             console.log("Sign in successful, userInfo:", userInfo);
-
+    
             if (!userInfo?.data?.idToken) {
                 console.error("No idToken received");
                 throw new Error("No ID token received");
             }
-
+    
             const googleCredential = auth.GoogleAuthProvider.credential(userInfo.data.idToken);
             console.log("Credential created");
-
+    
             const result = await auth().signInWithCredential(googleCredential);
             console.log("Firebase auth successful");
-
+    
+            // Если у пользователя есть фото от Google, загружаем его в Storage
+            if (result.user?.photoURL) {
+                try {
+                    console.log("Uploading Google profile photo to Storage");
+                    
+                    // Получаем фото из Google
+                    const response = await fetch(result.user.photoURL);
+                    const blob = await response.blob();
+                    
+                    // Создаем путь в Storage
+                    const filename = `avatars/${result.user.uid}/google-profile.jpg`;
+                    const storageRef = ref(storage, filename);
+                    
+                    // Загружаем фото в Storage
+                    await uploadBytes(storageRef, blob);
+                    
+                    // Получаем URL загруженного фото
+                    const downloadURL = await getDownloadURL(storageRef);
+                    
+                    // Обновляем профиль пользователя с новым URL
+                    await auth().currentUser.updateProfile({
+                        photoURL: downloadURL
+                    });
+                    
+                    console.log("Google profile photo uploaded successfully");
+                } catch (uploadError) {
+                    console.error("Error uploading Google profile photo:", uploadError);
+                    // Продолжаем без ошибки, так как это не критично
+                }
+            }
+    
             const userDoc = await getDocument("users", result.user.uid);
-            setHasProfile(!!userDoc); // Обновляем состояние профиля после входа
-
+            setHasProfile(!!userDoc);
+    
             return result;
         } catch (error) {
             console.error("Detailed error:", {
