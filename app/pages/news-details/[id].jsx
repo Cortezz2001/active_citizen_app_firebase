@@ -387,25 +387,27 @@ const NewsDetailsScreen = () => {
                         {newsItem.title[i18n.language] || newsItem.title.en}
                     </Text>
 
-                    <View className="flex-row flex-wrap mb-4">
-                        <View className="bg-green-50 rounded-full px-3 py-1 mr-2 mb-2 flex-row items-center">
+                    <View className="mb-4">
+                        <View className="flex-row items-center mb-2">
                             <MaterialIcons
                                 name="category"
                                 size={16}
-                                color="#059669"
+                                color="#6B7280"
                             />
-                            <Text className="text-green-600 ml-1 text-sm font-mmedium">
+                            <Text className="text-gray-600 ml-1 text-sm font-mmedium">
+                                {t("category")}:{" "}
                                 {newsItem.categoryName[i18n.language] ||
                                     newsItem.categoryName.en}
                             </Text>
                         </View>
-                        <View className="bg-gray-50 rounded-full px-3 py-1 mb-2 flex-row items-center">
+                        <View className="flex-row items-center">
                             <MaterialIcons
                                 name="access-time"
                                 size={16}
                                 color="#6B7280"
                             />
                             <Text className="text-gray-600 ml-1 text-sm font-mmedium">
+                                {t("published_date")}:{" "}
                                 {new Date(
                                     newsItem.createdAt.toDate()
                                 ).toLocaleDateString(i18n.language)}
