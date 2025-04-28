@@ -13,6 +13,9 @@ import { useRouter } from "expo-router";
 import { SearchContext } from "../_layout";
 import { useData } from "../../../../lib/datacontext";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
+import { useFirestore } from "../../../../hooks/useFirestore";
+import { doc, updateDoc, increment } from "firebase/firestore";
+import { firestore } from "../../../../lib/firebase";
 
 const EmptyStateMessage = ({ searchText }) => {
     const { t } = useTranslation();
@@ -35,6 +38,7 @@ const NewsTab = () => {
     const { news, newsLoading, newsError, fetchNews } = useData();
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
+    const { getCollection } = useFirestore();
 
     const getFilteredNews = () => {
         if (!searchText) return news;
@@ -46,6 +50,17 @@ const NewsTab = () => {
                     ?.toLowerCase()
                     .includes(search)
         );
+    };
+
+    const incrementViewCount = async (newsId) => {
+        try {
+            const newsRef = doc(firestore, "news", newsId);
+            await updateDoc(newsRef, {
+                viewCount: increment(1),
+            });
+        } catch (err) {
+            console.error("Error incrementing view count:", err);
+        }
     };
 
     // Функция для обработки pull-to-refresh
@@ -102,41 +117,84 @@ const NewsTab = () => {
                     getFilteredNews().map((item) => (
                         <TouchableOpacity
                             key={item.id}
-                            className="rounded-lg mb-4 shadow-md bg-ghostwhite border border-gray-200"
-                            onPress={() =>
-                                router.push(`/pages/news-details/${item.id}`)
-                            }
+                            className="rounded-lg mb-4 shadow-md bg-ghostwhite border border-gray-200 overflow-hidden"
+                            onPress={async () => {
+                                router.push(`/pages/news-details/${item.id}`);
+                                await incrementViewCount(item.id);
+                            }}
+                            activeOpacity={0.7}
                         >
                             <Image
                                 source={{ uri: item.imageUrl }}
                                 className="w-full h-48 rounded-t-lg"
+                                resizeMode="cover"
                             />
+
                             <View className="p-4">
-                                <Text className="font-mmedium text-lg">
+                                <Text
+                                    className="font-mmedium text-lg text-gray-800"
+                                    numberOfLines={2}
+                                >
                                     {item.title[i18n.language] || item.title.en}
                                 </Text>
-                                <View className="flex-row items-center mt-1">
-                                    <MaterialIcons
-                                        name="category"
-                                        size={16}
-                                        color="#6B7280"
-                                    />
-                                    <Text className="text-gray-500 ml-1 text-sm">
-                                        {item.categoryName[i18n.language] ||
-                                            item.categoryName.en}
-                                    </Text>
+                                <Text
+                                    className="font-mregular text-sm text-gray-600 mt-2"
+                                    numberOfLines={3}
+                                >
+                                    {item.shortDescription[i18n.language] ||
+                                        item.shortDescription.en}
+                                </Text>
+                                <View className="flex-row items-center mt-4 justify-between">
+                                    <View className="flex-row items-center">
+                                        <MaterialIcons
+                                            name="category"
+                                            size={16}
+                                            color="#6B7280"
+                                        />
+                                        <Text className="text-gray-500 ml-1 text-sm">
+                                            {item.categoryName[i18n.language] ||
+                                                item.categoryName.en}
+                                        </Text>
+                                    </View>
+                                    <View className="flex-row items-center">
+                                        <MaterialIcons
+                                            name="access-time"
+                                            size={16}
+                                            color="#6B7280"
+                                        />
+                                        <Text className="text-gray-500 ml-1 text-sm">
+                                            {new Date(
+                                                item.createdAt.toDate()
+                                            ).toLocaleDateString(i18n.language)}
+                                        </Text>
+                                    </View>
                                 </View>
-                                <View className="flex-row items-center mt-1">
-                                    <MaterialIcons
-                                        name="access-time"
-                                        size={16}
-                                        color="#6B7280"
-                                    />
-                                    <Text className="text-gray-500 ml-1 text-sm">
-                                        {new Date(
-                                            item.createdAt.toDate()
-                                        ).toLocaleDateString(i18n.language)}
-                                    </Text>
+
+                                <View className="flex-row justify-between items-center pt-3 mr-2">
+                                    <View className="flex-row items-center">
+                                        <View className="bg-gray-100 p-1.5 rounded-full">
+                                            <MaterialIcons
+                                                name="visibility"
+                                                size={16}
+                                                color="#3B82F6"
+                                            />
+                                        </View>
+                                        <Text className="text-gray-600 ml-2 font-mmedium text-sm">
+                                            {item.viewCount || 0}
+                                        </Text>
+                                    </View>
+                                    <View className="flex-row items-center">
+                                        <View className="bg-gray-100 p-1.5 rounded-full">
+                                            <MaterialIcons
+                                                name="comment"
+                                                size={16}
+                                                color="#3B82F6"
+                                            />
+                                        </View>
+                                        <Text className="text-gray-600 ml-2 font-mmedium text-sm">
+                                            {item.commentCount || 0}
+                                        </Text>
+                                    </View>
                                 </View>
                             </View>
                         </TouchableOpacity>
