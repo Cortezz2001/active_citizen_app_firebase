@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFirestore } from "../../../hooks/useFirestore";
 import { useAuth } from "../../../hooks/useAuth";
+import { useData } from "../../../lib/datacontext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { addDoc, collection, doc, serverTimestamp } from "firebase/firestore";
@@ -31,6 +32,7 @@ const NewsDetailsScreen = () => {
     const router = useRouter();
     const { getDocument, getCollection } = useFirestore();
     const { user } = useAuth();
+    const { updateNewsCommentCount } = useData();
 
     const [newsItem, setNewsItem] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -39,6 +41,7 @@ const NewsDetailsScreen = () => {
     const [commentText, setCommentText] = useState("");
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [isCommentSubmitting, setIsCommentSubmitting] = useState(false);
+    const [commentCount, setCommentCount] = useState(0);
 
     useEffect(() => {
         const fetchNewsDetails = async () => {
@@ -121,12 +124,6 @@ const NewsDetailsScreen = () => {
                                     const avatarList = await listAll(
                                         avatarFolderRef
                                     );
-                                    console.log(
-                                        `Files in avatars/${comment.userId.id}/:`,
-                                        avatarList.items.map(
-                                            (item) => item.name
-                                        )
-                                    );
                                     if (avatarList.items.length > 0) {
                                         const sortedAvatars =
                                             avatarList.items.sort((a, b) =>
@@ -161,6 +158,10 @@ const NewsDetailsScreen = () => {
                 });
 
                 setComments(commentsWithUsers);
+                setCommentCount(commentsWithUsers.length);
+
+                // Обновляем количество комментариев в контексте
+                await updateNewsCommentCount(id);
             } catch (err) {
                 console.error("Error fetching comments:", err);
             } finally {
@@ -226,10 +227,6 @@ const NewsDetailsScreen = () => {
                         `avatars/${user.uid}/`
                     );
                     const avatarList = await listAll(avatarFolderRef);
-                    console.log(
-                        `Files in avatars/${user.uid}/:`,
-                        avatarList.items.map((item) => item.name)
-                    );
                     if (avatarList.items.length > 0) {
                         const sortedAvatars = avatarList.items.sort((a, b) =>
                             b.name.localeCompare(a.name)
@@ -243,18 +240,20 @@ const NewsDetailsScreen = () => {
                 }
             }
 
-            setComments([
-                {
-                    id: docRef.id,
-                    ...comment,
-                    userName,
-                    userAvatar,
-                    createdAt: new Date(),
-                },
-                ...comments,
-            ]);
+            const newComment = {
+                id: docRef.id,
+                ...comment,
+                userName,
+                userAvatar,
+                createdAt: new Date(),
+            };
 
+            setComments([newComment, ...comments]);
+            setCommentCount((prevCount) => prevCount + 1);
             setCommentText("");
+
+            // Обновляем количество комментариев в контексте
+            await updateNewsCommentCount(id);
         } catch (error) {
             console.error("Error adding comment:", error);
             alert(t("comment_failed"));
@@ -453,7 +452,7 @@ const NewsDetailsScreen = () => {
                             color="#374151"
                         />
                         <Text className="text-xl font-mbold text-gray-900 ml-2">
-                            {t("comments")} ({comments.length})
+                            {t("comments")} ({commentCount})
                         </Text>
                     </View>
 
