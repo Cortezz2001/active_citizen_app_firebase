@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -10,9 +10,9 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
-import { SearchContext } from "../_layout";
 import { useData } from "../../../../lib/datacontext";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
+import SearchComponent from "../../../../components/SearchComponent";
 
 const EmptyStateMessage = ({ searchText }) => {
     const { t } = useTranslation();
@@ -31,7 +31,7 @@ const EmptyStateMessage = ({ searchText }) => {
 
 const NewsTab = () => {
     const { t, i18n } = useTranslation();
-    const { searchText } = useContext(SearchContext);
+    const [searchText, setSearchText] = useState("");
     const { news, newsLoading, newsError, fetchNews, updateNewsViewCount } =
         useData();
     const router = useRouter();
@@ -77,6 +77,12 @@ const NewsTab = () => {
 
     return (
         <View className="flex-1">
+            <SearchComponent
+                searchText={searchText}
+                setSearchText={setSearchText}
+                tabName="news"
+            />
+
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 className="flex-1"

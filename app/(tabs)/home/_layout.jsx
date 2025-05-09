@@ -1,22 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Slot, usePathname, useRouter } from "expo-router";
-import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
 import images from "@/constants/images";
-import { createContext } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/components/LanguageSelector";
-
-export const SearchContext = createContext({
-    searchText: "",
-    setSearchText: () => {},
-});
 
 const HomeLayout = () => {
     const router = useRouter();
     const pathname = usePathname();
-    const [searchText, setSearchText] = useState("");
     const { t, i18n } = useTranslation();
 
     const getCurrentTab = () => {
@@ -24,10 +16,6 @@ const HomeLayout = () => {
         return path === "home" ? "news" : path;
     };
     const activeTab = getCurrentTab();
-
-    useEffect(() => {
-        setSearchText("");
-    }, [pathname]);
 
     const navigateToTab = (tab) => {
         const tabRoute = tab.toLowerCase();
@@ -103,41 +91,7 @@ const HomeLayout = () => {
                     })}
                 </View>
 
-                <View className="bg-ghostwhite rounded-3xl p-2 mb-4 shadow-md border border-gray-200">
-                    <View className="flex-row items-center">
-                        <MaterialIcons
-                            name="search"
-                            size={24}
-                            color="#9CA3AF"
-                            style={{ marginLeft: 2 }}
-                        />
-                        <TextInput
-                            placeholder={t("home_layout.search_placeholder", {
-                                item: t(
-                                    `home_layout.tabs.${activeTab.toLowerCase()}`
-                                ),
-                            })}
-                            value={searchText}
-                            onChangeText={setSearchText}
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            className="flex-1 pl-2 font-mregular"
-                        />
-                        {searchText.length > 0 && (
-                            <TouchableOpacity onPress={() => setSearchText("")}>
-                                <MaterialIcons
-                                    name="close"
-                                    size={24}
-                                    color="#9CA3AF"
-                                />
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                </View>
-
-                <SearchContext.Provider value={{ searchText, setSearchText }}>
-                    <Slot />
-                </SearchContext.Provider>
+                <Slot />
             </View>
         </SafeAreaView>
     );

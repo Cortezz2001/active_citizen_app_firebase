@@ -1,10 +1,11 @@
-import React, { useContext } from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Modal } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { SearchContext } from "./_layout";
 import { useKeyboard } from "../../../hooks/useKeyboard";
 import CustomButton from "../../../components/CustomButton";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
+import SearchComponent from "../../../components/SearchComponent";
 
 // Обновленные данные с датой создания и целевым количеством сторонников
 const petitionsData = [
@@ -19,12 +20,14 @@ const petitionsData = [
 ];
 
 const PetitionsTab = () => {
-    const { searchText } = useContext(SearchContext);
+    const [searchText, setSearchText] = useState("");
     const { isKeyboardVisible } = useKeyboard();
     const router = useRouter();
-    const [showOptionsModal, setShowOptionsModal] = React.useState(false);
+    const [showOptionsModal, setShowOptionsModal] = useState(false);
+    const { t } = useTranslation();
 
     const getFilteredPetitions = () => {
+        if (!searchText) return petitionsData;
         const search = searchText.toLowerCase();
         return petitionsData.filter((item) =>
             item.title.toLowerCase().includes(search)
@@ -49,16 +52,22 @@ const PetitionsTab = () => {
         <View className="flex-1 items-center justify-center py-10 bg-secondary">
             <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
             <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
-                No petitions found for "{searchText}"
+                {t("no_petitions_found", { search: searchText })}
             </Text>
             <Text className="text-gray-400 mt-2 text-center">
-                Try adjusting your search terms
+                {t("adjust_search")}
             </Text>
         </View>
     );
 
     return (
         <View className="flex-1">
+            <SearchComponent
+                searchText={searchText}
+                setSearchText={setSearchText}
+                tabName="petitions"
+            />
+
             {/* Content Scroll View */}
             <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
                 {searchText && getFilteredPetitions().length === 0 ? (
@@ -156,7 +165,7 @@ const PetitionsTab = () => {
                                 color="#006FFD"
                             />
                             <Text className="ml-3 font-mmedium text-gray-800">
-                                Create New Petition
+                                {t("create_new_petition")}
                             </Text>
                         </TouchableOpacity>
 
@@ -170,7 +179,7 @@ const PetitionsTab = () => {
                                 color="#006FFD"
                             />
                             <Text className="ml-3 font-mmedium text-gray-800">
-                                My Petitions
+                                {t("my_petitions")}
                             </Text>
                         </TouchableOpacity>
                     </View>

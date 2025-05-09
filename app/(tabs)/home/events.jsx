@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { SearchContext } from "./_layout";
 import { useKeyboard } from "../../../hooks/useKeyboard";
+import SearchComponent from "../../../components/SearchComponent";
 
 const eventsData = [
     {
@@ -17,14 +17,15 @@ const eventsData = [
         date: "June 30",
         image: "https://picsum.photos/200/400",
     },
-    // ... other events items (same as in the original file)
+    // ... other events items
 ];
 
 const EventsTab = () => {
-    const { searchText } = useContext(SearchContext);
-    const { isKeyboardVisible } = useKeyboard(); // Используем контекст клавиатуры
+    const [searchText, setSearchText] = useState("");
+    const { isKeyboardVisible } = useKeyboard();
 
     const getFilteredEvents = () => {
+        if (!searchText) return eventsData;
         const search = searchText.toLowerCase();
         return eventsData.filter(
             (item) =>
@@ -47,6 +48,12 @@ const EventsTab = () => {
 
     return (
         <View className="flex-1">
+            <SearchComponent
+                searchText={searchText}
+                setSearchText={setSearchText}
+                tabName="events"
+            />
+
             {/* Content Scroll View */}
             <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
                 {searchText && getFilteredEvents().length === 0 ? (
@@ -65,7 +72,7 @@ const EventsTab = () => {
                                 <Text className="font-mmedium text-lg">
                                     {item.title}
                                 </Text>
-                                <View className="flex-row items-center mt-2 ">
+                                <View className="flex-row items-center mt-2">
                                     <MaterialIcons
                                         name="event"
                                         size={16}
