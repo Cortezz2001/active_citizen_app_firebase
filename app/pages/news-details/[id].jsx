@@ -60,7 +60,7 @@ const NewsDetailsScreen = () => {
                 };
                 if (newsDoc.categoryId) {
                     const categoryDoc = await getDocument(
-                        "categories",
+                        "news_categories",
                         newsDoc.categoryId.id
                     );
                     categoryName = categoryDoc?.name || categoryName;
