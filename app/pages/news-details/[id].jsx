@@ -94,7 +94,7 @@ const NewsDetailsScreen = () => {
                 ];
 
                 const commentsData = await getCollection(
-                    "comments",
+                    "news_comments",
                     conditions
                 );
 
@@ -208,7 +208,7 @@ const NewsDetailsScreen = () => {
             };
 
             const docRef = await addDoc(
-                collection(firestore, "comments"),
+                collection(firestore, "news_comments"),
                 comment
             );
 
