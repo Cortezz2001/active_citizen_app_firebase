@@ -13,6 +13,9 @@ import { useRouter } from "expo-router";
 import { SearchContext } from "../_layout";
 import { useData } from "../../../../lib/datacontext";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
+import { useFirestore } from "../../../../hooks/useFirestore";
+import { doc, updateDoc, increment } from "firebase/firestore";
+import { firestore } from "../../../../lib/firebase";
 
 const EmptyStateMessage = ({ searchText }) => {
     const { t } = useTranslation();
@@ -32,10 +35,10 @@ const EmptyStateMessage = ({ searchText }) => {
 const NewsTab = () => {
     const { t, i18n } = useTranslation();
     const { searchText } = useContext(SearchContext);
-    const { news, newsLoading, newsError, fetchNews, updateNewsViewCount } =
-        useData();
+    const { news, newsLoading, newsError, fetchNews } = useData();
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
+    const { getCollection } = useFirestore();
 
     const getFilteredNews = () => {
         if (!searchText) return news;
@@ -47,6 +50,17 @@ const NewsTab = () => {
                     ?.toLowerCase()
                     .includes(search)
         );
+    };
+
+    const incrementViewCount = async (newsId) => {
+        try {
+            const newsRef = doc(firestore, "news", newsId);
+            await updateDoc(newsRef, {
+                viewCount: increment(1),
+            });
+        } catch (err) {
+            console.error("Error incrementing view count:", err);
+        }
     };
 
     // Функция для обработки pull-to-refresh
@@ -106,7 +120,7 @@ const NewsTab = () => {
                             className="rounded-lg mb-4 shadow-md bg-ghostwhite border border-gray-200 overflow-hidden"
                             onPress={async () => {
                                 router.push(`/pages/news-details/${item.id}`);
-                                await updateNewsViewCount(item.id);
+                                await incrementViewCount(item.id);
                             }}
                             activeOpacity={0.7}
                         >
