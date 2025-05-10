@@ -1,10 +1,18 @@
+// SearchComponent.jsx
 import React from "react";
 import { View, TextInput, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
-const SearchComponent = ({ searchText, setSearchText, tabName }) => {
+const SearchComponent = ({ searchText, setSearchText, onClear, tabName }) => {
     const { t } = useTranslation();
+
+    const handleTextChange = (text) => {
+        setSearchText(text);
+        if (!text) {
+            onClear(); // Вызываем onClear, если текст стал пустым
+        }
+    };
 
     return (
         <View className="bg-ghostwhite rounded-3xl p-2 mb-4 shadow-md border border-gray-200">
@@ -20,13 +28,13 @@ const SearchComponent = ({ searchText, setSearchText, tabName }) => {
                         item: t(`home_layout.tabs.${tabName.toLowerCase()}`),
                     })}
                     value={searchText}
-                    onChangeText={setSearchText}
+                    onChangeText={handleTextChange}
                     autoCapitalize="none"
                     autoCorrect={false}
                     className="flex-1 pl-2 font-mregular"
                 />
                 {searchText.length > 0 && (
-                    <TouchableOpacity onPress={() => setSearchText("")}>
+                    <TouchableOpacity onPress={onClear}>
                         <MaterialIcons name="close" size={24} color="#9CA3AF" />
                     </TouchableOpacity>
                 )}

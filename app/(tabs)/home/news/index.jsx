@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -110,27 +110,58 @@ const NewsCard = ({ item, onPress, i18n }) => (
 const NewsTab = () => {
     const { t, i18n } = useTranslation();
     const [searchText, setSearchText] = useState("");
-    const { news, newsLoading, newsError, fetchNews, updateNewsViewCount } =
-        useData();
+    const {
+        news,
+        newsLoading,
+        newsError,
+        fetchNews,
+        updateNewsViewCount,
+        searchNews,
+        searchResults,
+        searchLoading,
+        searchError,
+        resetSearch,
+        isSearchActive,
+    } = useData();
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
+    const [debouncedSearchText, setDebouncedSearchText] = useState("");
 
-    const getFilteredNews = () => {
-        if (!searchText) return news;
-        const search = searchText.toLowerCase();
-        return news.filter(
-            (item) =>
-                item.title[i18n.language]?.toLowerCase().includes(search) ||
-                item.shortDescription[i18n.language]
-                    ?.toLowerCase()
-                    .includes(search)
-        );
+    // Обработчик изменения текста поиска с задержкой
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setDebouncedSearchText(searchText);
+        }, 500);
+        return () => clearTimeout(timeoutId);
+    }, [searchText]);
+
+    const handleClearSearch = () => {
+        setSearchText("");
+        resetSearch();
     };
+
+    // Выполняем поиск при изменении задержанного текста поиска
+    useEffect(() => {
+        const performSearch = async () => {
+            if (debouncedSearchText.trim()) {
+                await searchNews(debouncedSearchText.trim(), i18n.language);
+            } else {
+                resetSearch();
+            }
+        };
+
+        performSearch();
+    }, [debouncedSearchText, i18n.language]);
 
     const onRefresh = async () => {
         setRefreshing(true);
         try {
-            await fetchNews();
+            // Если активен поиск, обновляем результаты поиска
+            if (searchText.trim()) {
+                await searchNews(searchText.trim(), i18n.language);
+            } else {
+                await fetchNews();
+            }
         } catch (err) {
             console.error("Error refreshing news:", err);
         } finally {
@@ -158,30 +189,30 @@ const NewsTab = () => {
         await updateNewsViewCount(item.id);
     };
 
-    if (newsLoading && !refreshing) {
-        return <LoadingIndicator />;
-    }
+    // Определяем, какие данные отображать: результаты поиска или обычные новости
+    const displayData = isSearchActive ? searchResults : news;
+    const isLoading =
+        (isSearchActive ? searchLoading : newsLoading) && !refreshing;
+    const error = isSearchActive ? searchError : newsError;
 
-    if (newsError) {
+    const renderContent = () => {
+        if (isLoading) {
+            return <LoadingIndicator />;
+        }
+
+        if (error) {
+            return (
+                <View className="flex-1 justify-center items-center">
+                    <Text className="text-red-500">
+                        {t("error")}: {error}
+                    </Text>
+                </View>
+            );
+        }
+
         return (
-            <View className="flex-1 justify-center items-center">
-                <Text className="text-red-500">
-                    {t("error")}: {newsError}
-                </Text>
-            </View>
-        );
-    }
-
-    return (
-        <View className="flex-1">
-            <SearchComponent
-                searchText={searchText}
-                setSearchText={setSearchText}
-                tabName="news"
-            />
-
             <FlatList
-                data={getFilteredNews()}
+                data={displayData}
                 renderItem={({ item }) => (
                     <NewsCard
                         item={item}
@@ -202,6 +233,18 @@ const NewsTab = () => {
                     />
                 }
             />
+        );
+    };
+
+    return (
+        <View className="flex-1">
+            <SearchComponent
+                searchText={searchText}
+                setSearchText={setSearchText}
+                onClear={handleClearSearch}
+                tabName="news"
+            />
+            {renderContent()}
         </View>
     );
 };
