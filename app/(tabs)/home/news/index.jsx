@@ -6,6 +6,7 @@ import {
     FlatList,
     Image,
     RefreshControl,
+    Modal,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ import { useRouter } from "expo-router";
 import { useData } from "../../../../lib/datacontext";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
 import SearchComponent from "../../../../components/SearchComponent";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const EmptyStateMessage = ({ searchText }) => {
     const { t } = useTranslation();
@@ -122,10 +124,82 @@ const NewsTab = () => {
         searchError,
         resetSearch,
         isSearchActive,
+        newsFilters,
+        updateNewsFilters,
     } = useData();
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
     const [debouncedSearchText, setDebouncedSearchText] = useState("");
+    const [showFilterModal, setShowFilterModal] = useState(false);
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [tempFilters, setTempFilters] = useState({
+        startDate: null,
+        endDate: null,
+        categories: [],
+    });
+
+    // Available categories
+    const categories = [
+        {
+            id: "Ftu3UnveQDkb6VnLWO4l",
+            name: { en: "Police", ru: "Полиция", kz: "Полиция" },
+        },
+        {
+            id: "IE5GnHjgawytO4oEkIJk",
+            name: { en: "Politics", ru: "Политика", kz: "Саясат" },
+        },
+    ];
+
+    // Initialize temp filters when modal opens
+    useEffect(() => {
+        if (showFilterModal) {
+            setTempFilters({ ...newsFilters });
+        }
+    }, [showFilterModal]);
+
+    const toggleCategory = (categoryId) => {
+        setTempFilters((prev) => ({
+            ...prev,
+            categories: prev.categories.includes(categoryId)
+                ? prev.categories.filter((id) => id !== categoryId)
+                : [...prev.categories, categoryId],
+        }));
+    };
+
+    const handleApplyFilters = async () => {
+        await updateNewsFilters(tempFilters);
+        setShowFilterModal(false);
+
+        // Refresh search results if search is active with new filters
+        if (searchText.trim()) {
+            await searchNews(searchText.trim(), i18n.language, tempFilters);
+        }
+    };
+
+    // Обновляем функцию сброса фильтров
+    const handleResetFilters = async () => {
+        const emptyFilters = {
+            startDate: null,
+            endDate: null,
+            categories: [],
+        };
+        setTempFilters(emptyFilters);
+        await updateNewsFilters(emptyFilters);
+
+        // Обновляем результаты поиска с пустыми фильтрами, если поиск активен
+        if (searchText.trim()) {
+            await searchNews(searchText.trim(), i18n.language, emptyFilters);
+        }
+    };
+    const formatDate = (date) => {
+        if (!date) return "";
+        return date.toLocaleDateString(i18n.language, {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
+    };
 
     // Обработчик изменения текста поиска с задержкой
     useEffect(() => {
@@ -144,23 +218,27 @@ const NewsTab = () => {
     useEffect(() => {
         const performSearch = async () => {
             if (debouncedSearchText.trim()) {
-                await searchNews(debouncedSearchText.trim(), i18n.language);
+                await searchNews(
+                    debouncedSearchText.trim(),
+                    i18n.language,
+                    newsFilters
+                );
             } else {
                 resetSearch();
             }
         };
 
         performSearch();
-    }, [debouncedSearchText, i18n.language]);
+    }, [debouncedSearchText, i18n.language, newsFilters]);
 
     const onRefresh = async () => {
         setRefreshing(true);
         try {
-            // Если активен поиск, обновляем результаты поиска
+            // Если активен поиск, обновляем результаты поиска с учетом фильтров
             if (searchText.trim()) {
-                await searchNews(searchText.trim(), i18n.language);
+                await searchNews(searchText.trim(), i18n.language, newsFilters);
             } else {
-                await fetchNews();
+                await fetchNews(newsFilters);
             }
         } catch (err) {
             console.error("Error refreshing news:", err);
@@ -238,13 +316,207 @@ const NewsTab = () => {
 
     return (
         <View className="flex-1">
-            <SearchComponent
-                searchText={searchText}
-                setSearchText={setSearchText}
-                onClear={handleClearSearch}
-                tabName="news"
-            />
+            <View className="flex-row items-center mb-4">
+                <View className="flex-1">
+                    <SearchComponent
+                        searchText={searchText}
+                        setSearchText={setSearchText}
+                        onClear={handleClearSearch}
+                        tabName="news"
+                    />
+                </View>
+
+                <TouchableOpacity
+                    className="ml-2 p-2 bg-ghostwhite rounded-full shadow-md border border-gray-200"
+                    onPress={() => setShowFilterModal(true)}
+                >
+                    <MaterialIcons
+                        name="filter-list"
+                        size={24}
+                        color={
+                            Object.values(newsFilters).some((v) =>
+                                Array.isArray(v) ? v.length > 0 : v !== null
+                            )
+                                ? "#006FFD"
+                                : "#9CA3AF"
+                        }
+                    />
+                </TouchableOpacity>
+            </View>
+
             {renderContent()}
+
+            {/* Filter Modal */}
+            <Modal
+                transparent={true}
+                visible={showFilterModal}
+                animationType="fade"
+                onRequestClose={() => setShowFilterModal(false)}
+            >
+                <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    activeOpacity={1}
+                    onPress={() => setShowFilterModal(false)}
+                >
+                    <View className="flex-1 justify-end">
+                        <View className="bg-white rounded-t-xl p-5">
+                            <View className="flex-row justify-between items-center mb-4">
+                                <Text className="text-lg font-mbold">
+                                    {t("news.filter_modal.title")}
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => setShowFilterModal(false)}
+                                >
+                                    <MaterialIcons
+                                        name="close"
+                                        size={24}
+                                        color="#374151"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* Categories */}
+                            <View className="mb-6">
+                                <Text className="text-base font-mmedium mb-2">
+                                    {t("news.filter_modal.categories")}
+                                </Text>
+                                <View className="flex-row flex-wrap">
+                                    {categories.map((category) => (
+                                        <TouchableOpacity
+                                            key={category.id}
+                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border border-gray-200 ${
+                                                tempFilters.categories.includes(
+                                                    category.id
+                                                )
+                                                    ? "border-primary bg-primary"
+                                                    : "bg-gray-100"
+                                            }`}
+                                            onPress={() =>
+                                                toggleCategory(category.id)
+                                            }
+                                        >
+                                            <Text
+                                                className={`font-mregular ${
+                                                    tempFilters.categories.includes(
+                                                        category.id
+                                                    )
+                                                        ? "text-white"
+                                                        : "text-gray-700"
+                                                }`}
+                                            >
+                                                {category.name[i18n.language]}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+
+                            {/* Date Range */}
+                            <View className="mb-6">
+                                <Text className="text-base font-mmedium mb-2">
+                                    {t("news.filter_modal.date_range")}
+                                </Text>
+                                <View className="flex-row justify-between">
+                                    <TouchableOpacity
+                                        className={`flex-1 mr-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
+                                            tempFilters.startDate
+                                                ? "border-2 border-primary" // Синяя граница, если есть дата
+                                                : "border-gray-200 bg-gray-100" // Серая граница и фон, если нет даты
+                                        }`}
+                                        onPress={() =>
+                                            setShowStartDatePicker(true)
+                                        }
+                                    >
+                                        <Text className="text-gray-700 font-mregular">
+                                            {tempFilters.startDate
+                                                ? formatDate(
+                                                      tempFilters.startDate
+                                                  )
+                                                : t(
+                                                      "news.filter_modal.start_date"
+                                                  )}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        className={`flex-1 mr-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
+                                            tempFilters.endDate
+                                                ? "border-2 border-primary" // Синяя граница, если есть дата
+                                                : "border-gray-200 bg-gray-100" // Серая граница и фон, если нет даты
+                                        }`}
+                                        onPress={() =>
+                                            setShowEndDatePicker(true)
+                                        }
+                                    >
+                                        <Text className="text-gray-700 font-mregular">
+                                            {tempFilters.endDate
+                                                ? formatDate(
+                                                      tempFilters.endDate
+                                                  )
+                                                : t(
+                                                      "news.filter_modal.end_date"
+                                                  )}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                            {/* Action Buttons */}
+                            <View className="flex-row justify-between">
+                                <TouchableOpacity
+                                    className="px-6 py-3 bg-gray-200 rounded-full"
+                                    onPress={handleResetFilters}
+                                >
+                                    <Text className="text-gray-700 font-mmedium">
+                                        {t("news.filter_modal.reset")}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    className="px-6 py-3 bg-primary rounded-full"
+                                    onPress={handleApplyFilters}
+                                >
+                                    <Text className="text-white font-mmedium">
+                                        {t("news.filter_modal.apply")}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* Date Pickers */}
+            {showStartDatePicker && (
+                <DateTimePicker
+                    value={tempFilters.startDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                        setShowStartDatePicker(false);
+                        if (selectedDate) {
+                            setTempFilters((prev) => ({
+                                ...prev,
+                                startDate: selectedDate,
+                            }));
+                        }
+                    }}
+                />
+            )}
+            {showEndDatePicker && (
+                <DateTimePicker
+                    value={tempFilters.endDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                        setShowEndDatePicker(false);
+                        if (selectedDate) {
+                            setTempFilters((prev) => ({
+                                ...prev,
+                                endDate: selectedDate,
+                            }));
+                        }
+                    }}
+                />
+            )}
         </View>
     );
 };

@@ -15,7 +15,7 @@ const SearchComponent = ({ searchText, setSearchText, onClear, tabName }) => {
     };
 
     return (
-        <View className="bg-ghostwhite rounded-3xl p-2 mb-4 shadow-md border border-gray-200">
+        <View className="bg-ghostwhite rounded-3xl p-2  shadow-md border border-gray-200">
             <View className="flex-row items-center">
                 <MaterialIcons
                     name="search"
