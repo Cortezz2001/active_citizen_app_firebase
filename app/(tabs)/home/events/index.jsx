@@ -16,13 +16,14 @@ import LoadingIndicator from "../../../../components/LoadingIndicator";
 import SearchComponent from "../../../../components/SearchComponent";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { ActivityIndicator } from "react-native";
+
 const EmptyStateMessage = ({ searchText }) => {
     const { t } = useTranslation();
     return (
         <View className="flex-1 items-center justify-center py-10 bg-secondary">
             <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
             <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
-                {t("no_news_found", { search: searchText })}
+                {t("no_events_found", { search: searchText })}
             </Text>
             <Text className="text-gray-400 mt-2 text-center">
                 {t("adjust_search")}
@@ -31,77 +32,56 @@ const EmptyStateMessage = ({ searchText }) => {
     );
 };
 
-const NewsCard = ({ item, onPress, i18n }) => (
+const EventCard = ({ item, onPress, i18n }) => (
     <TouchableOpacity
-        className="rounded-lg mb-4 shadow-md bg-ghostwhite border border-gray-200 overflow-hidden"
+        className="rounded-lg mb-4 shadow-md bg-ghostwhite border border-gray-200 overflow-hidden h-44"
         onPress={onPress}
         activeOpacity={0.7}
     >
-        <Image
-            source={{ uri: item.imageUrl }}
-            className="w-full h-48 rounded-t-lg"
-            resizeMode="cover"
-        />
-
-        <View className="p-4">
-            <Text
-                className="font-msemibold text-lg text-gray-800"
-                numberOfLines={2}
-            >
-                {item.title[i18n.language] || item.title.en}
-            </Text>
-            <Text
-                className="font-mregular text-sm text-gray-600 mt-2"
-                numberOfLines={3}
-            >
-                {item.shortDescription[i18n.language] ||
-                    item.shortDescription.en}
-            </Text>
-            <View className="flex-row items-center mt-4 justify-between">
-                <View className="flex-row items-center">
-                    <MaterialIcons name="category" size={16} color="#6B7280" />
-                    <Text className="text-gray-500 ml-1 text-sm font-mmedium">
-                        {item.categoryName[i18n.language] ||
-                            item.categoryName.en}
-                    </Text>
-                </View>
-                <View className="flex-row items-center">
-                    <MaterialIcons
-                        name="access-time"
-                        size={16}
-                        color="#6B7280"
-                    />
-                    <Text className="text-gray-500 ml-1 text-sm font-mmedium">
-                        {new Date(item.createdAt.toDate()).toLocaleDateString(
+        <View className="flex-row h-full items-center">
+            <Image
+                source={{ uri: item.imageUrl }}
+                className="w-24 h-full rounded-l-lg"
+            />
+            <View className="p-4 flex-1">
+                <Text
+                    className="font-msemibold text-lg text-gray-800"
+                    numberOfLines={2}
+                >
+                    {item.title[i18n.language] || item.title.en}
+                </Text>
+                <View className="flex-row items-center mt-2">
+                    <MaterialIcons name="event" size={16} color="#006FFD" />
+                    <Text className="font-mmedium ml-1 text-primary">
+                        {new Date(item.date.toDate()).toLocaleDateString(
                             i18n.language
                         )}
                     </Text>
                 </View>
-            </View>
-
-            <View className="flex-row justify-between items-center pt-3 mr-2">
-                <View className="flex-row items-center">
-                    <View className="bg-gray-100 p-1.5 rounded-full">
-                        <MaterialIcons
-                            name="visibility"
-                            size={16}
-                            color="#3B82F6"
-                        />
-                    </View>
-                    <Text className="text-gray-600 ml-2 font-mmedium text-sm">
-                        {item.viewCount || 0}
+                <View className="flex-row items-center mt-1">
+                    <MaterialIcons
+                        name="location-on"
+                        size={16}
+                        color="#006FFD"
+                    />
+                    <Text
+                        className="font-mmedium ml-1 text-primary"
+                        numberOfLines={1}
+                    >
+                        {item.location.name[i18n.language] ||
+                            item.location.name.en}
                     </Text>
                 </View>
-                <View className="flex-row items-center">
-                    <View className="bg-gray-100 p-1.5 rounded-full">
-                        <MaterialIcons
-                            name="comment"
-                            size={16}
-                            color="#3B82F6"
-                        />
-                    </View>
-                    <Text className="text-gray-600 ml-2 font-mmedium text-sm">
-                        {item.commentCount || 0}
+                {/* Добавленный блок для отображения категории */}
+                <View className="flex-row items-center mt-1">
+                    <MaterialIcons name="category" size={16} color="#006FFD" />
+                    <Text
+                        className="font-mmedium ml-1 text-primary"
+                        numberOfLines={1}
+                    >
+                        {item.categoryName?.[i18n.language] ||
+                            item.categoryName?.en ||
+                            t("unknown_category")}
                     </Text>
                 </View>
             </View>
@@ -109,25 +89,24 @@ const NewsCard = ({ item, onPress, i18n }) => (
     </TouchableOpacity>
 );
 
-const NewsTab = () => {
+const EventsTab = () => {
     const { t, i18n } = useTranslation();
     const [searchText, setSearchText] = useState("");
     const {
-        paginatedNews,
-        paginatedSearchResults,
-        newsLoading,
-        newsError,
-        fetchNews,
-        updateNewsViewCount,
-        searchNews,
-        searchLoading,
-        searchError,
-        resetSearch,
-        isSearchActive,
-        newsFilters,
-        updateNewsFilters,
-        loadMoreNews,
-        isLoadingMore,
+        paginatedEvents,
+        paginatedEventSearchResults,
+        eventsLoading,
+        eventsError,
+        fetchEvents,
+        searchEvents,
+        eventSearchLoading,
+        eventSearchError,
+        resetEventSearch,
+        isEventSearchActive,
+        eventFilters,
+        updateEventFilters,
+        loadMoreEvents,
+        isEventsLoadingMore,
     } = useData();
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
@@ -141,22 +120,17 @@ const NewsTab = () => {
         categories: [],
     });
 
-    // Available categories
-    const categories = [
+    const eventCategories = [
         {
-            id: "Ftu3UnveQDkb6VnLWO4l",
-            name: { en: "Police", ru: "Полиция", kz: "Полиция" },
+            id: "rG7BKHidmMVnk1A7lVKs",
+            name: { en: "Concert", ru: "Концерт", kz: "Концерт" },
         },
-        {
-            id: "IE5GnHjgawytO4oEkIJk",
-            name: { en: "Politics", ru: "Политика", kz: "Саясат" },
-        },
+        // Add more categories as needed
     ];
 
-    // Initialize temp filters when modal opens
     useEffect(() => {
         if (showFilterModal) {
-            setTempFilters({ ...newsFilters });
+            setTempFilters({ ...eventFilters });
         }
     }, [showFilterModal]);
 
@@ -170,16 +144,13 @@ const NewsTab = () => {
     };
 
     const handleApplyFilters = async () => {
-        await updateNewsFilters(tempFilters);
+        await updateEventFilters(tempFilters);
         setShowFilterModal(false);
-
-        // Refresh search results if search is active with new filters
         if (searchText.trim()) {
-            await searchNews(searchText.trim(), i18n.language, tempFilters);
+            await searchEvents(searchText.trim(), i18n.language, tempFilters);
         }
     };
 
-    // Обновляем функцию сброса фильтров
     const handleResetFilters = async () => {
         const emptyFilters = {
             startDate: null,
@@ -187,13 +158,12 @@ const NewsTab = () => {
             categories: [],
         };
         setTempFilters(emptyFilters);
-        await updateNewsFilters(emptyFilters);
-
-        // Обновляем результаты поиска с пустыми фильтрами, если поиск активен
+        await updateEventFilters(emptyFilters);
         if (searchText.trim()) {
-            await searchNews(searchText.trim(), i18n.language, emptyFilters);
+            await searchEvents(searchText.trim(), i18n.language, emptyFilters);
         }
     };
+
     const formatDate = (date) => {
         if (!date) return "";
         return date.toLocaleDateString(i18n.language, {
@@ -203,7 +173,6 @@ const NewsTab = () => {
         });
     };
 
-    // Обработчик изменения текста поиска с задержкой
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             setDebouncedSearchText(searchText);
@@ -213,50 +182,51 @@ const NewsTab = () => {
 
     const handleClearSearch = () => {
         setSearchText("");
-        resetSearch();
+        resetEventSearch();
     };
 
-    // Выполняем поиск при изменении задержанного текста поиска
     useEffect(() => {
         const performSearch = async () => {
             if (debouncedSearchText.trim()) {
-                await searchNews(
+                await searchEvents(
                     debouncedSearchText.trim(),
                     i18n.language,
-                    newsFilters
+                    eventFilters
                 );
             } else {
-                resetSearch();
+                resetEventSearch();
             }
         };
-
         performSearch();
-    }, [debouncedSearchText, i18n.language, newsFilters]);
+    }, [debouncedSearchText, i18n.language, eventFilters]);
 
     const onRefresh = async () => {
         setRefreshing(true);
         try {
-            // Если активен поиск, обновляем результаты поиска с учетом фильтров
             if (searchText.trim()) {
-                await searchNews(searchText.trim(), i18n.language, newsFilters);
+                await searchEvents(
+                    searchText.trim(),
+                    i18n.language,
+                    eventFilters
+                );
             } else {
-                await fetchNews(newsFilters);
+                await fetchEvents(eventFilters);
             }
         } catch (err) {
-            console.error("Error refreshing news:", err);
+            console.error("Error refreshing events:", err);
         } finally {
             setRefreshing(false);
         }
     };
 
     const handleEndReached = () => {
-        if (!isLoading && !refreshing && !isLoadingMore) {
-            loadMoreNews();
+        if (!eventsLoading && !refreshing && !isEventsLoadingMore) {
+            loadMoreEvents();
         }
     };
-    const renderFooter = () => {
-        if (!isLoadingMore) return null;
 
+    const renderFooter = () => {
+        if (!isEventsLoadingMore) return null;
         return (
             <View className="py-4 flex items-center justify-center">
                 <ActivityIndicator size="small" color="#006FFD" />
@@ -268,33 +238,32 @@ const NewsTab = () => {
         if (searchText) {
             return <EmptyStateMessage searchText={searchText} />;
         }
-
         return (
             <View className="flex-1 items-center justify-center py-10 bg-secondary">
                 <MaterialIcons name="info" size={64} color="#9CA3AF" />
                 <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
-                    {t("no_news_available")}
+                    {t("no_events_available")}
                 </Text>
             </View>
         );
     };
 
-    const handleNewsPress = async (item) => {
-        router.push(`/pages/news-details/${item.id}`);
-        await updateNewsViewCount(item.id);
+    const handleEventPress = (item) => {
+        router.push(`/pages/events-details/${item.id}`);
     };
 
-    // Определяем, какие данные отображать: результаты поиска или обычные новости
-    const displayData = isSearchActive ? paginatedSearchResults : paginatedNews;
+    const displayData = isEventSearchActive
+        ? paginatedEventSearchResults
+        : paginatedEvents;
     const isLoading =
-        (isSearchActive ? searchLoading : newsLoading) && !refreshing;
-    const error = isSearchActive ? searchError : newsError;
+        (isEventSearchActive ? eventSearchLoading : eventsLoading) &&
+        !refreshing;
+    const error = isEventSearchActive ? eventSearchError : eventsError;
 
     const renderContent = () => {
         if (isLoading) {
             return <LoadingIndicator />;
         }
-
         if (error) {
             return (
                 <View className="flex-1 justify-center items-center">
@@ -304,14 +273,13 @@ const NewsTab = () => {
                 </View>
             );
         }
-
         return (
             <FlatList
                 data={displayData}
                 renderItem={({ item }) => (
-                    <NewsCard
+                    <EventCard
                         item={item}
-                        onPress={() => handleNewsPress(item)}
+                        onPress={() => handleEventPress(item)}
                         i18n={i18n}
                     />
                 )}
@@ -342,10 +310,9 @@ const NewsTab = () => {
                         searchText={searchText}
                         setSearchText={setSearchText}
                         onClear={handleClearSearch}
-                        tabName="news"
+                        tabName="events"
                     />
                 </View>
-
                 <TouchableOpacity
                     className="ml-2 p-2 bg-ghostwhite rounded-full shadow-md border border-gray-200"
                     onPress={() => setShowFilterModal(true)}
@@ -354,7 +321,7 @@ const NewsTab = () => {
                         name="filter-list"
                         size={24}
                         color={
-                            Object.values(newsFilters).some((v) =>
+                            Object.values(eventFilters).some((v) =>
                                 Array.isArray(v) ? v.length > 0 : v !== null
                             )
                                 ? "#006FFD"
@@ -366,7 +333,6 @@ const NewsTab = () => {
 
             {renderContent()}
 
-            {/* Filter Modal */}
             <Modal
                 transparent={true}
                 visible={showFilterModal}
@@ -382,7 +348,7 @@ const NewsTab = () => {
                         <View className="bg-white rounded-t-xl p-5">
                             <View className="flex-row justify-between items-center mb-4">
                                 <Text className="text-lg font-mbold">
-                                    {t("news.filter_modal.title")}
+                                    {t("events.filter_modal.title")}
                                 </Text>
                                 <TouchableOpacity
                                     onPress={() => setShowFilterModal(false)}
@@ -395,13 +361,12 @@ const NewsTab = () => {
                                 </TouchableOpacity>
                             </View>
 
-                            {/* Categories */}
                             <View className="mb-6">
                                 <Text className="text-base font-mmedium mb-2">
-                                    {t("news.filter_modal.categories")}
+                                    {t("events.filter_modal.categories")}
                                 </Text>
                                 <View className="flex-row flex-wrap">
-                                    {categories.map((category) => (
+                                    {eventCategories.map((category) => (
                                         <TouchableOpacity
                                             key={category.id}
                                             className={`mr-2 mb-2 px-4 py-2 rounded-full border border-gray-200 ${
@@ -431,17 +396,16 @@ const NewsTab = () => {
                                 </View>
                             </View>
 
-                            {/* Date Range */}
                             <View className="mb-6">
                                 <Text className="text-base font-mmedium mb-2">
-                                    {t("news.filter_modal.date_range")}
+                                    {t("events.filter_modal.date_range")}
                                 </Text>
                                 <View className="flex-row justify-between">
                                     <TouchableOpacity
                                         className={`flex-1 mr-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
                                             tempFilters.startDate
-                                                ? "border-2 border-primary" // Синяя граница, если есть дата
-                                                : "border-gray-200 bg-gray-100" // Серая граница и фон, если нет даты
+                                                ? "border-2 border-primary"
+                                                : "border-gray-200 bg-gray-100"
                                         }`}
                                         onPress={() =>
                                             setShowStartDatePicker(true)
@@ -453,15 +417,15 @@ const NewsTab = () => {
                                                       tempFilters.startDate
                                                   )
                                                 : t(
-                                                      "news.filter_modal.start_date"
+                                                      "events.filter_modal.start_date"
                                                   )}
                                         </Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         className={`flex-1 mr-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
                                             tempFilters.endDate
-                                                ? "border-2 border-primary" // Синяя граница, если есть дата
-                                                : "border-gray-200 bg-gray-100" // Серая граница и фон, если нет даты
+                                                ? "border-2 border-primary"
+                                                : "border-gray-200 bg-gray-100"
                                         }`}
                                         onPress={() =>
                                             setShowEndDatePicker(true)
@@ -473,21 +437,20 @@ const NewsTab = () => {
                                                       tempFilters.endDate
                                                   )
                                                 : t(
-                                                      "news.filter_modal.end_date"
+                                                      "events.filter_modal.end_date"
                                                   )}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
 
-                            {/* Action Buttons */}
                             <View className="flex-row justify-between">
                                 <TouchableOpacity
                                     className="px-6 py-3 bg-gray-200 rounded-full"
                                     onPress={handleResetFilters}
                                 >
                                     <Text className="text-gray-700 font-mmedium">
-                                        {t("news.filter_modal.reset")}
+                                        {t("events.filter_modal.reset")}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
@@ -495,7 +458,7 @@ const NewsTab = () => {
                                     onPress={handleApplyFilters}
                                 >
                                     <Text className="text-white font-mmedium">
-                                        {t("news.filter_modal.apply")}
+                                        {t("events.filter_modal.apply")}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -504,7 +467,6 @@ const NewsTab = () => {
                 </TouchableOpacity>
             </Modal>
 
-            {/* Date Pickers */}
             {showStartDatePicker && (
                 <DateTimePicker
                     value={tempFilters.startDate || new Date()}
@@ -541,4 +503,4 @@ const NewsTab = () => {
     );
 };
 
-export default NewsTab;
+export default EventsTab;
