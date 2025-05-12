@@ -42,138 +42,168 @@ const NewsDetailsScreen = () => {
     const [commentsLoading, setCommentsLoading] = useState(true);
     const [isCommentSubmitting, setIsCommentSubmitting] = useState(false);
     const [commentCount, setCommentCount] = useState(0);
+    const [commentsPage, setCommentsPage] = useState(1);
+    const [commentsPerPage] = useState(5);
+    const [hasMoreComments, setHasMoreComments] = useState(true);
+    const [isLoadingMoreComments, setIsLoadingMoreComments] = useState(false);
 
-    useEffect(() => {
-        const fetchNewsDetails = async () => {
-            try {
-                setLoading(true);
-                const newsDoc = await getDocument("news", id);
+    const fetchNewsDetails = async () => {
+        try {
+            setLoading(true);
+            const newsDoc = await getDocument("news", id);
 
-                if (!newsDoc) {
-                    throw new Error("News not found");
-                }
-
-                let categoryName = {
-                    en: "Unknown",
-                    ru: "Неизвестно",
-                    kz: "Белгісіз",
-                };
-                if (newsDoc.categoryId) {
-                    const categoryDoc = await getDocument(
-                        "news_categories",
-                        newsDoc.categoryId.id
-                    );
-                    categoryName = categoryDoc?.name || categoryName;
-                }
-
-                setNewsItem({ ...newsDoc, categoryName });
-            } catch (err) {
-                console.error("Error fetching news details:", err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
+            if (!newsDoc) {
+                throw new Error("News not found");
             }
-        };
 
-        const fetchComments = async () => {
-            try {
-                setCommentsLoading(true);
-                const conditions = [
-                    {
-                        type: "where",
-                        field: "parentCollection",
-                        operator: "==",
-                        value: "news",
-                    },
-                    {
-                        type: "where",
-                        field: "parentId",
-                        operator: "==",
-                        value: `news/${id}`,
-                    },
-                ];
-
-                const commentsData = await getCollection(
-                    "news_comments",
-                    conditions
+            let categoryName = {
+                en: "Unknown",
+                ru: "Неизвестно",
+                kz: "Белгісіз",
+            };
+            if (newsDoc.categoryId) {
+                const categoryDoc = await getDocument(
+                    "news_categories",
+                    newsDoc.categoryId.id
                 );
+                categoryName = categoryDoc?.name || categoryName;
+            }
 
-                const commentsWithUsers = await Promise.all(
-                    commentsData.map(async (comment) => {
-                        let userName = t("anonymous");
-                        let userAvatar = null;
+            setNewsItem({ ...newsDoc, categoryName });
+        } catch (err) {
+            console.error("Error fetching news details:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                        if (comment.userId) {
-                            const userDoc = await getDocument(
-                                "users",
-                                comment.userId.id
-                            );
-                            userName = userDoc
-                                ? `${userDoc.fname} ${userDoc.lname.charAt(0)}.`
-                                : t("anonymous");
+    const fetchComments = async (page = 1) => {
+        try {
+            if (page === 1) {
+                setCommentsLoading(true);
+            } else {
+                setIsLoadingMoreComments(true);
+            }
 
-                            const authUser = userDoc?.authData || {};
-                            if (authUser?.photoURL) {
-                                userAvatar = authUser.photoURL;
-                            } else {
-                                try {
-                                    const avatarFolderRef = ref(
-                                        storage,
-                                        `avatars/${comment.userId.id}/`
+            const conditions = [
+                {
+                    type: "where",
+                    field: "parentCollection",
+                    operator: "==",
+                    value: "news",
+                },
+                {
+                    type: "where",
+                    field: "parentId",
+                    operator: "==",
+                    value: `news/${id}`,
+                },
+            ];
+
+            const allComments = await getCollection(
+                "news_comments",
+                conditions
+            );
+            const totalComments = allComments.length;
+
+            const startIndex = (page - 1) * commentsPerPage;
+            const endIndex = startIndex + commentsPerPage;
+            const commentsData = allComments.slice(startIndex, endIndex);
+
+            const commentsWithUsers = await Promise.all(
+                commentsData.map(async (comment) => {
+                    let userName = t("anonymous");
+                    let userAvatar = null;
+
+                    if (comment.userId) {
+                        const userDoc = await getDocument(
+                            "users",
+                            comment.userId.id
+                        );
+                        userName = userDoc
+                            ? `${userDoc.fname} ${userDoc.lname.charAt(0)}.`
+                            : t("anonymous");
+
+                        const authUser = userDoc?.authData || {};
+                        if (authUser?.photoURL) {
+                            userAvatar = authUser.photoURL;
+                        } else {
+                            try {
+                                const avatarFolderRef = ref(
+                                    storage,
+                                    `avatars/${comment.userId.id}/`
+                                );
+                                const avatarList = await listAll(
+                                    avatarFolderRef
+                                );
+                                if (avatarList.items.length > 0) {
+                                    const sortedAvatars = avatarList.items.sort(
+                                        (a, b) => b.name.localeCompare(a.name)
                                     );
-                                    const avatarList = await listAll(
-                                        avatarFolderRef
+                                    const avatarFileRef = sortedAvatars[0];
+                                    userAvatar = await getDownloadURL(
+                                        avatarFileRef
                                     );
-                                    if (avatarList.items.length > 0) {
-                                        const sortedAvatars =
-                                            avatarList.items.sort((a, b) =>
-                                                b.name.localeCompare(a.name)
-                                            );
-                                        const avatarFileRef = sortedAvatars[0];
-                                        userAvatar = await getDownloadURL(
-                                            avatarFileRef
-                                        );
-                                    }
-                                } catch (err) {
-                                    console.warn(
-                                        `Avatar not found for user ${comment.userId.id}:`,
-                                        err
-                                    );
-                                    userAvatar = null;
                                 }
+                            } catch (err) {
+                                console.warn(
+                                    `Avatar not found for user ${comment.userId.id}:`,
+                                    err
+                                );
                             }
                         }
-                        return { ...comment, userName, userAvatar };
-                    })
-                );
+                    }
+                    return { ...comment, userName, userAvatar };
+                })
+            );
 
-                commentsWithUsers.sort((a, b) => {
-                    const dateA = a.createdAt?.toDate
-                        ? a.createdAt.toDate()
-                        : new Date(a.createdAt);
-                    const dateB = b.createdAt?.toDate
-                        ? b.createdAt.toDate()
-                        : new Date(b.createdAt);
-                    return dateB - dateA;
-                });
+            commentsWithUsers.sort((a, b) => {
+                const dateA = a.createdAt?.toDate
+                    ? a.createdAt.toDate()
+                    : new Date(a.createdAt);
+                const dateB = b.createdAt?.toDate
+                    ? b.createdAt.toDate()
+                    : new Date(b.createdAt);
+                return dateB - dateA;
+            });
 
+            if (page === 1) {
                 setComments(commentsWithUsers);
-                setCommentCount(commentsWithUsers.length);
-
-                // Обновляем количество комментариев в контексте
-                await updateNewsCommentCount(id);
-            } catch (err) {
-                console.error("Error fetching comments:", err);
-            } finally {
-                setCommentsLoading(false);
+            } else {
+                setComments((prevComments) => [
+                    ...prevComments,
+                    ...commentsWithUsers,
+                ]);
             }
-        };
 
+            setHasMoreComments(endIndex < totalComments);
+            setCommentCount(totalComments);
+            await updateNewsCommentCount(id);
+        } catch (err) {
+            console.error("Error fetching comments:", err);
+        } finally {
+            if (page === 1) {
+                setCommentsLoading(false);
+            } else {
+                setIsLoadingMoreComments(false);
+            }
+        }
+    };
+
+    useEffect(() => {
         if (id) {
             fetchNewsDetails();
-            fetchComments();
+            fetchComments(1);
         }
     }, [id]);
+
+    const handleLoadMoreComments = () => {
+        if (hasMoreComments && !isLoadingMoreComments && !commentsLoading) {
+            setCommentsPage((prevPage) => prevPage + 1);
+            fetchComments(commentsPage + 1);
+        }
+    };
 
     const handleShare = async () => {
         if (!newsItem) return;
@@ -236,7 +266,6 @@ const NewsDetailsScreen = () => {
                     }
                 } catch (err) {
                     console.warn(`Avatar not found for user ${user.uid}:`, err);
-                    userAvatar = null;
                 }
             }
 
@@ -251,8 +280,7 @@ const NewsDetailsScreen = () => {
             setComments([newComment, ...comments]);
             setCommentCount((prevCount) => prevCount + 1);
             setCommentText("");
-
-            // Обновляем количество комментариев в контексте
+            setHasMoreComments(true); // Обновляем флаг, так как добавился новый комментарий
             await updateNewsCommentCount(id);
         } catch (error) {
             console.error("Error adding comment:", error);
@@ -312,6 +340,15 @@ const NewsDetailsScreen = () => {
             <Text className="text-gray-700 font-mmedium">{item.content}</Text>
         </View>
     );
+
+    const renderCommentFooter = () => {
+        if (!isLoadingMoreComments) return null;
+        return (
+            <View className="py-4 flex items-center justify-center">
+                <ActivityIndicator size="small" color="#006FFD" />
+            </View>
+        );
+    };
 
     if (loading) {
         return <LoadingIndicator />;
@@ -380,7 +417,6 @@ const NewsDetailsScreen = () => {
                     resizeMode="cover"
                 />
 
-                {/* Content Section */}
                 <View className="bg-white rounded-xl -mt-6 p-6 shadow-sm border border-gray-100 mb-4">
                     <Text className="text-2xl font-mbold text-gray-900 mb-3">
                         {newsItem.title[i18n.language] || newsItem.title.en}
@@ -443,7 +479,6 @@ const NewsDetailsScreen = () => {
                     )}
                 </View>
 
-                {/* Comments Section */}
                 <View className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                     <View className="flex-row items-center mb-4">
                         <MaterialIcons
@@ -500,6 +535,9 @@ const NewsDetailsScreen = () => {
                             data={comments}
                             renderItem={renderComment}
                             keyExtractor={(item) => item.id}
+                            onEndReached={handleLoadMoreComments}
+                            onEndReachedThreshold={0.5}
+                            ListFooterComponent={renderCommentFooter}
                             scrollEnabled={false}
                         />
                     ) : (
