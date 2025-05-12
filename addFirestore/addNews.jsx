@@ -57,32 +57,75 @@ const TestNewsButton = () => {
 
 export default TestNewsButton;
 
-// Fetch comments for a specific news item
-//   const fetchComments = async (newsId) => {
+// import React from "react";
+// import { View, Button } from "react-native";
+// import { addDoc, collection, doc, serverTimestamp } from "firebase/firestore";
+// import { firestore } from "../lib/firebase";
+
+// export const addTestNews = async () => {
 //     try {
-//       const conditions = [
-//         { type: 'where', field: 'parentCollection', operator: '==', value: 'news' },
-//         { type: 'where', field: 'parentId', operator: '==', value: `news/${newsId}` },
-//         { type: 'orderBy', field: 'createdAt', direction: 'desc' },
-//       ];
+//         const categories = ["Ftu3UnveQDkb6VnLWO4l", "IE5GnHjgawytO4oEkIJk"];
+//         const promises = [];
 
-//       const commentsData = await getCollection('comments', conditions);
+//         for (let i = 1; i <= 50; i++) {
+//             const testNews = {
+//                 categoryId: doc(
+//                     firestore,
+//                     "news_categories",
+//                     categories[i % 2]
+//                 ), // Alternates categories
+//                 cityKey: "pavlodar",
+//                 content: {
+//                     en: `Test news content ${i}`,
+//                     kz: `Тест мазмұны ${i}`,
+//                     ru: `Тестовый контент ${i}`,
+//                 },
+//                 createdAt: serverTimestamp(),
+//                 imageUrl: `https://picsum.photos/1920/1080?random=${i}`,
+//                 isGlobal: true,
+//                 shortDescription: {
+//                     en: `Test description ${i}`,
+//                     kz: `Тест сипаттамасы ${i}`,
+//                     ru: `Тестовое описание ${i}`,
+//                 },
+//                 title: {
+//                     en: `Test News ${i}`,
+//                     kz: `Тест Жаңалықтары ${i}`,
+//                     ru: `Тестовые Новости ${i}`,
+//                 },
+//                 updatedAt: serverTimestamp(),
+//                 viewCount: Math.floor(Math.random() * 1000), // Random view count between 0 and 999
+//             };
+//             promises.push(addDoc(collection(firestore, "news"), testNews));
+//         }
 
-//       // Fetch user details for each comment
-//       const commentsWithUsers = await Promise.all(
-//         commentsData.map(async (comment) => {
-//           let userName = 'Anonymous';
-//           if (comment.userId) {
-//             const userDoc = await getDocument('users', comment.userId.id);
-//             userName = userDoc ? `${userDoc.fname} ${userDoc.lname}` : 'Anonymous';
-//           }
-//           return { ...comment, userName };
-//         })
-//       );
-
-//       return commentsWithUsers;
-//     } catch (err) {
-//       console.error('Error fetching comments:', err);
-//       throw err;
+//         const docRefs = await Promise.all(promises);
+//         console.log(
+//             "50 test news added with IDs:",
+//             docRefs.map((doc) => doc.id)
+//         );
+//         return docRefs.map((doc) => doc.id);
+//     } catch (error) {
+//         console.error("Error adding test news:", error);
+//         throw error;
 //     }
-//   };
+// };
+
+// const TestNewsButton = () => {
+//     const handleAddNews = async () => {
+//         try {
+//             await addTestNews();
+//             alert("50 test news added successfully!");
+//         } catch (error) {
+//             alert("Failed to add test news: " + error.message);
+//         }
+//     };
+
+//     return (
+//         <View>
+//             <Button title="Add 50 Test News" onPress={handleAddNews} />
+//         </View>
+//     );
+// };
+
+// export default TestNewsButton;

@@ -15,7 +15,7 @@ import { useData } from "../../../../lib/datacontext";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
 import SearchComponent from "../../../../components/SearchComponent";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
+import { ActivityIndicator } from "react-native";
 const EmptyStateMessage = ({ searchText }) => {
     const { t } = useTranslation();
     return (
@@ -113,19 +113,21 @@ const NewsTab = () => {
     const { t, i18n } = useTranslation();
     const [searchText, setSearchText] = useState("");
     const {
-        news,
+        paginatedNews,
+        paginatedSearchResults,
         newsLoading,
         newsError,
         fetchNews,
         updateNewsViewCount,
         searchNews,
-        searchResults,
         searchLoading,
         searchError,
         resetSearch,
         isSearchActive,
         newsFilters,
         updateNewsFilters,
+        loadMoreNews,
+        isLoadingMore,
     } = useData();
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
@@ -247,6 +249,21 @@ const NewsTab = () => {
         }
     };
 
+    const handleEndReached = () => {
+        if (!isLoading && !refreshing && !isLoadingMore) {
+            loadMoreNews();
+        }
+    };
+    const renderFooter = () => {
+        if (!isLoadingMore) return null;
+
+        return (
+            <View className="py-4 flex items-center justify-center">
+                <ActivityIndicator size="small" color="#006FFD" />
+            </View>
+        );
+    };
+
     const renderEmptyList = () => {
         if (searchText) {
             return <EmptyStateMessage searchText={searchText} />;
@@ -268,7 +285,7 @@ const NewsTab = () => {
     };
 
     // Определяем, какие данные отображать: результаты поиска или обычные новости
-    const displayData = isSearchActive ? searchResults : news;
+    const displayData = isSearchActive ? paginatedSearchResults : paginatedNews;
     const isLoading =
         (isSearchActive ? searchLoading : newsLoading) && !refreshing;
     const error = isSearchActive ? searchError : newsError;
@@ -301,6 +318,9 @@ const NewsTab = () => {
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={renderEmptyList}
+                ListFooterComponent={renderFooter}
+                onEndReached={handleEndReached}
+                onEndReachedThreshold={0.5}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
