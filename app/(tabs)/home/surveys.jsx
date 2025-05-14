@@ -5,7 +5,7 @@ import { useKeyboard } from "../../../hooks/useKeyboard";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import SearchComponent from "../../../components/SearchComponent";
-
+import TestSurveyButton from "../../../addFirestore/addSurvey";
 const surveysData = [
     { id: 1, title: "City Transportation Survey", votes: 256 },
     { id: 2, title: "City Transportation Bay", votes: 216 },
@@ -55,6 +55,7 @@ const SurveysTab = () => {
 
     return (
         <View className="flex-1">
+            <TestSurveyButton />
             <SearchComponent
                 searchText={searchText}
                 setSearchText={setSearchText}
