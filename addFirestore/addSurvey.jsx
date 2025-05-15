@@ -7,15 +7,16 @@ export const addTestSurvey = async () => {
     try {
         const testSurvey = {
             title: {
-                en: "Test Survey",
-                kz: "Тесттік Саулнама",
-                ru: "Тестовый Опрос",
+                en: "Test Survey 2",
+                kz: "Тесттік Саулнама 2",
+                ru: "Тестовый Опрос 2",
             },
             description: {
                 en: "This is a test survey description",
                 kz: "Бұл тестілік саулнама сипаттамасы",
                 ru: "Это тестовое описание опроса",
             },
+            cityKey: "pavlodar",
             questions: [
                 {
                     questionText: {
@@ -73,7 +74,7 @@ export const addTestSurvey = async () => {
             status: "Published",
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
-            totalVotes: 0,
+            totalVotes: 1,
         };
 
         const docRef = await addDoc(
