@@ -15,9 +15,8 @@ import LoadingIndicator from "../../../../components/LoadingIndicator";
 import SearchComponent from "../../../../components/SearchComponent";
 import { ActivityIndicator } from "react-native";
 import { useKeyboard } from "../../../../hooks/useKeyboard";
-import Toast from "react-native-toast-message"; // Добавлен импорт Toast
+import Toast from "react-native-toast-message";
 
-// Компоненты EmptyStateMessage и SurveyCard
 const EmptyStateMessage = ({ searchText }) => {
     const { t } = useTranslation();
     return (
@@ -43,13 +42,12 @@ const SurveyCard = ({ item, onPress, i18n }) => {
     const statusColor = isCompleted ? "bg-red-400" : "bg-green-400";
     const statusText = isCompleted ? t("completed") : t("active");
 
-    // Сделаем все карточки кликабельными
     const cardBorderClass = isCompleted
         ? "border-l-4 border-l-red-400 border-t border-t-gray-200 border-r border-r-gray-200 border-b border-b-gray-200"
         : "border-l-4 border-l-green-400 border-t border-t-gray-200 border-r border-r-gray-200 border-b border-b-gray-200";
     return (
         <TouchableOpacity
-            className={`rounded-lg mb-4 shadow-md bg-ghostwhite ${cardBorderClass} overflow-hidden `}
+            className={`rounded-lg mb-4 shadow-md bg-ghostwhite ${cardBorderClass} overflow-hidden`}
             onPress={onPress}
             activeOpacity={0.7}
         >
@@ -68,6 +66,13 @@ const SurveyCard = ({ item, onPress, i18n }) => {
                 >
                     {item.title[i18n.language] || item.title.en}
                 </Text>
+                <View className="flex-row items-center mt-2">
+                    <MaterialIcons name="category" size={16} color="#6B7280" />
+                    <Text className="text-gray-500 ml-1 text-sm font-mmedium">
+                        {item.categoryName[i18n.language] ||
+                            item.categoryName.en}
+                    </Text>
+                </View>
                 <View className="flex-row items-center justify-between mt-4">
                     <View className="flex-row items-center">
                         <MaterialIcons
@@ -81,19 +86,19 @@ const SurveyCard = ({ item, onPress, i18n }) => {
                     </View>
                     {isCompleted ? (
                         <TouchableOpacity
-                            className={`bg-ghostwhite px-3 py-1 rounded-full border border-gray-300`}
-                            onPress={() => {
+                            className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
+                            onPress={() =>
                                 router.push(
                                     `/pages/surveys-details/results/${item.id}`
-                                );
-                            }}
+                                )
+                            }
                         >
                             <Text className="text-gray-700 font-mmedium">
                                 {t("view_results")}
                             </Text>
                         </TouchableOpacity>
                     ) : hasVoted ? (
-                        <View className=" rounded-full flex items-center justify-center">
+                        <View className="rounded-full flex items-center justify-center">
                             <MaterialIcons
                                 name="check-circle"
                                 size={24}
@@ -102,12 +107,12 @@ const SurveyCard = ({ item, onPress, i18n }) => {
                         </View>
                     ) : (
                         <TouchableOpacity
-                            className={`bg-ghostwhite px-3 py-1 rounded-full border border-gray-300`}
-                            onPress={() => {
+                            className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
+                            onPress={() =>
                                 router.push(
                                     `/pages/surveys-details/vote/${item.id}`
-                                );
-                            }}
+                                )
+                            }
                         >
                             <Text className="text-gray-700 font-mmedium">
                                 {t("vote")}
@@ -144,12 +149,74 @@ const SurveysTab = () => {
     const [debouncedSearchText, setDebouncedSearchText] = useState("");
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [showOptionsModal, setShowOptionsModal] = useState(false);
-    const [tempFilters, setTempFilters] = useState({ status: [] });
+    const [tempFilters, setTempFilters] = useState({
+        status: [],
+        categories: [],
+    });
     const { isKeyboardVisible } = useKeyboard();
 
     const statusOptions = [
         { id: "Published", name: t("active") },
         { id: "Completed", name: t("completed") },
+    ];
+
+    const categories = [
+        {
+            id: "RkdtDA478Mzbz1ludDqk",
+            name: {
+                en: "Infrastructure",
+                kz: "Инфрақұрылым",
+                ru: "Инфраструктура",
+            },
+        },
+        {
+            id: "QQv49ItsxuLUaUrhqOcX",
+            name: { en: "Transport", kz: "Көлік", ru: "Транспорт" },
+        },
+        {
+            id: "OxVqr3xUJKdhXTPyiLmQ",
+            name: { en: "Ecology", kz: "Экология", ru: "Экология" },
+        },
+        {
+            id: "kpP3pGJ9DWJMZevFwHcN",
+            name: { en: "Education", kz: "Білім", ru: "Образование" },
+        },
+        {
+            id: "W71S9fR85wftoGUzZH9K",
+            name: {
+                en: "Healthcare",
+                kz: "Денсаулық сақтау",
+                ru: "Здравоохранение",
+            },
+        },
+        {
+            id: "WHeEqvVUnOxqkYNDb9BP",
+            name: {
+                en: "Social Sphere",
+                kz: "Әлеуметтік сала",
+                ru: "Социальная сфера",
+            },
+        },
+        {
+            id: "91kpAs3p4VS5yucBqqLS",
+            name: { en: "Culture", kz: "Мәдениет", ru: "Культура" },
+        },
+        {
+            id: "9KbN8KoH0b7JAhnsVBV0",
+            name: { en: "Housing and Utilities", kz: "ТКШ", ru: "ЖКХ" },
+        },
+        {
+            id: "BXNGHpDQrPOaYD7SM3OG",
+            name: { en: "Safety", kz: "Қауіпсіздік", ru: "Безопасность" },
+        },
+        {
+            id: "CmWOBmtNUtNOzj2zuM0k",
+            name: { en: "Application", kz: "Қосымша", ru: "Приложение" },
+        },
+        {
+            id: "AZd4V140mdc6dYiNnGtU",
+            name: { en: "Other", kz: "Басқа", ru: "Другое" },
+        },
     ];
 
     useEffect(() => {
@@ -167,6 +234,15 @@ const SurveysTab = () => {
         }));
     };
 
+    const toggleCategory = (categoryId) => {
+        setTempFilters((prev) => ({
+            ...prev,
+            categories: prev.categories.includes(categoryId)
+                ? prev.categories.filter((id) => id !== categoryId)
+                : [...prev.categories, categoryId],
+        }));
+    };
+
     const handleApplyFilters = async () => {
         await updateSurveyFilters(tempFilters);
         setShowFilterModal(false);
@@ -176,7 +252,7 @@ const SurveysTab = () => {
     };
 
     const handleResetFilters = async () => {
-        const emptyFilters = { status: [] };
+        const emptyFilters = { status: [], categories: [] };
         setTempFilters(emptyFilters);
         await updateSurveyFilters(emptyFilters);
         if (searchText.trim()) {
@@ -265,7 +341,6 @@ const SurveysTab = () => {
         } else if (!item.hasVoted) {
             router.push(`/pages/surveys-details/vote/${item.id}`);
         } else {
-            // Показываем уведомление для уже пройденных опросов
             Toast.show({
                 type: "info",
                 text1: t("surveys.already_completed"),
@@ -324,7 +399,6 @@ const SurveysTab = () => {
         );
     };
 
-    // Функции для навигации
     const navigateToAddSurvey = () => {
         setShowOptionsModal(false);
         router.push("/pages/add-survey");
@@ -354,7 +428,8 @@ const SurveysTab = () => {
                         name="filter-list"
                         size={24}
                         color={
-                            surveyFilters.status.length > 0
+                            surveyFilters.status.length > 0 ||
+                            surveyFilters.categories.length > 0
                                 ? "#006FFD"
                                 : "#9CA3AF"
                         }
@@ -364,7 +439,6 @@ const SurveysTab = () => {
 
             {renderContent()}
 
-            {/* Плавающая кнопка для открытия модального окна */}
             {!isKeyboardVisible && (
                 <TouchableOpacity
                     className="absolute bottom-5 right-4 bg-primary rounded-full w-14 h-14 items-center justify-center shadow-lg"
@@ -374,7 +448,6 @@ const SurveysTab = () => {
                 </TouchableOpacity>
             )}
 
-            {/* Модальное окно с опциями */}
             <Modal
                 visible={showOptionsModal}
                 transparent={true}
@@ -400,7 +473,6 @@ const SurveysTab = () => {
                                 {t("surveys.create_new_survey")}
                             </Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity
                             className="flex-row items-center px-4 py-3"
                             onPress={navigateToMySurveys}
@@ -418,7 +490,6 @@ const SurveysTab = () => {
                 </TouchableOpacity>
             </Modal>
 
-            {/* Модальное окно фильтров */}
             <Modal
                 transparent={true}
                 visible={showFilterModal}
@@ -475,6 +546,40 @@ const SurveysTab = () => {
                                                 }`}
                                             >
                                                 {status.name}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+                            <View className="mb-6">
+                                <Text className="text-base font-mmedium mb-2">
+                                    {t("surveys.filter_modal.categories")}
+                                </Text>
+                                <View className="flex-row flex-wrap">
+                                    {categories.map((category) => (
+                                        <TouchableOpacity
+                                            key={category.id}
+                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border border-gray-200 ${
+                                                tempFilters.categories.includes(
+                                                    category.id
+                                                )
+                                                    ? "border-primary bg-primary"
+                                                    : "bg-gray-100"
+                                            }`}
+                                            onPress={() =>
+                                                toggleCategory(category.id)
+                                            }
+                                        >
+                                            <Text
+                                                className={`font-mregular ${
+                                                    tempFilters.categories.includes(
+                                                        category.id
+                                                    )
+                                                        ? "text-white"
+                                                        : "text-gray-700"
+                                                }`}
+                                            >
+                                                {category.name[i18n.language]}
                                             </Text>
                                         </TouchableOpacity>
                                     ))}

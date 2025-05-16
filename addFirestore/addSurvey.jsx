@@ -17,6 +17,7 @@ export const addTestSurvey = async () => {
                 ru: "Это тестовое описание опроса",
             },
             cityKey: "pavlodar",
+            categoryId: "surveys_categories/91kpAs3p4VS5yucBqqLS",
             questions: [
                 {
                     questionText: {

@@ -16,6 +16,7 @@ import LoadingIndicator from "../../../../components/LoadingIndicator";
 import SearchComponent from "../../../../components/SearchComponent";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { ActivityIndicator } from "react-native";
+
 const EmptyStateMessage = ({ searchText }) => {
     const { t } = useTranslation();
     return (
@@ -144,12 +145,64 @@ const NewsTab = () => {
     // Available categories
     const categories = [
         {
-            id: "Ftu3UnveQDkb6VnLWO4l",
-            name: { en: "Police", ru: "Полиция", kz: "Полиция" },
+            id: "EFSI2BK77w18bNAYGGX4",
+            name: {
+                en: "Infrastructure",
+                kz: "Инфрақұрылым",
+                ru: "Инфраструктура",
+            },
         },
         {
-            id: "IE5GnHjgawytO4oEkIJk",
-            name: { en: "Politics", ru: "Политика", kz: "Саясат" },
+            id: "5m8QecvGFlMF0D4Usqrs",
+            name: { en: "Transport", kz: "Көлік", ru: "Транспорт" },
+        },
+        {
+            id: "E4KL6iMQTGbFJ6h5BZDc",
+            name: { en: "Ecology", kz: "Экология", ru: "Экология" },
+        },
+        {
+            id: "WnTQxiyzcbdVm690j2Pn",
+            name: { en: "Education", kz: "Білім", ru: "Образование" },
+        },
+        {
+            id: "MdwCK3NMg64PqmPQFAQ4",
+            name: {
+                en: "Healthcare",
+                kz: "Денсаулық сақтау",
+                ru: "Здравоохранение",
+            },
+        },
+        {
+            id: "NYBHEyvWdhF8Yo6Pl73X",
+            name: {
+                en: "Social Sphere",
+                kz: "Әлеуметтік сала",
+                ru: "Социальная сфера",
+            },
+        },
+        {
+            id: "sGkSl0AVr01NlBJEwWBs",
+            name: { en: "Culture", kz: "Мәдениет", ru: "Культура" },
+        },
+        {
+            id: "gfRxRWr0TlChOPdSW8kz",
+            name: {
+                en: "Housing and Utilities",
+                kz: "ТКШ",
+                ru: "ЖКХ",
+            },
+        },
+        {
+            id: "lafwZEKCmogVNrQKxLI8",
+            name: { en: "Safety", kz: "Қауіпсіздік", ru: "Безопасность" },
+        },
+        {
+            id: "9sbSX4PubjX090jhiQIS",
+            name: { en: "Application", kz: "Қосымша", ru: "Приложение" },
+        },
+        {
+            id: "sdUQe1AYEBvoVBdkx7VN",
+            name: { en: "Other", kz: "Басқа", ru: "Другое" },
         },
     ];
 

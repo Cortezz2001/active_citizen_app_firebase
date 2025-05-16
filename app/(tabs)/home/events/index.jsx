@@ -51,8 +51,8 @@ const EventCard = ({ item, onPress, i18n }) => (
                     {item.title[i18n.language] || item.title.en}
                 </Text>
                 <View className="flex-row items-center mt-2">
-                    <MaterialIcons name="event" size={16} color="#006FFD" />
-                    <Text className="font-mmedium ml-1 text-primary">
+                    <MaterialIcons name="event" size={16} color="#6B7280" />
+                    <Text className="text-gray-500 ml-1 text-sm font-mmedium">
                         {new Date(item.date.toDate()).toLocaleDateString(
                             i18n.language
                         )}
@@ -62,10 +62,10 @@ const EventCard = ({ item, onPress, i18n }) => (
                     <MaterialIcons
                         name="location-on"
                         size={16}
-                        color="#006FFD"
+                        color="#6B7280"
                     />
                     <Text
-                        className="font-mmedium ml-1 text-primary"
+                        className="text-gray-500 ml-1 text-sm font-mmedium"
                         numberOfLines={1}
                     >
                         {item.location.name[i18n.language] ||
@@ -74,9 +74,9 @@ const EventCard = ({ item, onPress, i18n }) => (
                 </View>
                 {/* Добавленный блок для отображения категории */}
                 <View className="flex-row items-center mt-1">
-                    <MaterialIcons name="category" size={16} color="#006FFD" />
+                    <MaterialIcons name="category" size={16} color="#6B7280" />
                     <Text
-                        className="font-mmedium ml-1 text-primary"
+                        className="text-gray-500 ml-1 text-sm font-mmedium"
                         numberOfLines={1}
                     >
                         {item.categoryName?.[i18n.language] ||
@@ -122,10 +122,69 @@ const EventsTab = () => {
 
     const eventCategories = [
         {
-            id: "rG7BKHidmMVnk1A7lVKs",
-            name: { en: "Concert", ru: "Концерт", kz: "Концерт" },
+            id: "XTIA01ZY2LlASXoK8BXf",
+            name: {
+                en: "Concerts and Music",
+                kz: "Концерттер мен музыка",
+                ru: "Концерты и музыка",
+            },
         },
-        // Add more categories as needed
+        {
+            id: "JCHO5QEFujwPCthq0B5K",
+            name: {
+                en: "Theater and Culture",
+                kz: "Театр және мәдениет",
+                ru: "Театр и культура",
+            },
+        },
+        {
+            id: "pBotzg0fe0wrmJ2HEz1P",
+            name: {
+                en: "Exhibitions and Museums",
+                kz: "Көрмелер және өнер",
+                ru: "Выставки и искусство",
+            },
+        },
+        {
+            id: "ArmAlb2N5Mm0ELH6GnFD",
+            name: { en: "Holidays", kz: "Мерекелер", ru: "Праздники" },
+        },
+        {
+            id: "762qXpi9J5Bke7Q14ZyF",
+            name: {
+                en: "Sports and Outdoors",
+                kz: "Спорт және денсаулық",
+                ru: "Спорт и здоровье",
+            },
+        },
+        {
+            id: "L1lsjFXRF4OL939W7Bn0",
+            name: {
+                en: "Education and Lectures",
+                kz: "Білім беру және лекциялар",
+                ru: "Образование и лекции",
+            },
+        },
+        {
+            id: "5LORthGu7tTj1dB8E6vh",
+            name: {
+                en: "Markets and Shops",
+                kz: "Жаңаөзен және нарықтар",
+                ru: "Ярмарки и рынки",
+            },
+        },
+        {
+            id: "3roTTJvjgKYluUSlPeGB",
+            name: {
+                en: "Digital events",
+                kz: "Сандық оқиғалар",
+                ru: "Цифровые мероприятия",
+            },
+        },
+        {
+            id: "8jttlBBy6bysWKLwZOUs",
+            name: { en: "Other", kz: "Басқа", ru: "Другое" },
+        },
     ];
 
     useEffect(() => {
