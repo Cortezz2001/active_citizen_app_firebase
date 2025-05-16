@@ -15,6 +15,7 @@ import LoadingIndicator from "../../../../components/LoadingIndicator";
 import SearchComponent from "../../../../components/SearchComponent";
 import { ActivityIndicator } from "react-native";
 import { useKeyboard } from "../../../../hooks/useKeyboard";
+import Toast from "react-native-toast-message"; // Добавлен импорт Toast
 
 // Компоненты EmptyStateMessage и SurveyCard
 const EmptyStateMessage = ({ searchText }) => {
@@ -39,20 +40,18 @@ const SurveyCard = ({ item, onPress, i18n }) => {
     const isCompleted = item.status === "Completed";
     const hasVoted = item.hasVoted;
 
-    const statusColor = isCompleted ? "bg-red-500" : "bg-green-500";
+    const statusColor = isCompleted ? "bg-red-400" : "bg-green-400";
     const statusText = isCompleted ? t("completed") : t("active");
 
-    // Определяем, можно ли нажимать на карточку
-    const isCardPressable = isCompleted || (!hasVoted && !isCompleted);
+    // Сделаем все карточки кликабельными
     const cardBorderClass = isCompleted
-        ? "border-l-4 border-l-red-500 border-t border-t-gray-200 border-r border-r-gray-200 border-b border-b-gray-200"
-        : "border-l-4 border-l-green-500 border-t border-t-gray-200 border-r border-r-gray-200 border-b border-b-gray-200";
+        ? "border-l-4 border-l-red-400 border-t border-t-gray-200 border-r border-r-gray-200 border-b border-b-gray-200"
+        : "border-l-4 border-l-green-400 border-t border-t-gray-200 border-r border-r-gray-200 border-b border-b-gray-200";
     return (
         <TouchableOpacity
-            className={`rounded-lg mb-4 shadow-md bg-ghostwhite ${cardBorderClass} overflow-hidden`}
-            onPress={isCardPressable ? onPress : null}
-            activeOpacity={isCardPressable ? 0.7 : 1}
-            disabled={!isCardPressable}
+            className={`rounded-lg mb-4 shadow-md bg-ghostwhite ${cardBorderClass} overflow-hidden `}
+            onPress={onPress}
+            activeOpacity={0.7}
         >
             <View className="p-4">
                 <View className="flex-row items-center mb-2">
@@ -265,6 +264,13 @@ const SurveysTab = () => {
             router.push(`/pages/surveys-details/results/${item.id}`);
         } else if (!item.hasVoted) {
             router.push(`/pages/surveys-details/vote/${item.id}`);
+        } else {
+            // Показываем уведомление для уже пройденных опросов
+            Toast.show({
+                type: "info",
+                text1: t("surveys.already_completed"),
+                text2: t("surveys.already_voted_in_this_survey"),
+            });
         }
     };
 
@@ -284,7 +290,7 @@ const SurveysTab = () => {
             return (
                 <View className="flex-1 justify-center items-center">
                     <Text className="text-red-500">
-                        {t("error")}: {error}
+                        {t("surveys.error")}: {error}
                     </Text>
                 </View>
             );
@@ -391,7 +397,7 @@ const SurveysTab = () => {
                                 color="#006FFD"
                             />
                             <Text className="ml-3 font-mmedium text-gray-800">
-                                {t("create_new_survey")}
+                                {t("surveys.create_new_survey")}
                             </Text>
                         </TouchableOpacity>
 
@@ -405,7 +411,7 @@ const SurveysTab = () => {
                                 color="#006FFD"
                             />
                             <Text className="ml-3 font-mmedium text-gray-800">
-                                {t("my_surveys")}
+                                {t("surveys.my_surveys")}
                             </Text>
                         </TouchableOpacity>
                     </View>
