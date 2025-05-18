@@ -1,11 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
-import { ScrollView, View, Text, TouchableOpacity, Modal } from "react-native";
+// my-requests.jsx
+import React, { useState, useEffect } from "react";
+import {
+    ScrollView,
+    View,
+    Text,
+    TouchableOpacity,
+    Modal,
+    TextInput,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { SearchContext, FilterContext } from "./_layout";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
+import AddRequestsButton from "../../../addFirestore/addRequests";
 const myRequestsData = [
     {
         id: 1,
@@ -91,17 +98,14 @@ const statusColors = {
 const MyRequestsTab = () => {
     const { t } = useTranslation();
     const router = useRouter();
-    const { searchText } = useContext(SearchContext);
-    const {
-        showFilterModal,
-        setShowFilterModal,
-        selectedStatuses,
-        setSelectedStatuses,
-        startDate,
-        setStartDate,
-        endDate,
-        setEndDate,
-    } = useContext(FilterContext);
+
+    // Local state for search and filter functionality
+    const [searchText, setSearchText] = useState("");
+    const [showFilterModal, setShowFilterModal] = useState(false);
+    const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+
     const [requestsData, setRequestsData] = useState(myRequestsData);
     const [filteredRequests, setFilteredRequests] = useState(myRequestsData);
     const [showRejectionReason, setShowRejectionReason] = useState(null);
@@ -146,17 +150,11 @@ const MyRequestsTab = () => {
     }, [searchText, selectedStatuses, startDate, endDate, requestsData]);
 
     const handleEdit = (requestId) => {
-        router.push({
-            pathname: "./send-request",
-            params: { requestId },
-        });
+        router.push({ pathname: "./send-request", params: { requestId } });
     };
 
     const handleDeleteConfirm = (requestId) => {
-        setDeleteAlert({
-            visible: true,
-            requestId,
-        });
+        setDeleteAlert({ visible: true, requestId });
     };
 
     const handleDelete = async () => {
@@ -195,13 +193,8 @@ const MyRequestsTab = () => {
         setEndDate(null);
     };
 
-    const canEdit = (status) => {
-        return status === "draft";
-    };
-
-    const canDelete = (status) => {
-        return status === "draft";
-    };
+    const canEdit = (status) => status === "draft";
+    const canDelete = (status) => status === "draft";
 
     const formatDate = (date) => {
         if (!date) return "";
@@ -228,6 +221,48 @@ const MyRequestsTab = () => {
 
     return (
         <View className="flex-1">
+            {/* Search Bar */}
+            <View className="bg-ghostwhite rounded-3xl p-2 mb-4 shadow-md border border-gray-200 flex-row items-center">
+                <MaterialIcons name="search" size={24} color="#9CA3AF" />
+                <AddRequestsButton />
+                <TextInput
+                    placeholder={t("request_layout.search_placeholder")}
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    className="flex-1 ml-2 font-mregular"
+                />
+                {searchText.length > 0 && (
+                    <TouchableOpacity
+                        className="mr-2"
+                        onPress={() => setSearchText("")}
+                    >
+                        <MaterialIcons name="close" size={24} color="#374151" />
+                    </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                    className="mx-1"
+                    onPress={() => setShowFilterModal(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                        selectedStatuses.length > 0 || startDate || endDate
+                            ? `${t("my_requests.filter_modal.title")} ${t(
+                                  "my_requests.filter_modal.active"
+                              )}`
+                            : t("my_requests.filter_modal.title")
+                    }
+                >
+                    <MaterialIcons
+                        name="filter-list"
+                        size={24}
+                        color={
+                            selectedStatuses.length > 0 || startDate || endDate
+                                ? "#006FFD"
+                                : "#9CA3AF"
+                        }
+                    />
+                </TouchableOpacity>
+            </View>
+
             {/* Request List */}
             <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
                 {filteredRequests.length === 0 ? (

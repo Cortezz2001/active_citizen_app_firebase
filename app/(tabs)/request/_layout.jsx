@@ -1,50 +1,20 @@
 // _layout.jsx
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Slot, usePathname, useRouter } from "expo-router";
-import { View, Text, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
-import { createContext } from "react";
 import { useTranslation } from "react-i18next";
-
-export const SearchContext = createContext({
-    searchText: "",
-    setSearchText: () => {},
-});
-
-export const FilterContext = createContext({
-    showFilterModal: false,
-    setShowFilterModal: () => {},
-    selectedStatuses: [],
-    setSelectedStatuses: () => {},
-    startDate: null,
-    setStartDate: () => {},
-    endDate: null,
-    setEndDate: () => {},
-});
 
 const RequestLayout = () => {
     const { t } = useTranslation();
     const router = useRouter();
     const pathname = usePathname();
-    const [searchText, setSearchText] = useState("");
-    const [showFilterModal, setShowFilterModal] = useState(false);
-    const [selectedStatuses, setSelectedStatuses] = useState([]);
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
 
     const getCurrentTab = () => {
         const path = pathname.split("/").pop();
         return path === "send-request" ? "send_request" : "my_requests";
     };
     const activeTab = getCurrentTab();
-
-    useEffect(() => {
-        setSearchText("");
-        setSelectedStatuses([]);
-        setStartDate(null);
-        setEndDate(null); // Reset filters when switching tabs
-    }, [pathname]);
 
     const navigateToTab = (tabId) => {
         const tabRoute =
@@ -90,78 +60,7 @@ const RequestLayout = () => {
                     ))}
                 </View>
 
-                {activeTab === "my_requests" && (
-                    <View className="bg-ghostwhite rounded-3xl p-2 mb-4 shadow-md border border-gray-200 flex-row items-center">
-                        <MaterialIcons
-                            name="search"
-                            size={24}
-                            color="#9CA3AF"
-                        />
-                        <TextInput
-                            placeholder={t("request_layout.search_placeholder")}
-                            value={searchText}
-                            onChangeText={setSearchText}
-                            className="flex-1 ml-2 font-mregular"
-                        />
-                        {searchText.length > 0 && (
-                            <TouchableOpacity
-                                className="mr-2"
-                                onPress={() => setSearchText("")}
-                            >
-                                <MaterialIcons
-                                    name="close"
-                                    size={24}
-                                    color="#374151"
-                                />
-                            </TouchableOpacity>
-                        )}
-                        <TouchableOpacity
-                            className="mx-1"
-                            onPress={() => setShowFilterModal(true)}
-                            accessibilityRole="button"
-                            accessibilityLabel={
-                                selectedStatuses.length > 0 ||
-                                startDate ||
-                                endDate
-                                    ? `${t(
-                                          "my_requests.filter_modal.title"
-                                      )} ${t(
-                                          "my_requests.filter_modal.active"
-                                      )}`
-                                    : t("my_requests.filter_modal.title")
-                            }
-                        >
-                            <MaterialIcons
-                                name="filter-list"
-                                size={24}
-                                color={
-                                    selectedStatuses.length > 0 ||
-                                    startDate ||
-                                    endDate
-                                        ? "#006FFD"
-                                        : "#9CA3AF"
-                                }
-                            />
-                        </TouchableOpacity>
-                    </View>
-                )}
-
-                <SearchContext.Provider value={{ searchText, setSearchText }}>
-                    <FilterContext.Provider
-                        value={{
-                            showFilterModal,
-                            setShowFilterModal,
-                            selectedStatuses,
-                            setSelectedStatuses,
-                            startDate,
-                            setStartDate,
-                            endDate,
-                            setEndDate,
-                        }}
-                    >
-                        <Slot />
-                    </FilterContext.Provider>
-                </SearchContext.Provider>
+                <Slot />
             </View>
         </SafeAreaView>
     );
