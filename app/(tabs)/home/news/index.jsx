@@ -223,7 +223,7 @@ const NewsTab = () => {
     };
 
     const handleApplyFilters = async () => {
-        await updateNewsFilters(tempFilters);
+        updateNewsFilters(tempFilters);
         setShowFilterModal(false);
 
         // Refresh search results if search is active with new filters

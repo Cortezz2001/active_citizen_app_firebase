@@ -244,7 +244,7 @@ const SurveysTab = () => {
     };
 
     const handleApplyFilters = async () => {
-        await updateSurveyFilters(tempFilters);
+        updateSurveyFilters(tempFilters);
         setShowFilterModal(false);
         if (searchText.trim()) {
             await searchSurveys(searchText.trim(), i18n.language, tempFilters);

@@ -203,7 +203,7 @@ const EventsTab = () => {
     };
 
     const handleApplyFilters = async () => {
-        await updateEventFilters(tempFilters);
+        updateEventFilters(tempFilters);
         setShowFilterModal(false);
         if (searchText.trim()) {
             await searchEvents(searchText.trim(), i18n.language, tempFilters);

@@ -245,7 +245,7 @@ const PetitionsTab = () => {
     };
 
     const handleApplyFilters = async () => {
-        await updatePetitionFilters(tempFilters);
+        updatePetitionFilters(tempFilters);
         setShowFilterModal(false);
         if (searchText.trim()) {
             await searchPetitions(

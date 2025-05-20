@@ -343,7 +343,7 @@ const MyRequestsTab = () => {
     };
 
     const handleApplyFilters = async () => {
-        await updateRequestFilters(tempFilters);
+        updateRequestFilters(tempFilters);
         setShowFilterModal(false);
         if (searchText.trim()) {
             await searchRequests(searchText.trim(), i18n.language, tempFilters);
