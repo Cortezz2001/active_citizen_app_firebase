@@ -5,7 +5,8 @@
           "news": "Новости",
           "events": "События",
           "surveys": "Опросы",
-          "petitions": "Петиции"
+          "petitions": "Петиции",
+          "requests": "Заявки"
       },
       "search_placeholder": "Поиск {{item}}..."
   },
@@ -123,7 +124,7 @@
       "statuses": {
           "all": "Все",
           "draft": "Черновик",
-          "in_progress": "В процессе",
+          "in progress": "В процессе",
           "rejected": "Отклонено",
           "completed": "Завершено"
       },
@@ -154,9 +155,11 @@
         "title": "Фильтр заявок",
         "status": "Статус",
         "reset": "Сбросить",
+        "apply": "Применить",
         "date_range": "Диапазон дат",
         "from": "От",
-        "to": "До"  
+        "to": "До",
+        "categories": "Категории"
       }
   },
   "my_surveys": {

@@ -5,7 +5,8 @@
           "news": "Жаңалықтар",
           "events": "Оқиғалар",
           "surveys": "Сауалнамалар",
-          "petitions": "Петициялар"
+          "petitions": "Петициялар",
+          "requests": "Сұраныстар"
       },
       "search_placeholder": "{{item}} іздеу..."
   },
@@ -123,7 +124,7 @@
       "statuses": {
           "all": "Барлығы",
           "draft": "Жоба",
-          "in_progress": "Жұмыс үстінде",
+          "in progress": "Жұмыс үстінде",
           "rejected": "Қабылданбады",
           "completed": "Аяқталды"
       },
@@ -154,9 +155,11 @@
         "title": "Қолданба сүзгісі",
         "status": "Күй",
         "reset": "Қалпына келтіру",
+        "apply": "Қолдану",
         "date_range": "Күндер ауқымы",
         "from": "Бастап",
-        "to": "Дейін"
+        "to": "Дейін",
+        "categories": "Санаттар"
       }
   },
 "my_surveys": {

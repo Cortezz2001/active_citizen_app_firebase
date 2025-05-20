@@ -5,7 +5,8 @@
             "news": "News",
             "events": "Events",
             "surveys": "Surveys",
-            "petitions": "Petitions"
+            "petitions": "Petitions",
+            "requests": "Requests"
         },
         "search_placeholder": "Search {{item}}..."
     },
@@ -123,7 +124,7 @@
         "statuses": {
             "all": "All",
             "draft": "Draft",
-            "in_progress": "In progress",
+            "in progress": "In progress",
             "rejected": "Rejected",
             "completed": "Completed"
         },
@@ -150,16 +151,17 @@
             "delete_button": "Delete",
             "deleting": "Deleting..."
         },
-"filter_modal": {
-      "title": "Filter Requests",
-      "status": "Status",
-      "date_range": "Date Range",
-      "from": "From",
-      "to": "To",
-      "reset": "Reset Filters",
-      "active": "Active"
-    }
-    },
+        "filter_modal": {
+            "title": "Filter Requests",
+            "status": "Status",
+            "date_range": "Date Range",
+            "from": "From",
+            "to": "To",
+            "reset": "Reset Filters",
+            "apply": "Apply Filters",
+            "categories": "Categories"
+            }
+            },
     "my_surveys": {
         "title": "My Surveys",
         "search_placeholder": "Search surveys",

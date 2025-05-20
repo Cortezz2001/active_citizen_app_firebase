@@ -31,6 +31,8 @@ const SearchComponent = ({ searchText, setSearchText, onClear, tabName }) => {
                     onChangeText={handleTextChange}
                     autoCapitalize="none"
                     autoCorrect={false}
+                    multiline={false}
+                    numberOfLines={1}
                     className="flex-1 pl-2 font-mregular"
                 />
                 {searchText.length > 0 && (

@@ -7,7 +7,7 @@ export const addTestRequest = async () => {
     try {
         const testRequest = {
             title: {
-                en: "Test Request",
+                en: "Test Request 2",
                 kz: "Тест Сұранысы",
                 ru: "Тестовый Запрос",
             },
@@ -19,10 +19,10 @@ export const addTestRequest = async () => {
             categoryId: doc(
                 firestore,
                 "requests_categories",
-                "Yi32uA0id6NUBHnGXmEj"
+                "4NWS6iYzOUo8QYQ5T6Wh"
             ),
-            userId: doc(firestore, "users", "KKSVj1GSntMLKbszazn3TeRI71S2"),
-            status: "In progress", // можно использовать: "pending", "in_progress", "completed", "rejected"
+            userId: "/users/KKSVj1GSntMLKbszazn3TeRI71S2",
+            status: "rejected", // можно использовать: "pending", "in_progress", "completed", "rejected"
             address: {
                 street: "Test Street 123",
                 city: "Pavlodar",
@@ -35,7 +35,7 @@ export const addTestRequest = async () => {
             mediaFiles: [
                 {
                     type: "image", // или "video"
-                    url: "https://picsum.photos/800/600",
+                    url: "https://picsum.photos/800/601",
                     fileName: "test_image.jpg",
                 },
             ],
