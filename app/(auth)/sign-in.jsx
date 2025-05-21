@@ -133,6 +133,7 @@ export default function SignIn() {
                     title={t("sign_in.buttons.login")}
                     handlePress={handleSignIn}
                     containerStyles="rounded-lg py-3 mb-6 bg-primary"
+                    textStyles="text-lg"
                     isLoading={isSubmitting}
                 />
 

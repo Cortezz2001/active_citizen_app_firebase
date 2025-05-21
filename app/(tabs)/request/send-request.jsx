@@ -4,9 +4,13 @@ import { useTranslation } from "react-i18next";
 import { MaterialIcons } from "@expo/vector-icons";
 import DropdownField from "../../../components/DropdownField";
 import FormField from "../../../components/FormField";
+import CustomButton from "../../../components/CustomButton";
 import { addDoc, collection, doc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../../../lib/firebase";
 import Toast from "react-native-toast-message";
+import { useAuthContext } from "../../../lib/context";
+import { useData } from "../../../lib/datacontext";
+import { useRouter } from "expo-router";
 
 const categories = [
     {
@@ -69,6 +73,8 @@ const categories = [
 
 const RequestCreationPage = () => {
     const { t, i18n } = useTranslation();
+    const { user } = useAuthContext();
+    const router = useRouter();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [category, setCategory] = useState("");
@@ -83,7 +89,9 @@ const RequestCreationPage = () => {
         { name: "image_02.png", size: "96.47 KB", status: "completed" },
         { name: "image_01.png", size: "87.42 KB", status: "completed" },
     ]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isSavingDraft, setIsSavingDraft] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { fetchRequests } = useData();
 
     const categoryOptions = categories.map((cat) => cat.name[i18n.language]);
     const categoryIds = categories.map((cat) => cat.id);
@@ -134,7 +142,13 @@ const RequestCreationPage = () => {
             return;
         }
 
-        setIsLoading(true);
+        // Устанавливаем состояние загрузки для соответствующей кнопки
+        if (status === "draft") {
+            setIsSavingDraft(true);
+        } else {
+            setIsSubmitting(true);
+        }
+
         try {
             const selectedCategoryIndex = categoryOptions.indexOf(category);
             const categoryId = categoryIds[selectedCategoryIndex];
@@ -151,7 +165,7 @@ const RequestCreationPage = () => {
                     ru: description,
                 },
                 categoryId: doc(firestore, "requests_categories", categoryId),
-                userId: "/users/KKSVj1GSntMLKbszazn3TeRI71S2",
+                userId: `/users/${user.uid}`,
                 status: status,
                 address: {
                     street: location || "Not specified",
@@ -171,26 +185,38 @@ const RequestCreationPage = () => {
             console.log(
                 `Request saved with ID: ${docRef.id}, Status: ${status}`
             );
-            alert(
-                t(
+            Toast.show({
+                type: "success",
+                text1: t("send_request.toast.success.title"),
+                text2: t(
                     `send_request.toast.success.${
                         status === "draft" ? "saved_as_draft" : "submitted"
                     }`
-                )
-            );
-
-            if (status === "in progress") {
-                setTitle("");
-                setDescription("");
-                setCategory("");
-                setLocation("");
-                setFiles([]);
-            }
+                ),
+            });
+            fetchRequests();
+            router.push({
+                pathname: "./my-requests",
+            });
+            setTitle("");
+            setDescription("");
+            setCategory("");
+            setLocation("");
+            setFiles([]);
         } catch (error) {
             console.error("Error saving request:", error);
-            alert("Failed to save request: " + error.message);
+            Toast.show({
+                type: "error",
+                text1: t("send_request.toast.error.title"),
+                text2: `Failed to save request: ${error.message}`,
+            });
         } finally {
-            setIsLoading(false);
+            // Сбрасываем состояние загрузки для соответствующей кнопки
+            if (status === "draft") {
+                setIsSavingDraft(false);
+            } else {
+                setIsSubmitting(false);
+            }
         }
     };
 
@@ -330,24 +356,20 @@ const RequestCreationPage = () => {
             </View>
 
             <View className="flex-row justify-between mb-8">
-                <TouchableOpacity
-                    className="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg items-center justify-center"
-                    onPress={() => handleSaveRequest("draft")}
-                    disabled={isLoading}
-                >
-                    <Text className="text-gray-700 font-mmedium text-center">
-                        {t("send_request.buttons.save_as_draft")}
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    className="flex-1 ml-2 bg-primary py-3 rounded-lg items-center justify-center"
-                    onPress={() => handleSaveRequest("in progress")}
-                    disabled={isLoading}
-                >
-                    <Text className="text-white font-mbold text-center">
-                        {t("send_request.buttons.submit")}
-                    </Text>
-                </TouchableOpacity>
+                <CustomButton
+                    title={t("send_request.buttons.save_as_draft")}
+                    handlePress={() => handleSaveRequest("draft")}
+                    containerStyles="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg"
+                    textStyles="text-gray-700 font-mmedium"
+                    isLoading={isSavingDraft}
+                />
+                <CustomButton
+                    title={t("send_request.buttons.submit")}
+                    handlePress={() => handleSaveRequest("in progress")}
+                    containerStyles="flex-1 ml-2 bg-primary py-3 px-2 rounded-lg"
+                    textStyles="text-white font-mmedium"
+                    isLoading={isSubmitting}
+                />
             </View>
         </ScrollView>
     );
