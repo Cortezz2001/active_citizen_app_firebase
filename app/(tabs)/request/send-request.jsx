@@ -1,16 +1,30 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    ScrollView,
+    Platform,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { MaterialIcons } from "@expo/vector-icons";
 import DropdownField from "../../../components/DropdownField";
 import FormField from "../../../components/FormField";
 import CustomButton from "../../../components/CustomButton";
-import { addDoc, collection, doc, serverTimestamp } from "firebase/firestore";
-import { firestore } from "../../../lib/firebase";
+import {
+    addDoc,
+    collection,
+    doc,
+    serverTimestamp,
+    updateDoc,
+} from "firebase/firestore";
+import { firestore, storage } from "../../../lib/firebase";
 import Toast from "react-native-toast-message";
 import { useAuthContext } from "../../../lib/context";
 import { useData } from "../../../lib/datacontext";
 import { useRouter } from "expo-router";
+import * as DocumentPicker from "expo-document-picker";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const categories = [
     {
@@ -71,6 +85,15 @@ const categories = [
     },
 ];
 
+// Function to format file size
+const formatFileSize = (bytes) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
 const RequestCreationPage = () => {
     const { t, i18n } = useTranslation();
     const { user } = useAuthContext();
@@ -79,16 +102,7 @@ const RequestCreationPage = () => {
     const [description, setDescription] = useState("");
     const [category, setCategory] = useState("");
     const [location, setLocation] = useState("");
-    const [files, setFiles] = useState([
-        {
-            name: "image_03.jpg",
-            size: "96.47 KB",
-            status: "uploading",
-            progress: 50,
-        },
-        { name: "image_02.png", size: "96.47 KB", status: "completed" },
-        { name: "image_01.png", size: "87.42 KB", status: "completed" },
-    ]);
+    const [files, setFiles] = useState([]);
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { fetchRequests } = useData();
@@ -96,10 +110,179 @@ const RequestCreationPage = () => {
     const categoryOptions = categories.map((cat) => cat.name[i18n.language]);
     const categoryIds = categories.map((cat) => cat.id);
 
+    // Function to pick files from device
+    const pickFiles = async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ["image/*", "video/*"],
+                multiple: true,
+                copyToCacheDirectory: true,
+            });
+
+            if (result.canceled) {
+                console.log("Document picking was cancelled");
+                return;
+            }
+
+            // Add new files to the list with uploading status
+            const newFiles = result.assets.map((asset) => ({
+                uri: asset.uri,
+                name: asset.name,
+                size: formatFileSize(asset.size),
+                mimeType: asset.mimeType,
+                status: "queued",
+                progress: 0,
+            }));
+
+            setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+        } catch (error) {
+            console.error("Error picking documents:", error);
+            Toast.show({
+                type: "error",
+                text1: t("send_request.toast.error.title"),
+                text2: t("send_request.toast.error.file_picking_failed"),
+            });
+        }
+    };
+
+    // Function to handle file removal
     const handleRemoveFile = (index) => {
         setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     };
 
+    // Function to upload a single file
+    const uploadFile = async (file, requestId) => {
+        // Update file status to uploading
+        setFiles((prevFiles) => {
+            const updatedFiles = [...prevFiles];
+            const fileIndex = updatedFiles.findIndex((f) => f.uri === file.uri);
+            if (fileIndex !== -1) {
+                updatedFiles[fileIndex] = {
+                    ...updatedFiles[fileIndex],
+                    status: "uploading",
+                    progress: 0,
+                };
+            }
+            return updatedFiles;
+        });
+
+        try {
+            // Create reference for storing the file
+            const fileName = `${Date.now()}_${file.name}`;
+            const storageRef = ref(
+                storage,
+                `requests/${requestId}/${fileName}`
+            );
+
+            // For React Native, we can directly use the file URI with fetch
+            const response = await fetch(file.uri);
+            const blob = await response.blob();
+
+            // Create upload task
+            const uploadTask = uploadBytesResumable(storageRef, blob, {
+                contentType: file.mimeType,
+            });
+
+            // Monitor progress
+            return new Promise((resolve, reject) => {
+                uploadTask.on(
+                    "state_changed",
+                    (snapshot) => {
+                        const progress = Math.round(
+                            (snapshot.bytesTransferred / snapshot.totalBytes) *
+                                100
+                        );
+
+                        // Update file with progress
+                        setFiles((prevFiles) => {
+                            const updatedFiles = [...prevFiles];
+                            const fileIndex = updatedFiles.findIndex(
+                                (f) => f.uri === file.uri
+                            );
+                            if (fileIndex !== -1) {
+                                updatedFiles[fileIndex] = {
+                                    ...updatedFiles[fileIndex],
+                                    progress,
+                                };
+                            }
+                            return updatedFiles;
+                        });
+                    },
+                    (error) => {
+                        // Update file status to error
+                        setFiles((prevFiles) => {
+                            const updatedFiles = [...prevFiles];
+                            const fileIndex = updatedFiles.findIndex(
+                                (f) => f.uri === file.uri
+                            );
+                            if (fileIndex !== -1) {
+                                updatedFiles[fileIndex] = {
+                                    ...updatedFiles[fileIndex],
+                                    status: "error",
+                                };
+                            }
+                            return updatedFiles;
+                        });
+                        reject(error);
+                    },
+                    async () => {
+                        try {
+                            const downloadURL = await getDownloadURL(
+                                uploadTask.snapshot.ref
+                            );
+
+                            // Update file status to completed with download URL
+                            setFiles((prevFiles) => {
+                                const updatedFiles = [...prevFiles];
+                                const fileIndex = updatedFiles.findIndex(
+                                    (f) => f.uri === file.uri
+                                );
+                                if (fileIndex !== -1) {
+                                    updatedFiles[fileIndex] = {
+                                        ...updatedFiles[fileIndex],
+                                        status: "completed",
+                                        progress: 100,
+                                        downloadURL,
+                                    };
+                                }
+                                return updatedFiles;
+                            });
+
+                            resolve({
+                                name: file.name,
+                                url: downloadURL,
+                                type: file.mimeType,
+                                size: file.size,
+                            });
+                        } catch (error) {
+                            reject(error);
+                        }
+                    }
+                );
+            });
+        } catch (error) {
+            console.error("File upload error:", error);
+
+            // Update file status to error
+            setFiles((prevFiles) => {
+                const updatedFiles = [...prevFiles];
+                const fileIndex = updatedFiles.findIndex(
+                    (f) => f.uri === file.uri
+                );
+                if (fileIndex !== -1) {
+                    updatedFiles[fileIndex] = {
+                        ...updatedFiles[fileIndex],
+                        status: "error",
+                    };
+                }
+                return updatedFiles;
+            });
+
+            throw error;
+        }
+    };
+
+    // Function to handle request saving/submission
     const handleSaveRequest = async (status) => {
         if (!title) {
             Toast.show({
@@ -142,7 +325,20 @@ const RequestCreationPage = () => {
             return;
         }
 
-        // Устанавливаем состояние загрузки для соответствующей кнопки
+        // Check if any files are still uploading
+        const hasUploadingFiles = files.some(
+            (file) => file.status === "uploading"
+        );
+        if (hasUploadingFiles) {
+            Toast.show({
+                type: "error",
+                text1: t("send_request.toast.error.title"),
+                text2: t("send_request.toast.error.files_still_uploading"),
+            });
+            return;
+        }
+
+        // Set loading state based on action
         if (status === "draft") {
             setIsSavingDraft(true);
         } else {
@@ -153,6 +349,7 @@ const RequestCreationPage = () => {
             const selectedCategoryIndex = categoryOptions.indexOf(category);
             const categoryId = categoryIds[selectedCategoryIndex];
 
+            // First create the request document
             const newRequest = {
                 title: {
                     en: title,
@@ -173,18 +370,34 @@ const RequestCreationPage = () => {
                     postalCode: "",
                     coordinates: { latitude: 0, longitude: 0 },
                 },
-                mediaFiles: files.length > 0 ? files : [],
+                mediaFiles: [], // Will be updated after uploads
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             };
 
+            // Add the document to get its ID
             const docRef = await addDoc(
                 collection(firestore, "requests"),
                 newRequest
             );
+            const requestId = docRef.id;
+
             console.log(
-                `Request saved with ID: ${docRef.id}, Status: ${status}`
+                `Request created with ID: ${requestId}, Status: ${status}`
             );
+
+            // Upload all files with the request ID
+            const uploadPromises = files.map((file) =>
+                uploadFile(file, requestId)
+            );
+            const uploadedFiles = await Promise.all(uploadPromises);
+
+            // Update the request document with file URLs
+            await updateDoc(doc(firestore, "requests", requestId), {
+                mediaFiles: uploadedFiles,
+                updatedAt: serverTimestamp(),
+            });
+
             Toast.show({
                 type: "success",
                 text1: t("send_request.toast.success.title"),
@@ -194,10 +407,14 @@ const RequestCreationPage = () => {
                     }`
                 ),
             });
+
+            // Refresh requests and navigate away
             fetchRequests();
             router.push({
                 pathname: "./my-requests",
             });
+
+            // Reset form
             setTitle("");
             setDescription("");
             setCategory("");
@@ -211,7 +428,7 @@ const RequestCreationPage = () => {
                 text2: `Failed to save request: ${error.message}`,
             });
         } finally {
-            // Сбрасываем состояние загрузки для соответствующей кнопки
+            // Reset loading states
             if (status === "draft") {
                 setIsSavingDraft(false);
             } else {
@@ -280,7 +497,6 @@ const RequestCreationPage = () => {
                     multiline={false}
                     numberOfLines={1}
                     containerStyle="bg-ghostwhite"
-                    editable={false}
                 />
             </View>
 
@@ -291,9 +507,7 @@ const RequestCreationPage = () => {
                 </Text>
                 <TouchableOpacity
                     className="bg-ghostwhite border border-gray-300 rounded-lg p-4 flex-col items-center justify-center h-24"
-                    onPress={() =>
-                        console.log("File upload placeholder clicked")
-                    }
+                    onPress={pickFiles}
                 >
                     <MaterialIcons
                         name="cloud-upload"
@@ -305,50 +519,97 @@ const RequestCreationPage = () => {
                     </Text>
                 </TouchableOpacity>
 
-                {/* Отображение списка загружаемых файлов */}
+                {/* Display file list */}
                 {files.length > 0 && (
-                    <View className="mt-4">
+                    <View className="mt-2">
                         {files.map((file, index) => (
                             <View
                                 key={index}
-                                className="flex-row items-center justify-between bg-ghostwhite border border-gray-200 rounded-lg p-2 mt-1"
+                                className="bg-ghostwhite border border-gray-200 rounded-lg p-2 mt-1 relative"
+                                style={{ minHeight: 60 }} // Set a consistent minimum height
                             >
-                                <View className="flex-row items-center">
+                                <View className="flex-row items-center justify-between  min-h-[40px]">
                                     <MaterialIcons
-                                        name="insert-drive-file"
+                                        name={
+                                            file.status === "error"
+                                                ? "error"
+                                                : file.mimeType?.startsWith(
+                                                      "image"
+                                                  )
+                                                ? "image"
+                                                : "movie"
+                                        }
                                         size={20}
-                                        color="#006FFD"
+                                        color={
+                                            file.status === "error"
+                                                ? "red"
+                                                : "#006FFD"
+                                        }
                                     />
-                                    <View className="ml-2">
-                                        <Text className="text-black font-mregular">
+                                    <View className="flex-1 ml-2">
+                                        <Text
+                                            numberOfLines={1}
+                                            ellipsizeMode="middle"
+                                            className="text-black font-mregular"
+                                        >
                                             {file.name}
                                         </Text>
                                         <Text className="text-gray-500 text-xs">
                                             {file.size}
                                         </Text>
-                                    </View>
-                                </View>
-                                <View className="flex-row items-center">
-                                    {file.status === "uploading" && (
-                                        <View className="flex-row items-center mr-2">
-                                            <Text className="text-gray-600 mr-2">
+                                        {file.status === "error" && (
+                                            <Text className="text-red-500 text-xs mt-1">
                                                 {t(
-                                                    "send_request.fields.uploading"
-                                                )}{" "}
-                                                - {file.progress}%
+                                                    "send_request.fields.upload_error"
+                                                )}
                                             </Text>
-                                        </View>
-                                    )}
-                                    <TouchableOpacity
-                                        onPress={() => handleRemoveFile(index)}
-                                    >
+                                        )}
+                                    </View>
+                                    {file.status === "queued" ||
+                                    file.status === "error" ? (
+                                        <TouchableOpacity
+                                            onPress={() =>
+                                                handleRemoveFile(index)
+                                            }
+                                        >
+                                            <MaterialIcons
+                                                name="close"
+                                                size={20}
+                                                color="#006FFD"
+                                            />
+                                        </TouchableOpacity>
+                                    ) : file.status === "completed" ? (
                                         <MaterialIcons
-                                            name="close"
-                                            size={20}
-                                            color="#006FFD"
+                                            name="check-circle"
+                                            size={18}
+                                            color="green"
                                         />
-                                    </TouchableOpacity>
+                                    ) : file.status === "uploading" ? (
+                                        <Text className="text-blue-500 text-xs">
+                                            {file.progress}%
+                                        </Text>
+                                    ) : null}
                                 </View>
+
+                                {/* Progress bar for uploading files - now positioned at the bottom */}
+                                {file.status === "uploading" && (
+                                    <View
+                                        className="absolute bottom-0 left-0 right-0 px-2 pb-1"
+                                        style={{
+                                            width: "100%",
+                                            paddingHorizontal: 8,
+                                        }}
+                                    >
+                                        <View className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                                            <View
+                                                className="h-full bg-primary rounded-full"
+                                                style={{
+                                                    width: `${file.progress}%`,
+                                                }}
+                                            />
+                                        </View>
+                                    </View>
+                                )}
                             </View>
                         ))}
                     </View>
