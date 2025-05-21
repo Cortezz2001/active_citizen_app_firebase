@@ -19,7 +19,7 @@ const FormField = ({
                 value={value}
                 onChangeText={handleChangeText}
                 secureTextEntry={title === "Password" && !showPassword}
-                className="border border-gray-300 rounded-lg px-4 py-3 text-base font-mmedium"
+                className="border border-gray-300 rounded-lg px-4 py-3  font-mregular"
                 {...props}
             />
             {title === "Password" && (

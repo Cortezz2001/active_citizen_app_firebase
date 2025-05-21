@@ -87,7 +87,13 @@
           "title": "Тақырып",
           "description": "Сипаттама",
           "category": "Санат",
-          "contact": "Байланыс"
+          "contact": "Байланыс",
+          "upload_placeholder": "Файлдарды жүктеп алу үшін басыңыз",
+          "select_category": "Санатты таңдаңыз",
+          "location_placeholder": "Орынды енгізіңіз",
+          "location": "Орналасқан жері",
+          "upload_files": "Жүктеп алынатын файлдар",
+          "uploading": "Жүктелуде"
       },
       "categories": {
           "lighting": "Жарықтандыру",
@@ -104,13 +110,13 @@
       },
       "toast": {
           "error": {
-              "title": "Қате",
-              "missing_title": "Тақырыпты енгізіңіз",
-              "missing_description": "Сипаттаманы енгізіңіз",
-              "missing_category": "Санатты таңдаңыз",
-              "missing_contact": "Байланыс ақпаратын енгізіңіз",
-              "missing_data_agreement": "Деректерді өңдеуге келісуіңіз керек"
-          },
+            "title": "Қате",
+            "missing_title": "Тақырыпты көрсетіңіз.",
+            "missing_description": "Сипаттаманы көрсетіңіз.",
+            "missing_category": "Санатты таңдаңыз.",
+            "missing_location": "Орналасу орнын көрсетіңіз.",
+            "missing_files": "Кем дегенде бір файл жүктеңіз."
+        },
           "success": {
               "title": "Сәтті",
               "saved_as_draft": "Өтініш жоба ретінде сақталды",

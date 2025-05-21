@@ -87,7 +87,13 @@
           "title": "Заголовок",
           "description": "Описание",
           "category": "Категория",
-          "contact": "Контакт"
+          "contact": "Контакт",
+          "upload_placeholder": "Нажмите для загрузки файлов",
+          "select_category": "Выберите категорию",
+          "location_placeholder": "Указажите местоположение",
+          "location": "Местоположение",
+          "upload_files": "Загружаемые файлы",
+          "uploading": "Загрузка"
       },
       "categories": {
           "lighting": "Освещение",
@@ -103,14 +109,14 @@
           "update": "Обновить"
       },
       "toast": {
-          "error": {
-              "title": "Ошибка",
-              "missing_title": "Пожалуйста, введите заголовок",
-              "missing_description": "Пожалуйста, введите описание",
-              "missing_category": "Пожалуйста, выберите категорию",
-              "missing_contact": "Пожалуйста, введите контактную информацию",
-              "missing_data_agreement": "Вы должны согласиться на обработку данных"
-          },
+        "error": {
+            "title": "Ошибка",
+            "missing_title": "Пожалуйста, укажите заголовок.",
+            "missing_description": "Пожалуйста, укажите описание.",
+            "missing_category": "Пожалуйста, выберите категорию.",
+            "missing_location": "Пожалуйста, укажите местоположение.",
+            "missing_files": "Пожалуйста, загрузите хотя бы один файл."
+        },
           "success": {
               "title": "Успех",
               "saved_as_draft": "Заявка сохранена как черновик",

@@ -31,11 +31,11 @@ const DropdownField = ({
     return (
         <View className={`mb-4 ${containerStyle}`}>
             <TouchableOpacity
-                className="border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center"
+                className="border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center h-12"
                 onPress={() => setModalVisible(true)}
             >
                 <Text
-                    className={`text-base font-mmedium ${
+                    className={`font-mregular ${
                         !value ? "text-gray-500" : "text-black"
                     }`}
                 >

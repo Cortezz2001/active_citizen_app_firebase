@@ -87,7 +87,14 @@
             "title": "Title",
             "description": "Description",
             "category": "Category",
-            "contact": "Contact"
+            "contact": "Contact",
+            "upload_placeholder": "Browse file to upload",
+            "select_category": "Select category",
+            "location_placeholder": "Select location",
+            "location": "Location",
+            "upload_files": "Upload files",
+            "uploading": "Uploading"
+            
         },
         "categories": {
             "lighting": "Lighting",
@@ -104,13 +111,13 @@
         },
         "toast": {
             "error": {
-                "title": "Error",
-                "missing_title": "Please enter a title",
-                "missing_description": "Please enter a description",
-                "missing_category": "Please select a category",
-                "missing_contact": "Please enter contact information",
-                "missing_data_agreement": "You must agree to data processing"
-            },
+            "title": "Error",
+            "missing_title": "Please provide a title.",
+            "missing_description": "Please provide a description.",
+            "missing_category": "Please select a category.",
+            "missing_location": "Please specify a location.",
+            "missing_files": "Please upload at least one file."
+        },
             "success": {
                 "title": "Success",
                 "saved_as_draft": "Request saved as draft",
