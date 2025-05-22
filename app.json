@@ -17,6 +17,9 @@
             "bundleIdentifier": "com.cortezz2001.active-citizen",
             "googleServicesFile": "./GoogleService-Info.plist",
             "buildNumber": "1.0.0",
+            "config": {
+                "googleMapsApiKey":  "process.env.EXPO_PUBLIC_IOS_GOOGLE_MAPS_API_KEY"
+            },
             "icon": {
                 "dark": "./assets/icons/ios-dark.png",
                 "light": "./assets/icons/ios-light.png",
@@ -32,7 +35,7 @@
             "package": "com.cortezz2001.active_citizen",
             "config": {
                 "googleMaps": {
-                "apiKey": "process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY"
+                "apiKey": "process.env.EXPO_PUBLIC_ANDROID_GOOGLE_MAPS_API_KEY"
                 }
             },
             "googleServicesFile": "./google-services.json",
