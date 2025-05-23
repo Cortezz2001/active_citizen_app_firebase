@@ -96,6 +96,17 @@
             "uploading": "Uploading"
             
         },
+            "location": {
+      "permission_title": "Location Permission Required",
+      "permission_message": "This app needs location access to help you select the problem location on the map.",
+      "permission_cancel": "Cancel",
+      "permission_settings": "Allow",
+      "permission_required": "Location access is required to use the map feature.",
+      "select_location": "Select Location",
+      "selected_location": "Selected Location",
+      "loading_map": "Loading map...",
+      "tap_to_select": "Tap on the map to select the exact location of the problem"
+    },
         "categories": {
             "lighting": "Lighting",
             "trash": "Trash",

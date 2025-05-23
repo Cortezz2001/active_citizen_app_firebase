@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
     TouchableOpacity,
     ScrollView,
-    Platform,
+    Modal,
+    Alert,
+    ActivityIndicator,
+    Dimensions,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { MaterialIcons } from "@expo/vector-icons";
+import MapView, { Marker } from "react-native-maps";
+import * as Location from "expo-location";
 import DropdownField from "../../../components/DropdownField";
 import FormField from "../../../components/FormField";
 import CustomButton from "../../../components/CustomButton";
@@ -25,6 +30,8 @@ import { useData } from "../../../lib/datacontext";
 import { useRouter } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+
+const { width, height } = Dimensions.get("window");
 
 const categories = [
     {
@@ -94,6 +101,70 @@ const formatFileSize = (bytes) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
+// Function to get address from coordinates using reverse geocoding
+const getAddressFromCoordinates = async (latitude, longitude) => {
+    try {
+        const result = await Location.reverseGeocodeAsync({
+            latitude,
+            longitude,
+        });
+        console.log(result);
+
+        if (result.length > 0) {
+            const address = result[0];
+            // Формируем полный объект адреса, включая координаты
+            return {
+                city: address.city || "Unknown",
+                country: address.country || "Unknown",
+                district: address.district || null,
+                formattedAddress: address.formattedAddress || "",
+                isoCountryCode: address.isoCountryCode || "",
+                name: address.name || "",
+                postalCode: address.postalCode || "",
+                region: address.region || "Unknown",
+                street: address.street || "",
+                streetNumber: address.streetNumber || "",
+                subregion: address.subregion || "",
+                timezone: address.timezone || null,
+                coordinates: { latitude, longitude }, // Добавляем координаты
+            };
+        }
+        // Если результат пустой, возвращаем координаты и минимальные данные
+        return {
+            city: "Unknown",
+            country: "Unknown",
+            district: null,
+            formattedAddress: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+            isoCountryCode: "",
+            name: "",
+            postalCode: "",
+            region: "Unknown",
+            street: "",
+            streetNumber: "",
+            subregion: "",
+            timezone: null,
+            coordinates: { latitude, longitude },
+        };
+    } catch (error) {
+        console.error("Error getting address:", error);
+        return {
+            city: "Unknown",
+            country: "Unknown",
+            district: null,
+            formattedAddress: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+            isoCountryCode: "",
+            name: "",
+            postalCode: "",
+            region: "Unknown",
+            street: "",
+            streetNumber: "",
+            subregion: "",
+            timezone: null,
+            coordinates: { latitude, longitude },
+        };
+    }
+};
+
 const RequestCreationPage = () => {
     const { t, i18n } = useTranslation();
     const { user } = useAuthContext();
@@ -107,8 +178,148 @@ const RequestCreationPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { fetchRequests } = useData();
 
+    // Map-related state
+    const [showMap, setShowMap] = useState(false);
+    const [selectedCoordinates, setSelectedCoordinates] = useState(null);
+    const [currentLocation, setCurrentLocation] = useState(null);
+    const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+    const [locationPermission, setLocationPermission] = useState(null);
+
     const categoryOptions = categories.map((cat) => cat.name[i18n.language]);
     const categoryIds = categories.map((cat) => cat.id);
+
+    // Request location permissions and get current location on component mount
+    useEffect(() => {
+        requestLocationPermission();
+    }, []);
+
+    const requestLocationPermission = async () => {
+        try {
+            const { status } =
+                await Location.requestForegroundPermissionsAsync();
+            setLocationPermission(status === "granted");
+
+            if (status === "granted") {
+                getCurrentLocation();
+            } else {
+                Alert.alert(
+                    t("send_request.location.permission_title"),
+                    t("send_request.location.permission_message"),
+                    [
+                        {
+                            text: t("send_request.location.permission_cancel"),
+                            style: "cancel",
+                        },
+                        {
+                            text: t(
+                                "send_request.location.permission_settings"
+                            ),
+                            onPress: () =>
+                                Location.requestForegroundPermissionsAsync(),
+                        },
+                    ]
+                );
+            }
+        } catch (error) {
+            console.error("Error requesting location permission:", error);
+        }
+    };
+
+    const getCurrentLocation = async () => {
+        setIsLoadingLocation(true);
+        try {
+            const location = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.High,
+            });
+
+            const coords = {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+            };
+
+            setCurrentLocation(coords);
+            setSelectedCoordinates(coords);
+        } catch (error) {
+            console.error("Error getting current location:", error);
+            // Default to Almaty coordinates if location fails
+            const defaultLocation = {
+                latitude: 43.222,
+                longitude: 76.8512,
+            };
+            setCurrentLocation(defaultLocation);
+            setSelectedCoordinates(defaultLocation);
+        } finally {
+            setIsLoadingLocation(false);
+        }
+    };
+
+    const handleLocationFieldPress = () => {
+        if (locationPermission === null) {
+            requestLocationPermission();
+            return;
+        }
+
+        if (!locationPermission) {
+            Alert.alert(
+                t("send_request.location.permission_title"),
+                t("send_request.location.permission_required"),
+                [
+                    {
+                        text: t("send_request.location.permission_cancel"),
+                        style: "cancel",
+                    },
+                    {
+                        text: t("send_request.location.permission_settings"),
+                        onPress: requestLocationPermission,
+                    },
+                ]
+            );
+            return;
+        }
+
+        setShowMap(true);
+    };
+
+    const handleMapPress = (event) => {
+        const { latitude, longitude } = event.nativeEvent.coordinate;
+        setSelectedCoordinates({ latitude, longitude });
+    };
+
+    const handleConfirmLocation = async () => {
+        if (selectedCoordinates) {
+            setIsLoadingLocation(true);
+            try {
+                const addressData = await getAddressFromCoordinates(
+                    selectedCoordinates.latitude,
+                    selectedCoordinates.longitude
+                );
+                // Устанавливаем formattedAddress в поле location для отображения в форме
+                setLocation(
+                    addressData.formattedAddress ||
+                        `${selectedCoordinates.latitude.toFixed(
+                            6
+                        )}, ${selectedCoordinates.longitude.toFixed(6)}`
+                );
+                // Сохраняем полные координаты
+                setSelectedCoordinates(addressData.coordinates);
+                setShowMap(false);
+            } catch (error) {
+                console.error("Error setting location:", error);
+                setLocation(
+                    `${selectedCoordinates.latitude.toFixed(
+                        6
+                    )}, ${selectedCoordinates.longitude.toFixed(6)}`
+                );
+                setSelectedCoordinates({
+                    latitude: selectedCoordinates.latitude,
+                    longitude: selectedCoordinates.longitude,
+                });
+                setShowMap(false);
+            } finally {
+                setIsLoadingLocation(false);
+            }
+        }
+    };
 
     // Function to pick files from device
     const pickFiles = async () => {
@@ -325,7 +536,6 @@ const RequestCreationPage = () => {
             return;
         }
 
-        // Check if any files are still uploading
         const hasUploadingFiles = files.some(
             (file) => file.status === "uploading"
         );
@@ -338,7 +548,6 @@ const RequestCreationPage = () => {
             return;
         }
 
-        // Set loading state based on action
         if (status === "draft") {
             setIsSavingDraft(true);
         } else {
@@ -349,13 +558,14 @@ const RequestCreationPage = () => {
             const selectedCategoryIndex = categoryOptions.indexOf(category);
             const categoryId = categoryIds[selectedCategoryIndex];
 
-            // First create the request document
+            // Получаем данные адреса заново, если нужно
+            const addressData = await getAddressFromCoordinates(
+                selectedCoordinates.latitude,
+                selectedCoordinates.longitude
+            );
+
             const newRequest = {
-                title: {
-                    en: title,
-                    kz: title,
-                    ru: title,
-                },
+                title: { en: title, kz: title, ru: title },
                 description: {
                     en: description,
                     kz: description,
@@ -365,17 +575,25 @@ const RequestCreationPage = () => {
                 userId: `/users/${user.uid}`,
                 status: status,
                 address: {
-                    street: location || "Not specified",
-                    city: "Unknown",
-                    postalCode: "",
-                    coordinates: { latitude: 0, longitude: 0 },
+                    city: addressData.city,
+                    country: addressData.country,
+                    district: addressData.district,
+                    formattedAddress: addressData.formattedAddress,
+                    isoCountryCode: addressData.isoCountryCode,
+                    name: addressData.name,
+                    postalCode: addressData.postalCode,
+                    region: addressData.region,
+                    street: addressData.street,
+                    streetNumber: addressData.streetNumber,
+                    subregion: addressData.subregion,
+                    timezone: addressData.timezone,
+                    coordinates: addressData.coordinates,
                 },
-                mediaFiles: [], // Will be updated after uploads
+                mediaFiles: [],
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             };
 
-            // Add the document to get its ID
             const docRef = await addDoc(
                 collection(firestore, "requests"),
                 newRequest
@@ -386,13 +604,11 @@ const RequestCreationPage = () => {
                 `Request created with ID: ${requestId}, Status: ${status}`
             );
 
-            // Upload all files with the request ID
             const uploadPromises = files.map((file) =>
                 uploadFile(file, requestId)
             );
             const uploadedFiles = await Promise.all(uploadPromises);
 
-            // Update the request document with file URLs
             await updateDoc(doc(firestore, "requests", requestId), {
                 mediaFiles: uploadedFiles,
                 updatedAt: serverTimestamp(),
@@ -408,17 +624,14 @@ const RequestCreationPage = () => {
                 ),
             });
 
-            // Refresh requests and navigate away
             fetchRequests();
-            router.push({
-                pathname: "./my-requests",
-            });
+            router.push({ pathname: "./my-requests" });
 
-            // Reset form
             setTitle("");
             setDescription("");
             setCategory("");
             setLocation("");
+            setSelectedCoordinates(null);
             setFiles([]);
         } catch (error) {
             console.error("Error saving request:", error);
@@ -428,7 +641,6 @@ const RequestCreationPage = () => {
                 text2: `Failed to save request: ${error.message}`,
             });
         } finally {
-            // Reset loading states
             if (status === "draft") {
                 setIsSavingDraft(false);
             } else {
@@ -438,201 +650,340 @@ const RequestCreationPage = () => {
     };
 
     return (
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-            <View className="mb-2 mt-2">
-                <Text className="font-msemibold text-black mb-2">
-                    {t("send_request.fields.title")}
-                    <Text className="text-red-500"> *</Text>
-                </Text>
-                <FormField
-                    placeholder={t("send_request.fields.title")}
-                    value={title}
-                    handleChangeText={setTitle}
-                    multiline={false}
-                    numberOfLines={1}
-                    containerStyle="bg-ghostwhite"
-                />
-            </View>
-
-            <View className="mb-2">
-                <Text className="font-msemibold text-black mb-2">
-                    {t("send_request.fields.description")}
-                    <Text className="text-red-500"> *</Text>
-                </Text>
-                <FormField
-                    placeholder={t("send_request.fields.description")}
-                    value={description}
-                    handleChangeText={setDescription}
-                    multiline
-                    numberOfLines={4}
-                    textAlignVertical="top"
-                    containerStyle="bg-ghostwhite"
-                />
-            </View>
-
-            <View className="mb-2">
-                <Text className="font-msemibold text-black mb-2">
-                    {t("send_request.fields.category")}
-                    <Text className="text-red-500"> *</Text>
-                </Text>
-                <DropdownField
-                    title={t("send_request.fields.category")}
-                    placeholder={t("send_request.fields.select_category")}
-                    value={category}
-                    options={categoryOptions}
-                    onSelect={setCategory}
-                    containerStyle="bg-ghostwhite"
-                />
-            </View>
-
-            <View className="mb-2">
-                <Text className="font-msemibold text-black mb-2">
-                    {t("send_request.fields.location")}
-                    <Text className="text-red-500"> *</Text>
-                </Text>
-                <FormField
-                    placeholder={t("send_request.fields.location_placeholder")}
-                    value={location}
-                    handleChangeText={setLocation}
-                    multiline={false}
-                    numberOfLines={1}
-                    containerStyle="bg-ghostwhite"
-                />
-            </View>
-
-            <View className="mb-8">
-                <Text className="font-msemibold text-black mb-2">
-                    {t("send_request.fields.upload_files")}
-                    <Text className="text-red-500"> *</Text>
-                </Text>
-                <TouchableOpacity
-                    className="bg-ghostwhite border border-gray-300 rounded-lg p-4 flex-col items-center justify-center h-24"
-                    onPress={pickFiles}
-                >
-                    <MaterialIcons
-                        name="cloud-upload"
-                        size={24}
-                        color="#006FFD"
-                    />
-                    <Text className="ml-0 mt-2 text-gray-600 font-mregular">
-                        {t("send_request.fields.upload_placeholder")}
+        <>
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                <View className="mb-2 mt-2">
+                    <Text className="font-msemibold text-black mb-2">
+                        {t("send_request.fields.title")}
+                        <Text className="text-red-500"> *</Text>
                     </Text>
-                </TouchableOpacity>
+                    <FormField
+                        placeholder={t("send_request.fields.title")}
+                        value={title}
+                        handleChangeText={setTitle}
+                        multiline={false}
+                        numberOfLines={1}
+                        containerStyle="bg-ghostwhite"
+                    />
+                </View>
 
-                {/* Display file list */}
-                {files.length > 0 && (
-                    <View className="mt-2">
-                        {files.map((file, index) => (
-                            <View
-                                key={index}
-                                className="bg-ghostwhite border border-gray-200 rounded-lg p-2 mt-1 relative"
-                                style={{ minHeight: 60 }} // Set a consistent minimum height
+                <View className="mb-2">
+                    <Text className="font-msemibold text-black mb-2">
+                        {t("send_request.fields.description")}
+                        <Text className="text-red-500"> *</Text>
+                    </Text>
+                    <FormField
+                        placeholder={t("send_request.fields.description")}
+                        value={description}
+                        handleChangeText={setDescription}
+                        multiline
+                        numberOfLines={4}
+                        textAlignVertical="top"
+                        containerStyle="bg-ghostwhite"
+                    />
+                </View>
+
+                <View className="mb-2">
+                    <Text className="font-msemibold text-black mb-2">
+                        {t("send_request.fields.category")}
+                        <Text className="text-red-500"> *</Text>
+                    </Text>
+                    <DropdownField
+                        title={t("send_request.fields.category")}
+                        placeholder={t("send_request.fields.select_category")}
+                        value={category}
+                        options={categoryOptions}
+                        onSelect={setCategory}
+                        containerStyle="bg-ghostwhite"
+                    />
+                </View>
+
+                <View className="mb-6">
+                    <Text className="font-msemibold text-black mb-2">
+                        {t("send_request.fields.location")}
+                        <Text className="text-red-500"> *</Text>
+                    </Text>
+                    <TouchableOpacity
+                        className="bg-ghostwhite border border-gray-300 rounded-lg p-4 flex-row items-center justify-between min-h-[50px]"
+                        onPress={handleLocationFieldPress}
+                        disabled={isLoadingLocation}
+                    >
+                        <View className="flex-row items-center flex-1">
+                            <MaterialIcons
+                                name="location-on"
+                                size={24}
+                                color="#006FFD"
+                            />
+                            <Text
+                                className={`ml-2 flex-1 ${
+                                    location
+                                        ? "text-black font-mregular"
+                                        : "text-gray-500 font-mregular"
+                                }`}
+                                numberOfLines={2}
                             >
-                                <View className="flex-row items-center justify-between  min-h-[40px]">
+                                {location ||
+                                    t(
+                                        "send_request.fields.location_placeholder"
+                                    )}
+                            </Text>
+                        </View>
+                        {isLoadingLocation ? (
+                            <ActivityIndicator size="small" color="#006FFD" />
+                        ) : (
+                            <MaterialIcons
+                                name="chevron-right"
+                                size={24}
+                                color="#006FFD"
+                            />
+                        )}
+                    </TouchableOpacity>
+                </View>
+
+                <View className="mb-8">
+                    <Text className="font-msemibold text-black mb-2">
+                        {t("send_request.fields.upload_files")}
+                        <Text className="text-red-500"> *</Text>
+                    </Text>
+                    <TouchableOpacity
+                        className="bg-ghostwhite border border-gray-300 rounded-lg p-4 flex-col items-center justify-center h-24"
+                        onPress={pickFiles}
+                    >
+                        <MaterialIcons
+                            name="cloud-upload"
+                            size={24}
+                            color="#006FFD"
+                        />
+                        <Text className="ml-0 mt-2 text-gray-600 font-mregular">
+                            {t("send_request.fields.upload_placeholder")}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {/* Display file list */}
+                    {files.length > 0 && (
+                        <View className="mt-2">
+                            {files.map((file, index) => (
+                                <View
+                                    key={index}
+                                    className="bg-ghostwhite border border-gray-200 rounded-lg p-2 mt-1 relative"
+                                    style={{ minHeight: 60 }}
+                                >
+                                    <View className="flex-row items-center justify-between  min-h-[40px]">
+                                        <MaterialIcons
+                                            name={
+                                                file.status === "error"
+                                                    ? "error"
+                                                    : file.mimeType?.startsWith(
+                                                          "image"
+                                                      )
+                                                    ? "image"
+                                                    : "movie"
+                                            }
+                                            size={20}
+                                            color={
+                                                file.status === "error"
+                                                    ? "red"
+                                                    : "#006FFD"
+                                            }
+                                        />
+                                        <View className="flex-1 ml-2">
+                                            <Text
+                                                numberOfLines={1}
+                                                ellipsizeMode="middle"
+                                                className="text-black font-mregular"
+                                            >
+                                                {file.name}
+                                            </Text>
+                                            <Text className="text-gray-500 text-xs">
+                                                {file.size}
+                                            </Text>
+                                            {file.status === "error" && (
+                                                <Text className="text-red-500 text-xs mt-1">
+                                                    {t(
+                                                        "send_request.fields.upload_error"
+                                                    )}
+                                                </Text>
+                                            )}
+                                        </View>
+                                        {file.status === "queued" ||
+                                        file.status === "error" ? (
+                                            <TouchableOpacity
+                                                onPress={() =>
+                                                    handleRemoveFile(index)
+                                                }
+                                            >
+                                                <MaterialIcons
+                                                    name="close"
+                                                    size={20}
+                                                    color="#006FFD"
+                                                />
+                                            </TouchableOpacity>
+                                        ) : file.status === "completed" ? (
+                                            <MaterialIcons
+                                                name="check-circle"
+                                                size={18}
+                                                color="green"
+                                            />
+                                        ) : file.status === "uploading" ? (
+                                            <Text className="text-blue-500 text-xs">
+                                                {file.progress}%
+                                            </Text>
+                                        ) : null}
+                                    </View>
+
+                                    {/* Progress bar for uploading files */}
+                                    {file.status === "uploading" && (
+                                        <View
+                                            className="absolute bottom-0 left-0 right-0 px-2 pb-1"
+                                            style={{
+                                                width: "100%",
+                                                paddingHorizontal: 8,
+                                            }}
+                                        >
+                                            <View className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                                                <View
+                                                    className="h-full bg-primary rounded-full"
+                                                    style={{
+                                                        width: `${file.progress}%`,
+                                                    }}
+                                                />
+                                            </View>
+                                        </View>
+                                    )}
+                                </View>
+                            ))}
+                        </View>
+                    )}
+                </View>
+
+                <View className="flex-row justify-between mb-8">
+                    <CustomButton
+                        title={t("send_request.buttons.save_as_draft")}
+                        handlePress={() => handleSaveRequest("draft")}
+                        containerStyles="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg"
+                        textStyles="text-gray-700 font-mmedium"
+                        isLoading={isSavingDraft}
+                    />
+                    <CustomButton
+                        title={t("send_request.buttons.submit")}
+                        handlePress={() => handleSaveRequest("in progress")}
+                        containerStyles="flex-1 ml-2 bg-primary py-3 px-2 rounded-lg"
+                        textStyles="text-white font-mmedium"
+                        isLoading={isSubmitting}
+                    />
+                </View>
+            </ScrollView>
+
+            {/* Map Modal */}
+            <Modal
+                visible={showMap}
+                animationType="slide"
+                onRequestClose={() => setShowMap(false)}
+            >
+                <View className="flex-1">
+                    {/* Header */}
+                    <View className="bg-white border-b border-gray-200 pt-6 pb-4 px-4">
+                        <View className="flex-row items-center justify-between">
+                            <TouchableOpacity
+                                onPress={() => setShowMap(false)}
+                                className="p-2"
+                            >
+                                <MaterialIcons
+                                    name="close"
+                                    size={24}
+                                    color="#000"
+                                />
+                            </TouchableOpacity>
+                            <Text className="font-msemibold text-sm text-black">
+                                {t("send_request.location.select_location")}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={handleConfirmLocation}
+                                disabled={
+                                    !selectedCoordinates || isLoadingLocation
+                                }
+                                className={`p-2 rounded-full ${
+                                    selectedCoordinates && !isLoadingLocation
+                                        ? "bg-primary"
+                                        : "bg-gray-300"
+                                }`}
+                            >
+                                {isLoadingLocation ? (
+                                    <ActivityIndicator
+                                        size="small"
+                                        color="#fff"
+                                    />
+                                ) : (
                                     <MaterialIcons
-                                        name={
-                                            file.status === "error"
-                                                ? "error"
-                                                : file.mimeType?.startsWith(
-                                                      "image"
-                                                  )
-                                                ? "image"
-                                                : "movie"
-                                        }
-                                        size={20}
+                                        name="check"
+                                        size={24}
                                         color={
-                                            file.status === "error"
-                                                ? "red"
-                                                : "#006FFD"
+                                            selectedCoordinates
+                                                ? "#fff"
+                                                : "#999"
                                         }
                                     />
-                                    <View className="flex-1 ml-2">
-                                        <Text
-                                            numberOfLines={1}
-                                            ellipsizeMode="middle"
-                                            className="text-black font-mregular"
-                                        >
-                                            {file.name}
-                                        </Text>
-                                        <Text className="text-gray-500 text-xs">
-                                            {file.size}
-                                        </Text>
-                                        {file.status === "error" && (
-                                            <Text className="text-red-500 text-xs mt-1">
-                                                {t(
-                                                    "send_request.fields.upload_error"
-                                                )}
-                                            </Text>
-                                        )}
-                                    </View>
-                                    {file.status === "queued" ||
-                                    file.status === "error" ? (
-                                        <TouchableOpacity
-                                            onPress={() =>
-                                                handleRemoveFile(index)
-                                            }
-                                        >
-                                            <MaterialIcons
-                                                name="close"
-                                                size={20}
-                                                color="#006FFD"
-                                            />
-                                        </TouchableOpacity>
-                                    ) : file.status === "completed" ? (
-                                        <MaterialIcons
-                                            name="check-circle"
-                                            size={18}
-                                            color="green"
-                                        />
-                                    ) : file.status === "uploading" ? (
-                                        <Text className="text-blue-500 text-xs">
-                                            {file.progress}%
-                                        </Text>
-                                    ) : null}
-                                </View>
-
-                                {/* Progress bar for uploading files - now positioned at the bottom */}
-                                {file.status === "uploading" && (
-                                    <View
-                                        className="absolute bottom-0 left-0 right-0 px-2 pb-1"
-                                        style={{
-                                            width: "100%",
-                                            paddingHorizontal: 8,
-                                        }}
-                                    >
-                                        <View className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                                            <View
-                                                className="h-full bg-primary rounded-full"
-                                                style={{
-                                                    width: `${file.progress}%`,
-                                                }}
-                                            />
-                                        </View>
-                                    </View>
                                 )}
-                            </View>
-                        ))}
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                )}
-            </View>
 
-            <View className="flex-row justify-between mb-8">
-                <CustomButton
-                    title={t("send_request.buttons.save_as_draft")}
-                    handlePress={() => handleSaveRequest("draft")}
-                    containerStyles="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg"
-                    textStyles="text-gray-700 font-mmedium"
-                    isLoading={isSavingDraft}
-                />
-                <CustomButton
-                    title={t("send_request.buttons.submit")}
-                    handlePress={() => handleSaveRequest("in progress")}
-                    containerStyles="flex-1 ml-2 bg-primary py-3 px-2 rounded-lg"
-                    textStyles="text-white font-mmedium"
-                    isLoading={isSubmitting}
-                />
-            </View>
-        </ScrollView>
+                    {/* Map */}
+                    <View className="flex-1">
+                        {currentLocation ? (
+                            <MapView
+                                style={{ flex: 1 }}
+                                initialRegion={{
+                                    latitude: currentLocation.latitude,
+                                    longitude: currentLocation.longitude,
+                                    latitudeDelta: 0.01,
+                                    longitudeDelta: 0.01,
+                                }}
+                                onPress={handleMapPress}
+                                showsUserLocation={true}
+                                showsMyLocationButton={true}
+                            >
+                                {selectedCoordinates && (
+                                    <Marker
+                                        coordinate={selectedCoordinates}
+                                        title={t(
+                                            "send_request.location.selected_location"
+                                        )}
+                                        pinColor="#006FFD"
+                                    />
+                                )}
+                            </MapView>
+                        ) : (
+                            <View className="flex-1 items-center justify-center">
+                                <ActivityIndicator
+                                    size="large"
+                                    color="#006FFD"
+                                />
+                                <Text className="mt-4 text-gray-600 font-mregular">
+                                    {t("send_request.location.loading_map")}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+
+                    {/* Instructions */}
+                    <View className="bg-white border-t border-gray-200 p-4">
+                        <Text className="text-center text-gray-600 font-mregular">
+                            {t("send_request.location.tap_to_select")}
+                        </Text>
+                        {selectedCoordinates && (
+                            <Text className="text-center text-primary font-mmedium mt-2">
+                                {`${selectedCoordinates.latitude.toFixed(
+                                    6
+                                )}, ${selectedCoordinates.longitude.toFixed(
+                                    6
+                                )}`}
+                            </Text>
+                        )}
+                    </View>
+                </View>
+            </Modal>
+        </>
     );
 };
 

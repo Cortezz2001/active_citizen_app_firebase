@@ -90,11 +90,22 @@
           "contact": "Контакт",
           "upload_placeholder": "Нажмите для загрузки файлов",
           "select_category": "Выберите категорию",
-          "location_placeholder": "Указажите местоположение",
+          "location_placeholder": "Укажите местоположение",
           "location": "Местоположение",
           "upload_files": "Загружаемые файлы",
           "uploading": "Загрузка"
       },
+          "location": {
+      "permission_title": "Требуется разрешение на местоположение",
+      "permission_message": "Приложению нужен доступ к местоположению, чтобы помочь вам выбрать место проблемы на карте.",
+      "permission_cancel": "Отмена",
+      "permission_settings": "Разрешить",
+      "permission_required": "Доступ к местоположению необходим для использования карты.",
+      "select_location": "Выберите местоположение",
+      "selected_location": "Выбранное местоположение",
+      "loading_map": "Загрузка карты...",
+      "tap_to_select": "Нажмите на карту, чтобы выбрать точное местоположение проблемы"
+    },
       "categories": {
           "lighting": "Освещение",
           "trash": "Мусор",
