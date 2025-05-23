@@ -22,14 +22,20 @@ import {
     doc,
     serverTimestamp,
     updateDoc,
+    getDoc,
 } from "firebase/firestore";
 import { firestore, storage } from "../../../lib/firebase";
 import Toast from "react-native-toast-message";
 import { useAuthContext } from "../../../lib/context";
 import { useData } from "../../../lib/datacontext";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {
+    ref,
+    uploadBytesResumable,
+    getDownloadURL,
+    deleteObject,
+} from "firebase/storage";
 
 const { width, height } = Dimensions.get("window");
 
@@ -108,11 +114,9 @@ const getAddressFromCoordinates = async (latitude, longitude) => {
             latitude,
             longitude,
         });
-        console.log(result);
 
         if (result.length > 0) {
             const address = result[0];
-            // Формируем полный объект адреса, включая координаты
             return {
                 city: address.city || "Unknown",
                 country: address.country || "Unknown",
@@ -126,10 +130,9 @@ const getAddressFromCoordinates = async (latitude, longitude) => {
                 streetNumber: address.streetNumber || "",
                 subregion: address.subregion || "",
                 timezone: address.timezone || null,
-                coordinates: { latitude, longitude }, // Добавляем координаты
+                coordinates: { latitude, longitude },
             };
         }
-        // Если результат пустой, возвращаем координаты и минимальные данные
         return {
             city: "Unknown",
             country: "Unknown",
@@ -169,6 +172,7 @@ const RequestCreationPage = () => {
     const { t, i18n } = useTranslation();
     const { user } = useAuthContext();
     const router = useRouter();
+    const { requestId } = useLocalSearchParams();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [category, setCategory] = useState("");
@@ -177,6 +181,7 @@ const RequestCreationPage = () => {
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { fetchRequests } = useData();
+    const [isLoadingRequest, setIsLoadingRequest] = useState(false);
 
     // Map-related state
     const [showMap, setShowMap] = useState(false);
@@ -187,6 +192,72 @@ const RequestCreationPage = () => {
 
     const categoryOptions = categories.map((cat) => cat.name[i18n.language]);
     const categoryIds = categories.map((cat) => cat.id);
+
+    // Fetch request data if requestId is provided
+    useEffect(() => {
+        if (requestId) {
+            const fetchRequest = async () => {
+                setIsLoadingRequest(true);
+                try {
+                    const docRef = doc(firestore, "requests", requestId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const requestData = docSnap.data();
+                        setTitle(
+                            requestData.title[i18n.language] ||
+                                requestData.title.en
+                        );
+                        setDescription(
+                            requestData.description[i18n.language] ||
+                                requestData.description.en
+                        );
+
+                        const categoryRef = requestData.categoryId;
+                        const categoryDoc = await getDoc(categoryRef);
+                        const categoryData = categoryDoc.data();
+                        const categoryName =
+                            categoryData.name[i18n.language] ||
+                            categoryData.name.en;
+                        setCategory(categoryName);
+
+                        setLocation(requestData.address.formattedAddress);
+                        setSelectedCoordinates(requestData.address.coordinates);
+
+                        const prefilledFiles = requestData.mediaFiles.map(
+                            (file) => ({
+                                uri: file.url,
+                                name: file.name,
+                                size: file.size,
+                                mimeType: file.type,
+                                status: "completed",
+                                progress: 100,
+                                downloadURL: file.url,
+                            })
+                        );
+                        setFiles(prefilledFiles);
+                    } else {
+                        Toast.show({
+                            type: "error",
+                            text1: t("send_request.toast.error.title"),
+                            text2: t(
+                                "send_request.toast.error.request_not_found"
+                            ),
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error fetching request:", error);
+                    Toast.show({
+                        type: "error",
+                        text1: t("send_request.toast.error.title"),
+                        text2: t("send_request.toast.error.fetch_failed"),
+                    });
+                } finally {
+                    setIsLoadingRequest(false);
+                }
+            };
+            fetchRequest();
+        }
+    }, [requestId, i18n.language]);
 
     // Request location permissions and get current location on component mount
     useEffect(() => {
@@ -238,16 +309,19 @@ const RequestCreationPage = () => {
             };
 
             setCurrentLocation(coords);
-            setSelectedCoordinates(coords);
+            if (!requestId) {
+                setSelectedCoordinates(coords);
+            }
         } catch (error) {
             console.error("Error getting current location:", error);
-            // Default to Almaty coordinates if location fails
             const defaultLocation = {
                 latitude: 43.222,
                 longitude: 76.8512,
             };
             setCurrentLocation(defaultLocation);
-            setSelectedCoordinates(defaultLocation);
+            if (!requestId) {
+                setSelectedCoordinates(defaultLocation);
+            }
         } finally {
             setIsLoadingLocation(false);
         }
@@ -293,14 +367,12 @@ const RequestCreationPage = () => {
                     selectedCoordinates.latitude,
                     selectedCoordinates.longitude
                 );
-                // Устанавливаем formattedAddress в поле location для отображения в форме
                 setLocation(
                     addressData.formattedAddress ||
                         `${selectedCoordinates.latitude.toFixed(
                             6
                         )}, ${selectedCoordinates.longitude.toFixed(6)}`
                 );
-                // Сохраняем полные координаты
                 setSelectedCoordinates(addressData.coordinates);
                 setShowMap(false);
             } catch (error) {
@@ -321,7 +393,6 @@ const RequestCreationPage = () => {
         }
     };
 
-    // Function to pick files from device
     const pickFiles = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
@@ -335,7 +406,6 @@ const RequestCreationPage = () => {
                 return;
             }
 
-            // Add new files to the list with uploading status
             const newFiles = result.assets.map((asset) => ({
                 uri: asset.uri,
                 name: asset.name,
@@ -356,14 +426,59 @@ const RequestCreationPage = () => {
         }
     };
 
-    // Function to handle file removal
-    const handleRemoveFile = (index) => {
+    const handleRemoveFile = async (index) => {
+        const fileToRemove = files[index];
+        if (
+            fileToRemove.status === "completed" &&
+            fileToRemove.downloadURL &&
+            requestId
+        ) {
+            try {
+                // Delete file from Firebase Storage
+                const fileRef = ref(storage, fileToRemove.downloadURL);
+                await deleteObject(fileRef);
+                console.log(`File ${fileToRemove.name} deleted from storage`);
+
+                // Update Firestore document to remove the file from mediaFiles
+                const docRef = doc(firestore, "requests", requestId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const requestData = docSnap.data();
+                    const updatedMediaFiles = requestData.mediaFiles.filter(
+                        (file) => file.url !== fileToRemove.downloadURL
+                    );
+                    await updateDoc(docRef, {
+                        mediaFiles: updatedMediaFiles,
+                        updatedAt: serverTimestamp(),
+                    });
+                    console.log(
+                        `File ${fileToRemove.name} removed from Firestore`
+                    );
+                }
+            } catch (error) {
+                console.error("Error deleting file from storage:", error);
+                Toast.show({
+                    type: "error",
+                    text1: t("send_request.toast.error.title"),
+                    text2: t("send_request.toast.error.file_deletion_failed"),
+                });
+                return; // Prevent removing from state if deletion fails
+            }
+        }
+        // Remove file from local state
         setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     };
 
-    // Function to upload a single file
     const uploadFile = async (file, requestId) => {
-        // Update file status to uploading
+        if (file.status === "completed") {
+            return {
+                name: file.name,
+                url: file.downloadURL,
+                type: file.mimeType,
+                size: file.size,
+            };
+        }
+
         setFiles((prevFiles) => {
             const updatedFiles = [...prevFiles];
             const fileIndex = updatedFiles.findIndex((f) => f.uri === file.uri);
@@ -378,23 +493,17 @@ const RequestCreationPage = () => {
         });
 
         try {
-            // Create reference for storing the file
             const fileName = `${Date.now()}_${file.name}`;
             const storageRef = ref(
                 storage,
                 `requests/${requestId}/${fileName}`
             );
-
-            // For React Native, we can directly use the file URI with fetch
             const response = await fetch(file.uri);
             const blob = await response.blob();
-
-            // Create upload task
             const uploadTask = uploadBytesResumable(storageRef, blob, {
                 contentType: file.mimeType,
             });
 
-            // Monitor progress
             return new Promise((resolve, reject) => {
                 uploadTask.on(
                     "state_changed",
@@ -403,8 +512,6 @@ const RequestCreationPage = () => {
                             (snapshot.bytesTransferred / snapshot.totalBytes) *
                                 100
                         );
-
-                        // Update file with progress
                         setFiles((prevFiles) => {
                             const updatedFiles = [...prevFiles];
                             const fileIndex = updatedFiles.findIndex(
@@ -420,7 +527,6 @@ const RequestCreationPage = () => {
                         });
                     },
                     (error) => {
-                        // Update file status to error
                         setFiles((prevFiles) => {
                             const updatedFiles = [...prevFiles];
                             const fileIndex = updatedFiles.findIndex(
@@ -441,8 +547,6 @@ const RequestCreationPage = () => {
                             const downloadURL = await getDownloadURL(
                                 uploadTask.snapshot.ref
                             );
-
-                            // Update file status to completed with download URL
                             setFiles((prevFiles) => {
                                 const updatedFiles = [...prevFiles];
                                 const fileIndex = updatedFiles.findIndex(
@@ -458,7 +562,6 @@ const RequestCreationPage = () => {
                                 }
                                 return updatedFiles;
                             });
-
                             resolve({
                                 name: file.name,
                                 url: downloadURL,
@@ -473,8 +576,6 @@ const RequestCreationPage = () => {
             });
         } catch (error) {
             console.error("File upload error:", error);
-
-            // Update file status to error
             setFiles((prevFiles) => {
                 const updatedFiles = [...prevFiles];
                 const fileIndex = updatedFiles.findIndex(
@@ -488,12 +589,10 @@ const RequestCreationPage = () => {
                 }
                 return updatedFiles;
             });
-
             throw error;
         }
     };
 
-    // Function to handle request saving/submission
     const handleSaveRequest = async (status) => {
         if (!title) {
             Toast.show({
@@ -557,14 +656,12 @@ const RequestCreationPage = () => {
         try {
             const selectedCategoryIndex = categoryOptions.indexOf(category);
             const categoryId = categoryIds[selectedCategoryIndex];
-
-            // Получаем данные адреса заново, если нужно
             const addressData = await getAddressFromCoordinates(
                 selectedCoordinates.latitude,
                 selectedCoordinates.longitude
             );
 
-            const newRequest = {
+            const requestData = {
                 title: { en: title, kz: title, ru: title },
                 description: {
                     en: description,
@@ -590,26 +687,30 @@ const RequestCreationPage = () => {
                     coordinates: addressData.coordinates,
                 },
                 mediaFiles: [],
-                createdAt: serverTimestamp(),
+                rejectionReason: { en: "", kz: "", ru: "" },
                 updatedAt: serverTimestamp(),
             };
 
-            const docRef = await addDoc(
-                collection(firestore, "requests"),
-                newRequest
-            );
-            const requestId = docRef.id;
-
-            console.log(
-                `Request created with ID: ${requestId}, Status: ${status}`
-            );
+            let requestIdToUse = requestId;
+            if (requestId) {
+                const docRef = doc(firestore, "requests", requestId);
+                await updateDoc(docRef, requestData);
+                requestIdToUse = requestId;
+            } else {
+                requestData.createdAt = serverTimestamp();
+                const docRef = await addDoc(
+                    collection(firestore, "requests"),
+                    requestData
+                );
+                requestIdToUse = docRef.id;
+            }
 
             const uploadPromises = files.map((file) =>
-                uploadFile(file, requestId)
+                uploadFile(file, requestIdToUse)
             );
             const uploadedFiles = await Promise.all(uploadPromises);
 
-            await updateDoc(doc(firestore, "requests", requestId), {
+            await updateDoc(doc(firestore, "requests", requestIdToUse), {
                 mediaFiles: uploadedFiles,
                 updatedAt: serverTimestamp(),
             });
@@ -648,6 +749,14 @@ const RequestCreationPage = () => {
             }
         }
     };
+
+    if (isLoadingRequest) {
+        return (
+            <View className="flex-1 justify-center items-center">
+                <ActivityIndicator size="large" color="#006FFD" />
+            </View>
+        );
+    }
 
     return (
         <>
@@ -759,7 +868,6 @@ const RequestCreationPage = () => {
                         </Text>
                     </TouchableOpacity>
 
-                    {/* Display file list */}
                     {files.length > 0 && (
                         <View className="mt-2">
                             {files.map((file, index) => (
@@ -768,11 +876,18 @@ const RequestCreationPage = () => {
                                     className="bg-ghostwhite border border-gray-200 rounded-lg p-2 mt-1 relative"
                                     style={{ minHeight: 60 }}
                                 >
-                                    <View className="flex-row items-center justify-between  min-h-[40px]">
+                                    <View className="flex-row items-center justify-between min-h-[40px]">
                                         <MaterialIcons
                                             name={
                                                 file.status === "error"
                                                     ? "error"
+                                                    : file.status ===
+                                                      "completed"
+                                                    ? "cloud-done"
+                                                    : file.status ===
+                                                          "uploading" ||
+                                                      file.status === "queued"
+                                                    ? "cloud-queue"
                                                     : file.mimeType?.startsWith(
                                                           "image"
                                                       )
@@ -783,6 +898,9 @@ const RequestCreationPage = () => {
                                             color={
                                                 file.status === "error"
                                                     ? "red"
+                                                    : file.status ===
+                                                      "completed"
+                                                    ? "green"
                                                     : "#006FFD"
                                             }
                                         />
@@ -805,8 +923,11 @@ const RequestCreationPage = () => {
                                                 </Text>
                                             )}
                                         </View>
-                                        {file.status === "queued" ||
-                                        file.status === "error" ? (
+                                        {file.status === "uploading" ? (
+                                            <Text className="text-blue-500 text-xs">
+                                                {file.progress}%
+                                            </Text>
+                                        ) : (
                                             <TouchableOpacity
                                                 onPress={() =>
                                                     handleRemoveFile(index)
@@ -818,20 +939,9 @@ const RequestCreationPage = () => {
                                                     color="#006FFD"
                                                 />
                                             </TouchableOpacity>
-                                        ) : file.status === "completed" ? (
-                                            <MaterialIcons
-                                                name="check-circle"
-                                                size={18}
-                                                color="green"
-                                            />
-                                        ) : file.status === "uploading" ? (
-                                            <Text className="text-blue-500 text-xs">
-                                                {file.progress}%
-                                            </Text>
-                                        ) : null}
+                                        )}
                                     </View>
 
-                                    {/* Progress bar for uploading files */}
                                     {file.status === "uploading" && (
                                         <View
                                             className="absolute bottom-0 left-0 right-0 px-2 pb-1"
@@ -874,14 +984,12 @@ const RequestCreationPage = () => {
                 </View>
             </ScrollView>
 
-            {/* Map Modal */}
             <Modal
                 visible={showMap}
                 animationType="slide"
                 onRequestClose={() => setShowMap(false)}
             >
                 <View className="flex-1">
-                    {/* Header */}
                     <View className="bg-white border-b border-gray-200 pt-6 pb-4 px-4">
                         <View className="flex-row items-center justify-between">
                             <TouchableOpacity
@@ -928,7 +1036,6 @@ const RequestCreationPage = () => {
                         </View>
                     </View>
 
-                    {/* Map */}
                     <View className="flex-1">
                         {currentLocation ? (
                             <MapView
@@ -966,7 +1073,6 @@ const RequestCreationPage = () => {
                         )}
                     </View>
 
-                    {/* Instructions */}
                     <View className="bg-white border-t border-gray-200 p-4">
                         <Text className="text-center text-gray-600 font-mregular">
                             {t("send_request.location.tap_to_select")}

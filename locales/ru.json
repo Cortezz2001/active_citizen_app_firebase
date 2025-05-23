@@ -166,7 +166,12 @@
           "message": "Вы уверены, что хотите удалить эту заявку? Это действие необратимо.",
           "cancel_button": "Отмена",
           "delete_button": "Удалить",
-          "deleting": "Удаление..."
+          "deleting": "Удаление...",
+          "success_title": "Успех",
+          "success_message": "Запрос успешно удален",
+          "error_title": "Ошибка",
+          "error_message": "Не удалось удалить запрос: {{error}}",
+          "error_not_found": "Запрос не найден"
       },
       "filter_modal": {
         "title": "Фильтр заявок",

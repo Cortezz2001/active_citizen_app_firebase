@@ -167,7 +167,12 @@
             "message": "Are you sure you want to delete this request? This action cannot be undone.",
             "cancel_button": "Cancel",
             "delete_button": "Delete",
-            "deleting": "Deleting..."
+            "deleting": "Deleting...",
+            "success_title": "Success",
+            "success_message": "Request deleted successfully",
+            "error_title": "Error",
+            "error_message": "Failed to delete request: {{error}}",
+            "error_not_found": "Request not found"
         },
         "filter_modal": {
             "title": "Filter Requests",

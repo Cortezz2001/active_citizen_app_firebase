@@ -1,4 +1,3 @@
-// my-requests.jsx
 import React, { useState, useEffect } from "react";
 import {
     View,
@@ -17,6 +16,11 @@ import SearchComponent from "../../../components/SearchComponent";
 import { ActivityIndicator } from "react-native";
 import { useKeyboard } from "../../../hooks/useKeyboard";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
+import { ref, deleteObject } from "firebase/storage";
+import { firestore, storage } from "../../../lib/firebase";
+import Toast from "react-native-toast-message";
+import CustomButton from "../../../components/CustomButton";
 
 const statusColors = {
     draft: {
@@ -77,10 +81,14 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
     const canDelete = item.status === "draft";
 
     return (
-        <View className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden">
-            <View className="p-4">
+        <View className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden min-h-[180px] flex flex-col">
+            <View className="p-4 flex-1">
                 <View className="flex-row justify-between items-start mb-2">
-                    <Text className="font-mmedium text-lg text-gray-900 flex-1 mr-2">
+                    <Text
+                        className="font-msemibold text-lg text-gray-900 flex-1 mr-2"
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                    >
                         {item.title[i18n.language] || item.title.en}
                     </Text>
                     <View
@@ -122,11 +130,11 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
                     </TouchableOpacity>
                 )}
 
-                <View className="flex-col">
-                    <View className="flex-row flex-wrap mb-2">
+                <View className="flex-col flex-1 justify-end">
+                    <View className="flex-row justify-end mb-2">
                         {canEdit && (
                             <TouchableOpacity
-                                className="mr-3 mb-2"
+                                className="mr-3 px-3 py-1 rounded-full border border-blue-500"
                                 onPress={() =>
                                     router.push({
                                         pathname: "./send-request",
@@ -148,7 +156,7 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
                         )}
                         {canDelete && (
                             <TouchableOpacity
-                                className="mb-2"
+                                className="px-3 py-1 rounded-full border border-red-400"
                                 onPress={() => onDelete(item.id)}
                             >
                                 <View className="flex-row items-center">
@@ -166,7 +174,7 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
                     </View>
 
                     {item.status !== "draft" && (
-                        <View className="flex-row justify-end">
+                        <View className="flex-row justify-end mb-2">
                             <TouchableOpacity
                                 className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
                                 onPress={() =>
@@ -222,6 +230,7 @@ const MyRequestsTab = () => {
     const [rejectionReason, setRejectionReason] = useState("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [requestToDelete, setRequestToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const { isKeyboardVisible } = useKeyboard();
 
     const statusOptions = [
@@ -309,13 +318,74 @@ const MyRequestsTab = () => {
         setShowDeleteModal(true);
     };
 
-    const confirmDelete = () => {
-        // Здесь должна быть логика удаления заявки, например, вызов API
-        console.log(`Deleting request with ID: ${requestToDelete}`);
-        setShowDeleteModal(false);
-        setRequestToDelete(null);
-        // Опционально: обновить список заявок после удаления
-        fetchRequests(requestFilters);
+    const confirmDelete = async () => {
+        if (!requestToDelete) return;
+
+        setIsDeleting(true);
+        try {
+            // Fetch the request document to get associated media files
+            const docRef = doc(firestore, "requests", requestToDelete);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const requestData = docSnap.data();
+                const mediaFiles = requestData.mediaFiles || [];
+
+                // Delete all associated files from Firebase Storage
+                const deleteFilePromises = mediaFiles.map(async (file) => {
+                    if (file.url) {
+                        try {
+                            const fileRef = ref(storage, file.url);
+                            await deleteObject(fileRef);
+                            console.log(
+                                `File ${file.name} deleted from storage`
+                            );
+                        } catch (error) {
+                            console.error(
+                                `Error deleting file ${file.name}:`,
+                                error
+                            );
+                            // Continue with deletion even if a file fails to delete
+                        }
+                    }
+                });
+
+                await Promise.all(deleteFilePromises);
+
+                // Delete the request document from Firestore
+                await deleteDoc(docRef);
+                console.log(
+                    `Request ${requestToDelete} deleted from Firestore`
+                );
+            } else {
+                Toast.show({
+                    type: "error",
+                    text1: t("my_requests.delete_modal.error_title"),
+                    text2: t("my_requests.delete_modal.error_not_found"),
+                });
+            }
+        } catch (error) {
+            console.error("Error deleting request:", error);
+            Toast.show({
+                type: "error",
+                text1: t("my_requests.delete_modal.error_title"),
+                text2: t("my_requests.delete_modal.error_message", {
+                    error: error.message,
+                }),
+            });
+        } finally {
+            setIsDeleting(false);
+            setShowDeleteModal(false);
+            // Show success message
+            Toast.show({
+                type: "success",
+                text1: t("my_requests.delete_modal.success_title"),
+                text2: t("my_requests.delete_modal.success_message"),
+            });
+            // Refresh the request list
+            await fetchRequests(requestFilters);
+            setRequestToDelete(null);
+        }
     };
 
     useEffect(() => {
@@ -751,7 +821,7 @@ const MyRequestsTab = () => {
                 <TouchableOpacity
                     style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
                     activeOpacity={1}
-                    onPress={() => setShowDeleteModal(false)}
+                    onPress={() => !isDeleting && setShowDeleteModal(false)}
                 >
                     <View className="flex-1 justify-center items-center">
                         <View className="bg-white rounded-xl p-5 w-11/12 max-w-md">
@@ -767,6 +837,7 @@ const MyRequestsTab = () => {
                                 <TouchableOpacity
                                     className="px-6 py-3 bg-gray-200 rounded-full"
                                     onPress={() => setShowDeleteModal(false)}
+                                    disabled={isDeleting}
                                 >
                                     <Text className="text-gray-700 font-mmedium">
                                         {t(
@@ -774,16 +845,15 @@ const MyRequestsTab = () => {
                                         )}
                                     </Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity
-                                    className="px-6 py-3 bg-red-500 rounded-full"
-                                    onPress={confirmDelete}
-                                >
-                                    <Text className="text-white font-mmedium">
-                                        {t(
-                                            "my_requests.delete_modal.delete_button"
-                                        )}
-                                    </Text>
-                                </TouchableOpacity>
+                                <CustomButton
+                                    title={t(
+                                        "my_requests.delete_modal.delete_button"
+                                    )}
+                                    handlePress={confirmDelete}
+                                    containerStyles="px-6 py-3 bg-red-500 rounded-full"
+                                    textStyles="text-white font-mmedium"
+                                    isLoading={isDeleting}
+                                />
                             </View>
                         </View>
                     </View>

@@ -166,7 +166,12 @@
           "message": "Бұл өтінішті жоюға сенімдісіз бе? Бұл әрекет қайтарылмайды.",
           "cancel_button": "Болдырмау",
           "delete_button": "Жою",
-          "deleting": "Жойылуда..."
+          "deleting": "Жойылуда...",
+          "success_title": "Сәттілік", 
+          "success_message": "Сұраныс сәтті жойылды", 
+          "error_title": "Қате", 
+          "error_message": "Сұраныс жойылмады: {{error}}", 
+          "error_not_found": "Сұраныс табылмады"
       },
       "filter_modal": {
         "title": "Қолданба сүзгісі",

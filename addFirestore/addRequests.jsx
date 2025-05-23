@@ -22,11 +22,20 @@ export const addTestRequest = async () => {
                 "4NWS6iYzOUo8QYQ5T6Wh"
             ),
             userId: "/users/KKSVj1GSntMLKbszazn3TeRI71S2",
-            status: "rejected", // можно использовать: "pending", "in_progress", "completed", "rejected"
+            status: "rejected",
             address: {
-                street: "Test Street 123",
                 city: "Pavlodar",
+                country: "Kazakhstan",
+                district: null,
+                formattedAddress: "Test Street 123, Pavlodar, Kazakhstan",
+                isoCountryCode: "KZ",
+                name: "Test Street 123",
                 postalCode: "140000",
+                region: "Pavlodar Region",
+                street: "Test Street",
+                streetNumber: "123",
+                subregion: "",
+                timezone: "Asia/Almaty",
                 coordinates: {
                     latitude: 52.285577,
                     longitude: 76.940947,
@@ -34,11 +43,16 @@ export const addTestRequest = async () => {
             },
             mediaFiles: [
                 {
-                    type: "image", // или "video"
+                    type: "image",
                     url: "https://picsum.photos/800/601",
                     fileName: "test_image.jpg",
                 },
             ],
+            rejectionReason: {
+                en: "Test rejection reason",
+                kz: "Тесттік бас тарту себебі",
+                ru: "Тестовая причина отказа",
+            },
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
         };
