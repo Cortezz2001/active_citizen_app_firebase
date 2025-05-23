@@ -179,7 +179,7 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
                                 className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
                                 onPress={() =>
                                     router.push(
-                                        `/pages/request-details/${item.id}`
+                                        `/pages/requests-details/${item.id}`
                                     )
                                 }
                             >
@@ -514,7 +514,7 @@ const MyRequestsTab = () => {
     };
 
     const handleRequestPress = (item) => {
-        router.push(`/pages/request-details/${item.id}`);
+        router.push(`/pages/requests-details/${item.id}`);
     };
 
     const displayData = isRequestSearchActive
