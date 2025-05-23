@@ -253,13 +253,6 @@ const VoteSurveyPage = () => {
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text
-                    className="text-2xl font-mbold text-black"
-                    numberOfLines={2}
-                    adjustsFontSizeToFit
-                >
-                    {t("vote.title")}
-                </Text>
             </View>
 
             <ScrollView

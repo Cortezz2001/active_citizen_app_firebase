@@ -223,7 +223,7 @@ const PetitionDetailsPage = () => {
                 showsVerticalScrollIndicator={false}
             >
                 <View className="mb-4 mt-6">
-                    <Text className="font-mbold text-xl text-black">
+                    <Text className="font-mbold text-2xl text-black">
                         {petition.title[i18n.language] || petition.title.en}
                     </Text>
                 </View>

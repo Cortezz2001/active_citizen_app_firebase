@@ -232,13 +232,6 @@ const SurveyResultsPage = () => {
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text
-                    className="text-2xl font-mbold text-black"
-                    numberOfLines={2}
-                    adjustsFontSizeToFit
-                >
-                    {t("results.title")}
-                </Text>
             </View>
 
             <ScrollView className="flex-1 px-4 pt-4">
