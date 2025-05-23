@@ -89,6 +89,13 @@ export default {
         {
           locationAlwaysAndWhenInUsePermission: "Allow $(PRODUCT_NAME) to use your location."
         }
+      ],
+        [
+        "expo-video",
+        {
+          supportsBackgroundPlayback: true,
+          supportsPictureInPicture: true
+        }
       ]
     ],
     experiments: {
