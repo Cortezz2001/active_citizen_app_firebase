@@ -191,10 +191,8 @@
         "create_button": "Create Survey",
         "votes_label": "votes",
         "statuses": {
-            "all": "All",
             "draft": "Draft",
-            "under_moderation": "Under Moderation",
-            "approved": "Approved",
+            "in progress": "In progress",
             "rejected": "Rejected",
             "published": "Published",
             "completed": "Completed"

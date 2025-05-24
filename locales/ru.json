@@ -190,10 +190,8 @@
       "create_button": "Создать опрос",
       "votes_label": "голосов",
       "statuses": {
-          "all": "Все",
           "draft": "Черновик",
-          "under_moderation": "На модерации",
-          "approved": "Одобрено",
+          "in progress": "В процессе",
           "rejected": "Отклонено",
           "published": "Опубликовано",
           "completed": "Завершено"

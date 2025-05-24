@@ -190,13 +190,11 @@
   "create_button": "Сауалнама жасау",
   "votes_label": "дауыс",
   "statuses": {
-    "all": "Барлығы",
-    "draft": "Жоба",
-    "under_moderation": "Модерацияда",
-    "approved": "Бекітілген",
-    "rejected": "Қабылданбаған",
-    "published": "Жарияланған",
-    "completed": "Аяқталған"
+"draft": "Жоба", 
+"in progress": "Орындалуда", 
+"rejected": "Қабылданбады", 
+"published": "Жарияланды", 
+"completed": "Аяқталды"
   },
   "created_label": "Жасалған күні",
   "actions": {
