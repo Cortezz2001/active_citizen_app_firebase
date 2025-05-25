@@ -181,7 +181,7 @@ const RequestDetailPage = () => {
                 showsVerticalScrollIndicator={false}
             >
                 <View className="mb-4 mt-6">
-                    <Text className="font-mbold text-xl text-black mb-1">
+                    <Text className="font-mbold text-2xl text-black mb-1">
                         {request.title?.[i18n.language] ||
                             request.title?.en ||
                             ""}

@@ -219,7 +219,7 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                                     onPress={() => {
                                         if (
                                             item.status === "Published" &&
-                                            !item.hasVoted
+                                            item.hasVoted
                                         ) {
                                             Toast.show({
                                                 type: "info",

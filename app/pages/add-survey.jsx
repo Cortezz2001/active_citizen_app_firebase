@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     TextInput,
     ScrollView,
+    ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -12,48 +13,203 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
+import { useAuthContext } from "../../lib/context";
+import { useFirestore } from "../../hooks/useFirestore";
+import { firestore } from "../../lib/firebase";
+import {
+    addDoc,
+    collection,
+    doc,
+    serverTimestamp,
+    updateDoc,
+    getDoc,
+} from "firebase/firestore";
+import DropdownField from "../../components/DropdownField";
+import { useData } from "../../lib/datacontext";
+import CustomButton from "../../components/CustomButton";
+const categories = [
+    {
+        id: "RkdtDA478Mzbz1ludDqk",
+        name: {
+            en: "Infrastructure",
+            kz: "Инфрақұрылым",
+            ru: "Инфраструктура",
+        },
+    },
+    {
+        id: "QQv49ItsxuLUaUrhqOcX",
+        name: { en: "Transport", kz: "Көлік", ru: "Транспорт" },
+    },
+    {
+        id: "OxVqr3xUJKdhXTPyiLmQ",
+        name: { en: "Ecology", kz: "Экология", ru: "Экология" },
+    },
+    {
+        id: "kpP3pGJ9DWJMZevFwHcN",
+        name: { en: "Education", kz: "Білім", ru: "Образование" },
+    },
+    {
+        id: "W71S9fR85wftoGUzZH9K",
+        name: {
+            en: "Healthcare",
+            kz: "Денсаулық сақтау",
+            ru: "Здравоохранение",
+        },
+    },
+    {
+        id: "WHeEqvVUnOxqkYNDb9BP",
+        name: {
+            en: "Social Sphere",
+            kz: "Әлеуметтік сала",
+            ru: "Соц. сфера",
+        },
+    },
+    {
+        id: "91kpAs3p4VS5yucBqqLS",
+        name: { en: "Culture", kz: "Мәдениет", ru: "Культура" },
+    },
+    {
+        id: "9KbN8KoH0b7JAhnsVBV0",
+        name: { en: "Housing and Utilities", kz: "ТКШ", ru: "ЖКХ" },
+    },
+    {
+        id: "BXNGHpDQrPOaYD7SM3OG",
+        name: { en: "Safety", kz: "Қауіпсіздік", ru: "Безопасность" },
+    },
+    {
+        id: "CmWOBmtNUtNOzj2zuM0k",
+        name: { en: "Application", kz: "Қосымша", ru: "Приложение" },
+    },
+    {
+        id: "AZd4V140mdc6dYiNnGtU",
+        name: { en: "Other", kz: "Басқа", ru: "Другое" },
+    },
+];
 
 const AddSurveyPage = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const router = useRouter();
     const params = useLocalSearchParams();
+    const { user } = useAuthContext();
+    const { getDocument } = useFirestore();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [category, setCategory] = useState("");
     const [questions, setQuestions] = useState([
         { id: 1, text: "", type: "singleChoice", options: ["", ""] },
     ]);
     const [isEditing, setIsEditing] = useState(false);
+    const [isSavingDraft, setIsSavingDraft] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingSurvey, setIsLoadingSurvey] = useState(false);
+    const [isLoadingUser, setIsLoadingUser] = useState(true);
+    const [cityKey, setCityKey] = useState("");
+    const { fetchUserSurveys } = useData();
 
-    // Sample survey data for editing (in a real app, this would come from an API/database)
-    const surveySample = {
-        id: 4,
-        title: "Public Transport Improvement",
-        description: "Help us improve the city's public transportation system",
-        questions: [
-            {
-                id: 1,
-                text: "How often do you use public transport?",
-                type: "singleChoice",
-                options: ["Daily", "Weekly", "Monthly", "Rarely", "Never"],
-            },
-            {
-                id: 2,
-                text: "Which types of public transport do you use?",
-                type: "multipleChoice",
-                options: ["Bus", "Subway", "Tram", "Taxi", "Shared bikes"],
-            },
-        ],
-    };
+    const categoryOptions = categories.map((cat) => cat.name[i18n.language]);
+    const categoryIds = categories.map((cat) => cat.id);
 
-    // Load survey data if editing an existing survey
+    // Fetch user data to get cityKey
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                if (user && user.uid) {
+                    const userData = await getDocument("users", user.uid);
+                    if (userData && userData.cityKey) {
+                        setCityKey(userData.cityKey);
+                    } else {
+                        Toast.show({
+                            type: "error",
+                            text1: t("add_survey.toast.error.title"),
+                            text2: t("add_survey.toast.error.no_city_key"),
+                        });
+                    }
+                } else {
+                    Toast.show({
+                        type: "error",
+                        text1: t("add_survey.toast.error.title"),
+                        text2: t("add_survey.toast.error.no_user"),
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                Toast.show({
+                    type: "error",
+                    text1: t("add_survey.toast.error.title"),
+                    text2: t("add_survey.toast.error.load_user_error"),
+                });
+            } finally {
+                setIsLoadingUser(false);
+            }
+        };
+
+        fetchUserData();
+    }, [user, t]);
+
+    // Fetch survey data if editing an existing survey
     useEffect(() => {
         if (params.surveyId) {
-            setTitle(surveySample.title);
-            setDescription(surveySample.description);
-            setQuestions(surveySample.questions);
-            setIsEditing(true);
+            const fetchSurvey = async () => {
+                setIsLoadingSurvey(true);
+                try {
+                    const docRef = doc(firestore, "surveys", params.surveyId);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const surveyData = docSnap.data();
+                        setTitle(
+                            surveyData.title[i18n.language] ||
+                                surveyData.title.en
+                        );
+                        setDescription(
+                            surveyData.description[i18n.language] ||
+                                surveyData.description.en
+                        );
+                        setQuestions(
+                            surveyData.questions.map((q, index) => ({
+                                id: index + 1,
+                                text:
+                                    q.questionText[i18n.language] ||
+                                    q.questionText.en,
+                                type:
+                                    q.type === "single_choice"
+                                        ? "singleChoice"
+                                        : "multipleChoice",
+                                options: q.options.map(
+                                    (opt) => opt[i18n.language] || opt.en
+                                ),
+                            }))
+                        );
+                        const categoryRef = surveyData.categoryId;
+                        const categoryDoc = await getDoc(categoryRef);
+                        const categoryData = categoryDoc.data();
+                        const categoryName =
+                            categoryData.name[i18n.language] ||
+                            categoryData.name.en;
+                        setCategory(categoryName);
+                        setIsEditing(true);
+                    } else {
+                        Toast.show({
+                            type: "error",
+                            text1: t("add_survey.toast.error.title"),
+                            text2: t("add_survey.toast.error.survey_not_found"),
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error fetching survey:", error);
+                    Toast.show({
+                        type: "error",
+                        text1: t("add_survey.toast.error.title"),
+                        text2: t("add_survey.toast.error.fetch_failed"),
+                    });
+                } finally {
+                    setIsLoadingSurvey(false);
+                }
+            };
+            fetchSurvey();
+        } else {
+            setIsLoadingSurvey(false);
         }
-    }, [params.surveyId, t]);
+    }, [params.surveyId, t, i18n.language]);
 
     const addQuestion = () => {
         const newQuestion = {
@@ -144,6 +300,24 @@ const AddSurveyPage = () => {
             return false;
         }
 
+        if (!category) {
+            Toast.show({
+                type: "error",
+                text1: t("add_survey.toast.error.title"),
+                text2: t("add_survey.toast.error.category_required"),
+            });
+            return false;
+        }
+
+        if (!cityKey) {
+            Toast.show({
+                type: "error",
+                text1: t("add_survey.toast.error.title"),
+                text2: t("add_survey.toast.error.no_city_key"),
+            });
+            return false;
+        }
+
         for (const question of questions) {
             if (!question.text.trim()) {
                 Toast.show({
@@ -178,27 +352,98 @@ const AddSurveyPage = () => {
         return true;
     };
 
-    const saveSurvey = (asDraft = false) => {
+    const saveSurvey = async (asDraft = false) => {
         if (!validateSurvey()) return;
 
-        console.log("Saving survey", {
-            title,
-            description,
-            questions,
-            asDraft,
-            isEditing,
-        });
+        if (!user) {
+            Toast.show({
+                type: "error",
+                text1: t("add_survey.toast.error.title"),
+                text2: t("add_survey.toast.error.no_user"),
+            });
+            return;
+        }
 
-        Toast.show({
-            type: "success",
-            text1: t("add_survey.toast.success.title"),
-            text2: isEditing
-                ? t("add_survey.toast.success.updated")
-                : t("add_survey.toast.success.submitted"),
-        });
+        if (asDraft) {
+            setIsSavingDraft(true);
+        } else {
+            setIsSubmitting(true);
+        }
 
-        router.push("/pages/my-surveys");
+        try {
+            const selectedCategoryIndex = categoryOptions.indexOf(category);
+            const categoryId = categoryIds[selectedCategoryIndex];
+
+            const surveyData = {
+                title: { en: title, kz: title, ru: title },
+                description: {
+                    en: description,
+                    kz: description,
+                    ru: description,
+                },
+                questions: questions.map((q) => ({
+                    questionText: { en: q.text, kz: q.text, ru: q.text },
+                    type:
+                        q.type === "singleChoice"
+                            ? "single_choice"
+                            : "multiple_choice",
+                    options: q.options.map((opt) => ({
+                        en: opt,
+                        kz: opt,
+                        ru: opt,
+                    })),
+                })),
+                cityKey: cityKey,
+                categoryId: doc(firestore, "surveys_categories", categoryId),
+                isGlobal: false,
+                userId: `/users/${user.uid}`,
+                status: asDraft ? "Draft" : "In progress",
+                updatedAt: serverTimestamp(),
+                rejectionReason: { en: "", kz: "", ru: "" },
+            };
+
+            if (isEditing) {
+                const surveyRef = doc(firestore, "surveys", params.surveyId);
+                await updateDoc(surveyRef, surveyData);
+            } else {
+                surveyData.createdAt = serverTimestamp();
+                surveyData.totalVotes = 0;
+                await addDoc(collection(firestore, "surveys"), surveyData);
+            }
+
+            Toast.show({
+                type: "success",
+                text1: t("add_survey.toast.success.title"),
+                text2: asDraft
+                    ? t("add_survey.toast.success.saved_as_draft")
+                    : t("add_survey.toast.success.submitted"),
+            });
+
+            fetchUserSurveys();
+            router.back();
+        } catch (error) {
+            console.error("Error saving survey:", error);
+            Toast.show({
+                type: "error",
+                text1: t("add_survey.toast.error.title"),
+                text2: `Failed to save survey: ${error.message}`,
+            });
+        } finally {
+            if (asDraft) {
+                setIsSavingDraft(false);
+            } else {
+                setIsSubmitting(false);
+            }
+        }
     };
+
+    if (isLoadingSurvey || isLoadingUser) {
+        return (
+            <View className="flex-1 justify-center items-center">
+                <ActivityIndicator size="large" color="#006FFD" />
+            </View>
+        );
+    }
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -230,6 +475,7 @@ const AddSurveyPage = () => {
                 <View className="mb-4 mt-4">
                     <Text className="font-msemibold text-black mb-2">
                         {t("add_survey.fields.title.label")}
+                        <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
@@ -243,6 +489,7 @@ const AddSurveyPage = () => {
                 <View className="mb-4">
                     <Text className="font-msemibold text-black mb-2">
                         {t("add_survey.fields.description.label")}
+                        <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
                         className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
@@ -254,6 +501,22 @@ const AddSurveyPage = () => {
                         multiline
                         numberOfLines={4}
                         textAlignVertical="top"
+                    />
+                </View>
+
+                {/* Survey Category */}
+                <View className="mb-4">
+                    <Text className="font-msemibold text-black mb-2">
+                        {t("add_survey.fields.category")}
+                        <Text className="text-red-500"> *</Text>
+                    </Text>
+                    <DropdownField
+                        title={t("add_survey.fields.category")}
+                        placeholder={t("add_survey.fields.select_category")}
+                        value={category}
+                        options={categoryOptions}
+                        onSelect={setCategory}
+                        containerStyle="bg-ghostwhite"
                     />
                 </View>
 
@@ -442,22 +705,20 @@ const AddSurveyPage = () => {
 
                 {/* Action Buttons */}
                 <View className="flex-row justify-between mb-8">
-                    <TouchableOpacity
-                        className="flex-1 mr-2 bg-gray-200 py-3 rounded-lg items-center justify-center"
-                        onPress={() => saveSurvey(true)}
-                    >
-                        <Text className="font-mmedium text-gray-700 text-center">
-                            {t("add_survey.buttons.save_draft")}
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        className="flex-1 ml-2 bg-primary py-3 rounded-lg items-center justify-center"
-                        onPress={() => saveSurvey(false)}
-                    >
-                        <Text className="font-mmedium text-white text-center">
-                            {t("add_survey.buttons.submit")}
-                        </Text>
-                    </TouchableOpacity>
+                    <CustomButton
+                        title={t("add_survey.buttons.save_draft")}
+                        handlePress={() => saveSurvey(true)}
+                        containerStyles="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg"
+                        textStyles="text-gray-700 font-mmedium"
+                        isLoading={isSavingDraft}
+                    />
+                    <CustomButton
+                        title={t("add_survey.buttons.submit")}
+                        handlePress={() => saveSurvey(false)}
+                        containerStyles="flex-1 ml-2 bg-primary py-3 px-2 rounded-lg"
+                        textStyles="text-white font-mmedium"
+                        isLoading={isSubmitting}
+                    />
                 </View>
             </ScrollView>
         </SafeAreaView>
