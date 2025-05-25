@@ -96,6 +96,8 @@ const PetitionCard = ({ item, onPress, i18n }) => {
     const { t } = useTranslation();
     const hasSigned = item.hasSigned;
     const isCompleted = item.status === "Completed";
+    const isPublished = item.status === "Published";
+
     return (
         <TouchableOpacity
             className={`rounded-lg mb-4 shadow-md bg-ghostwhite overflow-hidden border border-gray-200`}
@@ -107,7 +109,7 @@ const PetitionCard = ({ item, onPress, i18n }) => {
                     <Text className="font-msemibold text-lg text-gray-900 flex-1 mr-2">
                         {item.title[i18n.language] || item.title.en}
                     </Text>
-                    {isCompleted && (
+                    {isCompleted ? (
                         <View
                             className={`px-2 py-1 rounded-full flex-row items-center bg-green-100`}
                         >
@@ -122,7 +124,23 @@ const PetitionCard = ({ item, onPress, i18n }) => {
                                 {t(`completed`)}
                             </Text>
                         </View>
-                    )}
+                    ) : isPublished ? (
+                        <View
+                            className={`px-2 py-1 rounded-full flex-row items-center bg-blue-100`}
+                        >
+                            <MaterialIcons
+                                name={"public"}
+                                size={16}
+                                color={"#006FFD"}
+                            />
+
+                            <Text
+                                className={`ml-1 text-xs font-mmedium text-blue-700`}
+                            >
+                                {t(`active`)}
+                            </Text>
+                        </View>
+                    ) : null}
                 </View>
 
                 <View className="flex-row items-center my-2">

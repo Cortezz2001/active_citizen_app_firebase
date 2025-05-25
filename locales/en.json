@@ -234,10 +234,8 @@
         "search_placeholder": "Search petitions",
         "create_button": "Create Petition",
         "statuses": {
-            "all": "All",
             "draft": "Draft",
-            "under_moderation": "Under Moderation",
-            "approved": "Approved",
+            "in progress": "In progress",
             "rejected": "Rejected",
             "published": "Published",
             "completed": "Completed"

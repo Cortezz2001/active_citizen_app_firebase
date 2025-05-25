@@ -233,13 +233,11 @@
       "search_placeholder": "Поиск петиций",
       "create_button": "Создать петицию",
       "statuses": {
-          "all": "Все",
-          "draft": "Черновик",
-          "under_moderation": "На модерации",
-          "approved": "Одобрено",
-          "rejected": "Отклонено",
-          "published": "Опубликовано",
-          "completed": "Завершено"
+"draft": "Черновик",
+"in progress": "В процессе",
+"rejected": "Отклонено",
+"published": "Опубликовано",
+"completed": "Завершено"
       },
       "created_label": "Создано",
       "supporters_label": "поддерживающих",

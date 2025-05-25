@@ -17,6 +17,40 @@ import { useFirestore } from "@/hooks/useFirestore";
 import { serverTimestamp } from "firebase/firestore";
 import { useData } from "../../../lib/datacontext";
 
+// Цвета для статусов
+const statusColors = {
+    Draft: {
+        bg: "bg-gray-200",
+        text: "text-gray-700",
+        icon: "edit",
+        iconColor: "#374151",
+    },
+    "In progress": {
+        bg: "bg-yellow-100",
+        text: "text-yellow-700",
+        icon: "pending",
+        iconColor: "#B45309",
+    },
+    Rejected: {
+        bg: "bg-red-100",
+        text: "text-red-700",
+        icon: "cancel",
+        iconColor: "#B91C1C",
+    },
+    Completed: {
+        bg: "bg-green-100",
+        text: "text-green-700",
+        icon: "check-circle",
+        iconColor: "#047857",
+    },
+    Published: {
+        bg: "bg-blue-100",
+        text: "text-blue-700",
+        icon: "public",
+        iconColor: "#1D4ED8",
+    },
+};
+
 const PetitionDetailsPage = () => {
     const { t, i18n } = useTranslation();
     const router = useRouter();
@@ -24,7 +58,7 @@ const PetitionDetailsPage = () => {
     const { user } = useAuth();
     const { getDocument, addDocument, getCollection, updateDocument } =
         useFirestore();
-    const { fetchPetitions } = useData();
+    const { fetchUserPetitions } = useData();
 
     const [loading, setLoading] = useState(true);
     const [petition, setPetition] = useState(null);
@@ -38,11 +72,11 @@ const PetitionDetailsPage = () => {
             const petitionData = await getDocument("petitions", id);
 
             if (!petitionData) {
-                setError(t("petition.errors.not_found"));
+                setError(t("my_petitions.errors.not_found"));
                 return;
             }
 
-            // Load category information
+            // Получение информации о категории
             let categoryName = {
                 en: "Unknown",
                 ru: "Неизвестно",
@@ -51,11 +85,11 @@ const PetitionDetailsPage = () => {
             if (petitionData.categoryId) {
                 let categoryId;
                 if (typeof petitionData.categoryId === "string") {
-                    // Handle string reference format: "petitions_categories/ID"
+                    // Обработка строкового формата: "petitions_categories/ID"
                     categoryId = petitionData.categoryId.split("/").pop();
-                } else if (petitionData.categoryId?.id) {
-                    // Handle object reference format: { id: "ID" }
-                    categoryId = petitionData.categoryId.id;
+                } else if (petitionData.categoryId) {
+                    // Обработка объектного формата: { id: "ID" }
+                    categoryId = petitionData.categoryId?.id;
                 }
 
                 if (categoryId) {
@@ -73,7 +107,7 @@ const PetitionDetailsPage = () => {
                 }
             }
 
-            // Check if user has already signed
+            // Проверка, подписал ли пользователь
             const userSignatures = await getCollection("petitions_signatures", [
                 {
                     type: "where",
@@ -92,11 +126,11 @@ const PetitionDetailsPage = () => {
             setHasSigned(userSignatures.length > 0);
             setPetition({
                 ...petitionData,
-                categoryName, // Add category name to petition data
+                categoryName, // Добавление имени категории в данные петиции
             });
         } catch (err) {
             console.error("Error fetching petition:", err);
-            setError(t("petition.errors.loading_failed"));
+            setError(t("my_petitions.errors.loading_failed"));
         } finally {
             setLoading(false);
         }
@@ -108,13 +142,13 @@ const PetitionDetailsPage = () => {
         }
     }, [id, user, t, i18n.language]);
 
-    // Handle signing the petition
+    // Обработка подписания петиции
     const handleSignPetition = async () => {
         if (!user) {
             Toast.show({
                 type: "error",
-                text1: t("petition.toast.error.title"),
-                text2: t("petition.toast.error.not_authenticated"),
+                text1: t("my_petitions.toast.error.title"),
+                text2: t("my_petitions.toast.error.not_authenticated"),
             });
             return;
         }
@@ -122,51 +156,51 @@ const PetitionDetailsPage = () => {
         try {
             setSubmitting(true);
 
-            // Calculate new signature count
+            // Расчет нового количества подписей
             const newSignatureCount = (petition.totalSignatures || 0) + 1;
 
-            // Check if petition should be marked as completed
+            // Проверка, нужно ли пометить петицию как завершенную
             const newStatus =
                 newSignatureCount >= petition.targetSignatures
                     ? "Completed"
                     : petition.status;
 
-            // Update petition signature count and status if needed
+            // Обновление количества подписей и статуса петиции
             await updateDocument("petitions", id, {
                 totalSignatures: newSignatureCount,
                 status: newStatus,
                 updatedAt: serverTimestamp(),
             });
 
-            // Add signature
+            // Добавление подписи
             await addDocument("petitions_signatures", {
                 petitionId: `/petitions/${id}`,
                 userId: `/users/${user.uid}`,
                 createdAt: serverTimestamp(),
             });
 
-            // Update local petition state to reflect changes immediately
+            // Обновление локального состояния петиции
             setPetition({
                 ...petition,
                 totalSignatures: newSignatureCount,
                 status: newStatus,
             });
 
-            // Refresh data in the background
-            fetchPetitions();
+            // Обновление данных в фоновом режиме
+            fetchUserPetitions();
             setHasSigned(true);
 
             Toast.show({
                 type: "success",
-                text1: t("petition.toast.success.title"),
-                text2: t("petition.toast.success.signed"),
+                text1: t("my_petitions.toast.success.title"),
+                text2: t("my_petitions.toast.success.signed"),
             });
         } catch (err) {
             console.error("Error signing petition:", err);
             Toast.show({
                 type: "error",
-                text1: t("petition.toast.error.title"),
-                text2: t("petition.toast.error.signing_failed"),
+                text1: t("my_petitions.toast.error.title"),
+                text2: t("my_petitions.toast.error.signing_failed"),
             });
         } finally {
             setSubmitting(false);
@@ -186,23 +220,30 @@ const PetitionDetailsPage = () => {
             <SafeAreaView className="flex-1 justify-center items-center bg-white p-4">
                 <MaterialIcons name="error-outline" size={64} color="#EF4444" />
                 <Text className="text-center font-mmedium text-lg mt-4 text-gray-800">
-                    {error || t("petition.errors.loading_failed")}
+                    {error || t("my_petitions.errors.loading_failed")}
                 </Text>
                 <TouchableOpacity
                     className="mt-6 px-6 py-3 bg-primary rounded-full"
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
-                        {t("petition.buttons.go_back")}
+                        {t("my_petitions.buttons.go_back")}
                     </Text>
                 </TouchableOpacity>
             </SafeAreaView>
         );
     }
 
+    const statusColor = statusColors[petition.status] || {
+        bg: "bg-gray-200",
+        text: "text-gray-700",
+        icon: "help",
+        iconColor: "#374151",
+    };
+
     const progressPercentage = Math.min(
         100,
-        (petition.totalSignatures / petition.targetSignatures) * 100
+        ((petition.totalSignatures || 0) / petition.targetSignatures) * 100
     );
 
     return (
@@ -212,7 +253,7 @@ const PetitionDetailsPage = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
-                    accessibilityLabel={t("petition.back_button")}
+                    accessibilityLabel={t("my_petitions.back_button")}
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
@@ -223,55 +264,115 @@ const PetitionDetailsPage = () => {
                 showsVerticalScrollIndicator={false}
             >
                 <View className="mb-4 mt-6">
-                    <Text className="font-mbold text-2xl text-black">
-                        {petition.title[i18n.language] || petition.title.en}
-                    </Text>
+                    <View className="flex-row items-center">
+                        <Text className="font-mbold text-2xl text-black mr-2">
+                            {petition.title[i18n.language] || petition.title.en}
+                        </Text>
+                        <View
+                            className={`px-1 py-1 rounded-full ${statusColor.bg}`}
+                        >
+                            <MaterialIcons
+                                name={statusColor.icon}
+                                size={16}
+                                color={statusColor.iconColor}
+                            />
+                        </View>
+                    </View>
                 </View>
+                {/* Причина отклонения */}
+                {petition.status === "Rejected" && petition.rejectionReason && (
+                    <View className="bg-red-100 rounded-lg p-4 mb-4 shadow-sm border border-red-200">
+                        <View className="flex-row items-center mb-2">
+                            <MaterialIcons
+                                name="info"
+                                size={20}
+                                color="#B91C1C"
+                            />
+                            <Text className="font-mbold text-lg text-gray-800 ml-2">
+                                {t("my_petitions.rejection_reason")}
+                            </Text>
+                        </View>
+                        <Text className="text-gray-700 font-mregular">
+                            {petition.rejectionReason?.[i18n.language] ||
+                                petition.rejectionReason?.en ||
+                                t("my_petitions.no_reason_provided")}
+                        </Text>
+                    </View>
+                )}
 
-                {/* Category */}
+                {/* Категория */}
                 <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
-                    <Text className="font-mbold text-lg text-gray-800 mb-2">
-                        {t("petition.category")}
-                    </Text>
+                    <View className="flex-row items-center mb-2">
+                        <MaterialIcons
+                            name="category"
+                            size={20}
+                            color="#212938"
+                        />
+                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            {t("my_petitions.category")}
+                        </Text>
+                    </View>
                     <Text className="text-gray-700 font-mregular">
                         {petition.categoryName?.[i18n.language] ||
                             petition.categoryName?.en ||
-                            t("petition.unknown_category")}
+                            t("my_petitions.unknown_category")}
                     </Text>
                 </View>
-                {/* Description */}
+
+                {/* Описание */}
                 <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
-                    <Text className="font-mbold text-lg text-gray-800 mb-2">
-                        {t("petition.description")}
-                    </Text>
-                    <Text className="font-mregular text-gray-700 ">
+                    <View className="flex-row items-center mb-2">
+                        <MaterialIcons
+                            name="description"
+                            size={20}
+                            color="#212938"
+                        />
+                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            {t("my_petitions.description")}
+                        </Text>
+                    </View>
+                    <Text className="font-mregular text-gray-700">
                         {petition.description[i18n.language] ||
                             petition.description.en}
                     </Text>
                 </View>
 
-                {/* Problem */}
+                {/* Проблема */}
                 <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
-                    <Text className="font-mbold text-lg text-gray-800 mb-2">
-                        {t("petition.problem")}
-                    </Text>
+                    <View className="flex-row items-center mb-2">
+                        <MaterialIcons
+                            name="warning"
+                            size={20}
+                            color="#212938"
+                        />
+                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            {t("my_petitions.problem")}
+                        </Text>
+                    </View>
                     <Text className="font-mregular text-gray-700">
                         {petition.problem[i18n.language] || petition.problem.en}
                     </Text>
                 </View>
 
-                {/* Solution */}
+                {/* Решение */}
                 <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
-                    <Text className="font-mbold text-lg text-gray-800 mb-2">
-                        {t("petition.solution")}
-                    </Text>
+                    <View className="flex-row items-center mb-2">
+                        <MaterialIcons
+                            name="lightbulb"
+                            size={20}
+                            color="#212938"
+                        />
+                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            {t("my_petitions.solution")}
+                        </Text>
+                    </View>
                     <Text className="font-mregular text-gray-700">
                         {petition.solution[i18n.language] ||
                             petition.solution.en}
                     </Text>
                 </View>
 
-                {/* Progress Bar */}
+                {/* Прогресс-бар */}
                 <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
                     <View className="flex-row items-center justify-between mb-1">
                         <View className="flex-row items-center">
@@ -281,12 +382,13 @@ const PetitionDetailsPage = () => {
                                 color="#006FFD"
                             />
                             <Text className="ml-1 text-primary font-mmedium">
-                                {petition.totalSignatures}{" "}
-                                {t("petition.supporters")}
+                                {petition.totalSignatures || 0}{" "}
+                                {t("my_petitions.supporters")}
                             </Text>
                         </View>
                         <Text className="text-gray-500 font-mregular">
-                            {t("petition.target")}: {petition.targetSignatures}
+                            {t("my_petitions.target")}:{" "}
+                            {petition.targetSignatures}
                         </Text>
                     </View>
                     <View className="h-2 bg-gray-200 rounded-full w-full mt-1">
@@ -297,13 +399,13 @@ const PetitionDetailsPage = () => {
                     </View>
                 </View>
 
-                {/* Sign Button */}
-                {petition.status !== "Completed" && (
+                {/* Кнопка подписать (для Published) */}
+                {petition.status === "Published" && (
                     <TouchableOpacity
                         className={`mt-2 mb-6 py-4 rounded-lg items-center justify-center ${
-                            !hasSigned && !submitting
-                                ? "bg-primary"
-                                : "bg-gray-300"
+                            hasSigned || submitting
+                                ? "bg-gray-300"
+                                : "bg-primary"
                         }`}
                         onPress={handleSignPetition}
                         disabled={hasSigned || submitting}
@@ -313,27 +415,11 @@ const PetitionDetailsPage = () => {
                         ) : (
                             <Text className="font-mbold text-white text-center">
                                 {hasSigned
-                                    ? t("petition.buttons.already_signed")
-                                    : t("petition.buttons.sign")}
+                                    ? t("my_petitions.buttons.already_signed")
+                                    : t("my_petitions.buttons.sign")}
                             </Text>
                         )}
                     </TouchableOpacity>
-                )}
-
-                {/* Petition Status */}
-                {petition.status === "Completed" && (
-                    <View className="mt-2 mb-6 flex-row items-center justify-center ">
-                        <View className="px-6 py-2 rounded-full bg-green-100 flex-row items-center">
-                            <MaterialIcons
-                                name="check-circle"
-                                size={16}
-                                color="#047857"
-                            />
-                            <Text className="ml-1 text-sm font-mmedium text-green-700">
-                                {t("petition.status.completed")}
-                            </Text>
-                        </View>
-                    </View>
                 )}
             </ScrollView>
         </SafeAreaView>

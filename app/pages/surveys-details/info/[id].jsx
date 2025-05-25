@@ -155,13 +155,6 @@ const SurveyDetailPage = () => {
                 >
                     <MaterialIcons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text
-                    className="text-2xl font-mbold text-black"
-                    numberOfLines={2}
-                    adjustsFontSizeToFit
-                >
-                    {t("survey.details_title")}
-                </Text>
             </View>
 
             <ScrollView
@@ -169,24 +162,19 @@ const SurveyDetailPage = () => {
                 showsVerticalScrollIndicator={false}
             >
                 <View className="mb-4 mt-6">
-                    <Text className="font-mbold text-2xl text-black mb-1">
-                        {survey.title?.[i18n.language] ||
-                            survey.title?.en ||
-                            ""}
-                    </Text>
-                    <View
-                        className={`mt-2 px-2 py-1 rounded-full flex-row items-center ${statusColor.bg}`}
-                    >
-                        <MaterialIcons
-                            name={statusColor.icon}
-                            size={16}
-                            color={statusColor.iconColor}
-                        />
-                        <Text
-                            className={`ml-1 text-sm font-mmedium ${statusColor.text}`}
-                        >
-                            {t`\survey.status.${survey.status.toLowerCase()}`}
+                    <View className="flex-row items-center">
+                        <Text className="font-mbold text-2xl text-black mr-2">
+                            {survey.title[i18n.language] || survey.title.en}
                         </Text>
+                        <View
+                            className={`px-1 py-1 rounded-full ${statusColor.bg}`}
+                        >
+                            <MaterialIcons
+                                name={statusColor.icon}
+                                size={16}
+                                color={statusColor.iconColor}
+                            />
+                        </View>
                     </View>
                 </View>
 

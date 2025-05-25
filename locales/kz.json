@@ -233,10 +233,8 @@
   "search_placeholder": "Петициялардан іздеу",
   "create_button": "Петиция жасау",
   "statuses": {
-    "all": "Барлығы",
     "draft": "Жоба",
-    "under_moderation": "Модерацияда",
-    "approved": "Бекітілген",
+    "in progress": "Орындалуда",
     "rejected": "Қабылданбаған",
     "published": "Жарияланған",
     "completed": "Аяқталған"
