@@ -24,17 +24,17 @@ const VoteSurveyPage = () => {
     const { user } = useAuth();
     const { getDocument, addDocument, updateDocument, getCollection } =
         useFirestore();
-    const { fetchSurveys } = useData();
+    const { fetchSurveys, fetchUserSurveys } = useData();
 
     const [loading, setLoading] = useState(true);
     const [survey, setSurvey] = useState(null);
     const [error, setError] = useState(null);
     const [answers, setAnswers] = useState({});
     const [submitting, setSubmitting] = useState(false);
-
+    const [hasVoted, setHasVoted] = useState(false);
     // Fetch the survey data
     useEffect(() => {
-        const fetchSurvey = async () => {
+        const fetchSurveyAndUserVote = async () => {
             try {
                 setLoading(true);
                 const surveyData = await getDocument("surveys", id);
@@ -43,6 +43,8 @@ const VoteSurveyPage = () => {
                     setError(t("vote.errors.survey_not_found"));
                     return;
                 }
+
+                setSurvey(surveyData);
 
                 // Check if user has already voted
                 const userVotes = await getCollection("surveys_results", [
@@ -61,24 +63,51 @@ const VoteSurveyPage = () => {
                 ]);
 
                 if (userVotes.length > 0) {
-                    router.back();
-                    return;
+                    // User has voted, fetch their answers
+                    const userVote = userVotes[0];
+                    const previousAnswers = {};
+                    userVote.results.forEach((result) => {
+                        const questionIndex = result.questionIndex;
+                        if (
+                            surveyData.questions[questionIndex].type ===
+                            "single_choice"
+                        ) {
+                            const selectedOption = Object.keys(
+                                result.responses
+                            )[0];
+                            previousAnswers[questionIndex] =
+                                parseInt(selectedOption);
+                        } else if (
+                            surveyData.questions[questionIndex].type ===
+                            "multiple_choice"
+                        ) {
+                            previousAnswers[questionIndex] = {};
+                            Object.keys(result.responses).forEach(
+                                (optionIndex) => {
+                                    previousAnswers[questionIndex][
+                                        parseInt(optionIndex)
+                                    ] = true;
+                                }
+                            );
+                        }
+                    });
+                    setAnswers(previousAnswers);
+                    setHasVoted(true);
+                } else {
+                    // Initialize answers structure
+                    const initialAnswers = {};
+                    surveyData.questions.forEach((question, index) => {
+                        if (question.type === "multiple_choice") {
+                            initialAnswers[index] = {};
+                        } else {
+                            initialAnswers[index] = null;
+                        }
+                    });
+                    setAnswers(initialAnswers);
+                    setHasVoted(false);
                 }
-
-                setSurvey(surveyData);
-
-                // Initialize answers structure
-                const initialAnswers = {};
-                surveyData.questions.forEach((question, index) => {
-                    if (question.type === "multiple_choice") {
-                        initialAnswers[index] = {};
-                    } else {
-                        initialAnswers[index] = null;
-                    }
-                });
-                setAnswers(initialAnswers);
             } catch (err) {
-                console.error("Error fetching survey:", err);
+                console.error("Error fetching survey or user vote:", err);
                 setError(t("vote.errors.loading_failed"));
             } finally {
                 setLoading(false);
@@ -86,10 +115,9 @@ const VoteSurveyPage = () => {
         };
 
         if (id && user) {
-            fetchSurvey();
+            fetchSurveyAndUserVote();
         }
     }, [id, user, t, i18n.language]);
-
     // Handle selection for single choice questions
     const handleSingleChoice = (questionIndex, optionIndex) => {
         setAnswers((prev) => ({
@@ -196,7 +224,7 @@ const VoteSurveyPage = () => {
             });
 
             // Navigate to results page
-            await fetchSurveys();
+            await Promise.all([fetchSurveys(), fetchUserSurveys()]);
             Toast.show({
                 type: "success",
                 text1: t("vote.toast.success.title"),
@@ -312,7 +340,8 @@ const VoteSurveyPage = () => {
                                         : "border-gray-200 bg-ghostwhite"
                                 }`}
                                 onPress={() =>
-                                    question.type === "single_choice"
+                                    !hasVoted &&
+                                    (question.type === "single_choice"
                                         ? handleSingleChoice(
                                               questionIndex,
                                               optionIndex
@@ -320,8 +349,9 @@ const VoteSurveyPage = () => {
                                         : handleMultipleChoice(
                                               questionIndex,
                                               optionIndex
-                                          )
+                                          ))
                                 }
+                                disabled={hasVoted}
                             >
                                 <MaterialIcons
                                     name={
@@ -361,14 +391,20 @@ const VoteSurveyPage = () => {
                 {/* Submit Button */}
                 <TouchableOpacity
                     className={`mb-8 py-4 rounded-lg items-center justify-center ${
-                        isFormValid() && !submitting
+                        hasVoted
+                            ? "bg-gray-300"
+                            : isFormValid() && !submitting
                             ? "bg-primary"
                             : "bg-gray-300"
                     }`}
-                    onPress={submitVote}
-                    disabled={!isFormValid() || submitting}
+                    onPress={!hasVoted ? submitVote : null}
+                    disabled={hasVoted || submitting}
                 >
-                    {submitting ? (
+                    {hasVoted ? (
+                        <Text className="font-mbold text-white text-center">
+                            {t("vote.buttons.already_voted")}
+                        </Text>
+                    ) : submitting ? (
                         <ActivityIndicator size="small" color="white" />
                     ) : (
                         <Text className="font-mbold text-white text-center">

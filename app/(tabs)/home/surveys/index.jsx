@@ -38,34 +38,46 @@ const SurveyCard = ({ item, onPress, i18n }) => {
 
     const isCompleted = item.status === "Completed";
     const hasVoted = item.hasVoted;
+    const isPublished = item.status === "Published";
 
-    const statusColor = isCompleted ? "bg-red-400" : "bg-green-400";
-    const statusText = isCompleted ? t("completed") : t("active");
-
-    const cardBorderClass = isCompleted
-        ? "border-l-4 border-l-red-400 border-t border-t-gray-200 border-r border-r-gray-200 border-b border-b-gray-200"
-        : "border-l-4 border-l-green-400 border-t border-t-gray-200 border-r border-r-gray-200 border-b border-b-gray-200";
     return (
         <TouchableOpacity
-            className={`rounded-lg mb-4 shadow-md bg-ghostwhite ${cardBorderClass} overflow-hidden`}
+            className="rounded-lg mb-4 shadow-md bg-ghostwhite overflow-hidden border border-gray-200"
             onPress={onPress}
             activeOpacity={0.7}
         >
             <View className="p-4">
-                <View className="flex-row items-center mb-2">
-                    <View
-                        className={`h-2 w-2 rounded-full ${statusColor} mr-2`}
-                    />
-                    <Text className="text-sm font-mmedium text-gray-600">
-                        {statusText}
+                <View className="flex-row justify-between items-start mb-2">
+                    <Text
+                        className="font-msemibold text-lg text-gray-800 flex-1 mr-2"
+                        numberOfLines={2}
+                    >
+                        {item.title[i18n.language] || item.title.en}
                     </Text>
+                    {isCompleted ? (
+                        <View className="px-2 py-1 rounded-full flex-row items-center bg-green-100">
+                            <MaterialIcons
+                                name="check-circle"
+                                size={16}
+                                color="#047857"
+                            />
+                            <Text className="ml-1 text-xs font-mmedium text-green-700">
+                                {t("completed")}
+                            </Text>
+                        </View>
+                    ) : isPublished ? (
+                        <View className="px-2 py-1 rounded-full flex-row items-center bg-blue-100">
+                            <MaterialIcons
+                                name="public"
+                                size={16}
+                                color="#006FFD"
+                            />
+                            <Text className="ml-1 text-xs font-mmedium text-blue-700">
+                                {t("active")}
+                            </Text>
+                        </View>
+                    ) : null}
                 </View>
-                <Text
-                    className="font-msemibold text-lg text-gray-800"
-                    numberOfLines={2}
-                >
-                    {item.title[i18n.language] || item.title.en}
-                </Text>
                 <View className="flex-row items-center mt-2">
                     <MaterialIcons name="category" size={16} color="#6B7280" />
                     <Text className="text-gray-500 ml-1 text-sm font-mmedium">
@@ -78,9 +90,9 @@ const SurveyCard = ({ item, onPress, i18n }) => {
                         <MaterialIcons
                             name="how-to-vote"
                             size={16}
-                            color="#6B7280"
+                            color="#006FFD"
                         />
-                        <Text className="text-gray-500 ml-1 text-sm font-mmedium">
+                        <Text className="text-primary ml-1 text-sm font-mmedium">
                             {item.totalVotes || 0} {t("votes")}
                         </Text>
                     </View>
@@ -338,14 +350,8 @@ const SurveysTab = () => {
     const handleSurveyPress = (item) => {
         if (item.status === "Completed") {
             router.push(`/pages/surveys-details/results/${item.id}`);
-        } else if (!item.hasVoted) {
-            router.push(`/pages/surveys-details/vote/${item.id}`);
         } else {
-            Toast.show({
-                type: "info",
-                text1: t("surveys.already_completed"),
-                text2: t("surveys.already_voted_in_this_survey"),
-            });
+            router.push(`/pages/surveys-details/vote/${item.id}`);
         }
     };
 

@@ -31,7 +31,7 @@ export const useAuth = () => {
                     setHasProfile(!!userDoc); // true, если профиль существует, false, если нет
                 } catch (error) {
                     console.error("Error checking user profile:", error);
-                    setHasProfile(false); // В случае ошибки считаем, что профиля нет
+                    
                 }
             } else {
                 setHasProfile(null); // Если нет пользователя, сбрасываем состояние
