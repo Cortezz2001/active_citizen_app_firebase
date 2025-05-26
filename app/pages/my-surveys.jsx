@@ -217,27 +217,12 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                                 <TouchableOpacity
                                     className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
                                     onPress={() => {
-                                        if (
-                                            item.status === "Published" &&
-                                            item.hasVoted
-                                        ) {
-                                            Toast.show({
-                                                type: "info",
-                                                text1: t(
-                                                    "surveys.already_completed"
-                                                ),
-                                                text2: t(
-                                                    "surveys.already_voted_in_this_survey"
-                                                ),
-                                            });
-                                        } else {
-                                            router.push(
-                                                getDetailsRoute(
-                                                    item.status,
-                                                    item.id
-                                                )
-                                            );
-                                        }
+                                        router.push(
+                                            getDetailsRoute(
+                                                item.status,
+                                                item.id
+                                            )
+                                        );
                                     }}
                                 >
                                     <Text className="text-gray-700 font-mmedium">
