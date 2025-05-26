@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { View, Button, Platform, Alert } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
+import Constants from "expo-constants";
 
 // Настройка обработчика уведомлений
 Notifications.setNotificationHandler({
@@ -26,9 +27,15 @@ async function registerForPushNotificationsAsync() {
             Alert.alert("Ошибка", "Разрешение на уведомления не получено!");
             return;
         }
+        const projectId =
+            Constants?.expoConfig?.extra?.eas?.projectId ??
+            Constants?.easConfig?.projectId;
+        if (!projectId) {
+            throw new Error("Project ID not found");
+        }
         token = (
             await Notifications.getExpoPushTokenAsync({
-                projectId: "active_citizen_app",
+                projectId: projectId,
             })
         ).data;
         console.log("Push token:", token);
@@ -99,3 +106,5 @@ export default function NotificationButton() {
         </View>
     );
 }
+
+// ExponentPushToken[KwUr9cNmjI9IofHAZWlWml]
