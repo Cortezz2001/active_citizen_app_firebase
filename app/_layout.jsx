@@ -9,6 +9,12 @@ import { View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { KeyboardProvider } from "@/hooks/useKeyboard";
 import { DataProvider } from "../lib/datacontext";
+import {
+    registerForPushNotificationsAsync,
+    setupNotificationListeners,
+    checkAndUpdateToken,
+} from "../lib/notifications";
+import { useNavigationContainerRef } from "expo-router";
 
 const toastConfig = {
     success: ({ text1, text2 }) => (
@@ -127,11 +133,26 @@ export default function RootLayout() {
         "Montserrat-Thin": require("../assets/fonts/Montserrat-Thin.ttf"),
         "Montserrat-Italic": require("../assets/fonts/Montserrat-Italic.ttf"),
     });
+    const navigationRef = useNavigationContainerRef();
 
     useEffect(() => {
         if (error) throw error;
         if (fontsLoaded) {
             SplashScreen.hideAsync();
+
+            // Инициализация push-уведомлений
+            registerForPushNotificationsAsync().then((token) => {
+                if (token) {
+                    console.log("Push token registered:", token);
+                }
+            });
+
+            // Проверка и обновление токена
+            checkAndUpdateToken();
+
+            // Настройка слушателей уведомлений
+            const unsubscribe = setupNotificationListeners(navigationRef);
+            return () => unsubscribe(); // Очистка слушателей при размонтировании
         }
     }, [fontsLoaded, error]);
 
