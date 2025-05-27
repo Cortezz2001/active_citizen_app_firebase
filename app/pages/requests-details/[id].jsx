@@ -181,24 +181,19 @@ const RequestDetailPage = () => {
                 showsVerticalScrollIndicator={false}
             >
                 <View className="mb-4 mt-6">
-                    <Text className="font-mbold text-2xl text-black mb-1">
-                        {request.title?.[i18n.language] ||
-                            request.title?.en ||
-                            ""}
-                    </Text>
-                    <View
-                        className={`mt-2 px-2 py-1 rounded-full flex-row items-center ${statusColor.bg}`}
-                    >
-                        <MaterialIcons
-                            name={statusColor.icon}
-                            size={16}
-                            color={statusColor.iconColor}
-                        />
-                        <Text
-                            className={`ml-1 text-sm font-mmedium ${statusColor.text}`}
-                        >
-                            {t(`request.status.${request.status}`)}
+                    <View className="flex-row items-center">
+                        <Text className="font-mbold text-2xl text-black mr-2">
+                            {request.title[i18n.language] || request.title.en}
                         </Text>
+                        <View
+                            className={`px-1 py-1 rounded-full ${statusColor.bg}`}
+                        >
+                            <MaterialIcons
+                                name={statusColor.icon}
+                                size={16}
+                                color={statusColor.iconColor}
+                            />
+                        </View>
                     </View>
                 </View>
 
