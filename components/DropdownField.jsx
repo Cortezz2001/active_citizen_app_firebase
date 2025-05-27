@@ -17,6 +17,7 @@ const DropdownField = ({
     options = [],
     onSelect,
     containerStyle,
+    disabled = false, // Add disabled prop with default false
 }) => {
     const { t } = useTranslation();
     const [modalVisible, setModalVisible] = useState(false);
@@ -31,8 +32,11 @@ const DropdownField = ({
     return (
         <View className={`mb-4 ${containerStyle}`}>
             <TouchableOpacity
-                className="border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center h-12"
-                onPress={() => setModalVisible(true)}
+                className={`border border-gray-300 rounded-lg px-4 py-3 flex-row justify-between items-center h-12 ${
+                    disabled ? "bg-gray-100 opacity-50" : ""
+                }`} // Visual feedback for disabled state
+                onPress={() => !disabled && setModalVisible(true)} // Prevent modal from opening when disabled
+                disabled={disabled} // Disable TouchableOpacity interaction
             >
                 <Text
                     className={`font-mregular ${
@@ -41,7 +45,11 @@ const DropdownField = ({
                 >
                     {value || placeholder}
                 </Text>
-                <MaterialIcons name="arrow-drop-down" size={24} color="gray" />
+                <MaterialIcons
+                    name="arrow-drop-down"
+                    size={24}
+                    color={disabled ? "gray" : "black"} // Adjust icon color when disabled
+                />
             </TouchableOpacity>
 
             <Modal

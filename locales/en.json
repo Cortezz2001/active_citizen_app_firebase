@@ -291,7 +291,8 @@
             "city": {
                 "label": "City",
                 "placeholder": "Select your city",
-                "required": "City is required"
+                "required": "City is required",
+                "cooldown_message": "City change available after {{date}}"
             },
             "gender": {
                 "label": "Gender",
@@ -311,7 +312,8 @@
                 "title": "Error",
                 "all_fields_required": "All fields are required",
                 "load_error": "Could not load profile data",
-                "update_error": "Could not update profile"
+                "update_error": "Could not update profile",
+                "city_cooldown": "You can only change your city every 3 months. Available after {{date}}."
             },
             "success": {
                 "title": "Success",

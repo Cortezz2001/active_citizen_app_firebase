@@ -1,4 +1,3 @@
-// Modified parts of edit-profile.jsx
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import { useFirestore } from "../../hooks/useFirestore";
 import auth from "@react-native-firebase/auth";
-import { serverTimestamp } from "firebase/firestore";
+import { serverTimestamp, Timestamp } from "firebase/firestore";
 import CustomButton from "@/components/CustomButton";
 import Toast from "react-native-toast-message";
 import { useAuthContext } from "../../lib/context";
@@ -33,18 +32,20 @@ const EditProfile = () => {
     const [form, setForm] = useState({
         fname: "",
         lname: "",
-        cityKey: "", // Store the city key, not the display name
-        genderKey: "", // Now storing genderKey instead of gender string
+        cityKey: "",
+        genderKey: "",
+        lastCityChange: null,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isCityChangeRestricted, setIsCityChangeRestricted] = useState(false);
+    const [cityChangeAvailableDate, setCityChangeAvailableDate] =
+        useState(null);
 
-    // Get cities in the current language for the dropdown
     const cityOptions = getCityDropdownData(currentLanguage).map(
         (city) => city.value
     );
 
-    // Get genders in the current language for the dropdown
     const genderOptions = getGenderDropdownData(currentLanguage).map(
         (gender) => gender.value
     );
@@ -55,13 +56,36 @@ const EditProfile = () => {
                 if (user && user.uid) {
                     const userData = await getDocument("users", user.uid);
                     if (userData) {
+                        const lastCityChange = userData.lastCityChange || null;
                         setForm({
                             fname: userData.fname || "",
                             lname: userData.lname || "",
                             cityKey: userData.cityKey || "",
                             genderKey:
-                                userData.genderKey || userData.gender || "", // For backward compatibility
+                                userData.genderKey || userData.gender || "",
+                            lastCityChange,
                         });
+
+                        // Check if city change is restricted
+                        if (lastCityChange) {
+                            const now = new Date();
+                            const lastChangeDate = lastCityChange.toDate();
+                            const daysSinceLastChange =
+                                (now - lastChangeDate) / (1000 * 60 * 60 * 24);
+
+                            if (daysSinceLastChange < 90) {
+                                setIsCityChangeRestricted(true);
+                                const availableDate = new Date(lastChangeDate);
+                                availableDate.setDate(
+                                    lastChangeDate.getDate() + 90
+                                );
+                                setCityChangeAvailableDate(
+                                    availableDate.toLocaleDateString(
+                                        currentLanguage
+                                    )
+                                );
+                            }
+                        }
                     }
                 }
             } catch (error) {
@@ -77,10 +101,10 @@ const EditProfile = () => {
         };
 
         fetchUserData();
-    }, [user, t]);
+    }, [user, t, currentLanguage]);
 
     const handleUpdate = async () => {
-        const { fname, lname, cityKey, genderKey } = form;
+        const { fname, lname, cityKey, genderKey, lastCityChange } = form;
 
         if (!fname || !lname || !cityKey || !genderKey) {
             Toast.show({
@@ -91,18 +115,46 @@ const EditProfile = () => {
             return;
         }
 
+        const userData = await getDocument("users", user.uid);
+        const currentCityKey = userData?.cityKey || "";
+        const isCityChanged = cityKey !== currentCityKey;
+
+        if (isCityChanged && lastCityChange) {
+            const now = new Date();
+            const lastChangeDate = lastCityChange.toDate();
+            const daysSinceLastChange =
+                (now - lastChangeDate) / (1000 * 60 * 60 * 24);
+
+            if (daysSinceLastChange < 90) {
+                Toast.show({
+                    type: "error",
+                    text1: t("edit_profile.toast.error.title"),
+                    text2: t("edit_profile.toast.error.city_cooldown", {
+                        date: cityChangeAvailableDate,
+                    }),
+                });
+                return;
+            }
+        }
+
         setIsSubmitting(true);
 
         try {
             const displayName = `${fname} ${lname.charAt(0)}.`;
             await auth().currentUser.updateProfile({ displayName });
-            await updateDocument("users", user.uid, {
+            const updateData = {
                 fname,
                 lname,
                 cityKey,
-                genderKey, // Store the gender key in the database
+                genderKey,
                 updatedAt: serverTimestamp(),
-            });
+            };
+
+            if (isCityChanged) {
+                updateData.lastCityChange = serverTimestamp();
+            }
+
+            await updateDocument("users", user.uid, updateData);
 
             await refreshUser();
             refreshAllData();
@@ -125,9 +177,7 @@ const EditProfile = () => {
         }
     };
 
-    // Handle city selection from dropdown
     const handleCitySelect = (selectedCityName) => {
-        // Find the city object that matches the selected name
         const cityData = getCityDropdownData(currentLanguage).find(
             (city) => city.value === selectedCityName
         );
@@ -137,9 +187,7 @@ const EditProfile = () => {
         }
     };
 
-    // Handle gender selection from dropdown
     const handleGenderSelect = (selectedGenderName) => {
-        // Find the gender object that matches the selected name
         const genderData = getGenderDropdownData(currentLanguage).find(
             (gender) => gender.value === selectedGenderName
         );
@@ -149,12 +197,10 @@ const EditProfile = () => {
         }
     };
 
-    // Get the display name for the current city key in the current language
     const displayCityName = form.cityKey
         ? getCityNameByKey(form.cityKey, currentLanguage)
         : "";
 
-    // Get the display name for the current gender key in the current language
     const displayGenderName = form.genderKey
         ? getGenderNameByKey(form.genderKey, currentLanguage)
         : "";
@@ -239,7 +285,18 @@ const EditProfile = () => {
                             options={cityOptions}
                             onSelect={handleCitySelect}
                             containerStyle="mb-4 bg-ghostwhite"
+                            disabled={isCityChangeRestricted}
                         />
+                        {isCityChangeRestricted && (
+                            <Text className="text-red-500 font-mregular text-sm mb-4">
+                                {t(
+                                    "edit_profile.fields.city.cooldown_message",
+                                    {
+                                        date: cityChangeAvailableDate,
+                                    }
+                                )}
+                            </Text>
+                        )}
 
                         <Text className="text-black font-msemibold text-left mb-2">
                             {t("edit_profile.fields.gender.label")}{" "}
