@@ -14,8 +14,8 @@ const LanguageSelector = () => {
         { code: "kz", name: t("language_selector.languages.kazakh") },
     ];
 
-    const selectLanguage = async (langCode) => {
-        await changeLanguage(langCode);
+    const selectLanguage = (langCode) => {
+        changeLanguage(langCode);
         setModalVisible(false);
     };
 
