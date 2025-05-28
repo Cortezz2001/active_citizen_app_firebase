@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFirestore } from "@/hooks/useFirestore";
 import { storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { registerForPushNotificationsAsync, clearPushTokenOnLogout, checkAndUpdateToken } from "@/lib/notifications";
 
 GoogleSignin.configure({
     webClientId: process.env.EXPO_PUBLIC_FIREBASE_GOOGLE_OAUTH_KEY,
@@ -29,6 +30,7 @@ export const useAuth = () => {
                 try {
                     const userDoc = await getDocument("users", authUser.uid);
                     setHasProfile(!!userDoc); // true, если профиль существует, false, если нет
+                    await checkAndUpdateToken();
                 } catch (error) {
                     console.error("Error checking user profile:", error);
                     
@@ -48,6 +50,7 @@ export const useAuth = () => {
         if (currentUser) {
             await currentUser.reload(); // Обновляем данные из Firebase Auth
             setUser(auth().currentUser); // Устанавливаем обновленный объект user
+            await checkAndUpdateToken();
         }
     };
 
@@ -81,7 +84,7 @@ export const useAuth = () => {
 
             const userDoc = await getDocument("users", userCredential.user.uid);
             setHasProfile(!!userDoc); // Обновляем состояние профиля после входа
-
+            await registerForPushNotificationsAsync();
             return userCredential.user;
         } catch (error) {
             console.error("Phone verification error:", error);
@@ -144,7 +147,7 @@ export const useAuth = () => {
     
             const userDoc = await getDocument("users", result.user.uid);
             setHasProfile(!!userDoc);
-    
+            await registerForPushNotificationsAsync();
             return result;
         } catch (error) {
             console.error("Detailed error:", {
@@ -159,6 +162,7 @@ export const useAuth = () => {
 
     const logout = async () => {
         try {
+            await clearPushTokenOnLogout();
             await auth().signOut();
             setHasProfile(null); // Сбрасываем состояние профиля при выходе
         } catch (error) {

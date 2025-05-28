@@ -1,39 +1,18 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-// const {onRequest} = require("firebase-functions/v2/https");
-// const logger = require("firebase-functions/logger");
-
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
-
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
-
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { onRequest } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const {setGlobalOptions} = require("firebase-functions/v2");
-// Инициализация Firebase Admin
+
 initializeApp();
 setGlobalOptions({maxInstances: 10});
-// Cloud Function для отслеживания изменений статуса заявок
+
 exports.sendStatusChangeNotification = onDocumentUpdated(
   "requests/{requestId}",
   async (event) => {
     const beforeData = event.data.before.data();
     const afterData = event.data.after.data();
     
-    // Проверяем, изменился ли статус
     if (beforeData.status !== afterData.status) {
       const requestId = event.params.requestId;
       const newStatus = afterData.status;
@@ -41,20 +20,29 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
       
       console.log(`Status changed from ${oldStatus} to ${newStatus} for request ${requestId}`);
       
-      // Получаем userId из заявки
+      if (newStatus !== 'Rejected' && newStatus !== 'Completed') {
+        console.log(`Status ${newStatus} does not require notification. Skipping.`);
+        return null;
+      }
+      
       let userId;
       
       if (typeof afterData.userId === 'string') {
         userId = afterData.userId.replace('/users/', '');
+        console.log(`Extracted userId: ${userId}`);
       } else {
-        console.log('Invalid userId format');
+        console.log('Invalid userId format:', afterData.userId);
+        return null;
+      }
+      
+      if (!userId || userId.trim() === '') {
+        console.log('Empty userId after processing');
         return null;
       }
       
       try {
         const db = getFirestore();
         
-        // Получаем данные пользователя с его токеном уведомлений
         const userDoc = await db
           .collection('users')
           .doc(userId)
@@ -66,14 +54,16 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
         }
         
         const userData = userDoc.data();
-        const expoPushToken = userData.expoPushToken;
         
-        if (!expoPushToken) {
-          console.log('No push token found for user:', userId);
+        if (!userData.deviceInfo || !userData.deviceInfo.isActive || !userData.deviceInfo.token) {
+          console.log('Device info missing, not active, or no token for user:', userId);
           return null;
         }
         
-        // Формируем сообщение в зависимости от нового статуса
+        const expoPushToken = userData.deviceInfo.token;
+        
+        console.log(`Sending notification to user ${userId} with token: ${expoPushToken.substring(0, 20)}...`);
+        
         let title, body;
         
         switch (newStatus) {
@@ -85,16 +75,11 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
             title = 'Request Rejected / Заявка отклонена';
             body = `Your request has been rejected / Ваша заявка была отклонена`;
             break;
-          case 'In progress':
-            title = 'Request In Progress / Заявка в работе';
-            body = `Your request is being processed / Ваша заявка обрабатывается`;
-            break;
           default:
-            title = 'Request Status Changed / Статус заявки изменен';
-            body = `Your request status has been updated to: ${newStatus} / Статус вашей заявки изменен на: ${newStatus}`;
+            console.log(`Unexpected status for notification: ${newStatus}`);
+            return null;
         }
         
-        // Отправляем уведомление через Expo
         const message = {
           to: expoPushToken,
           title: title,
@@ -103,7 +88,8 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
             requestId: requestId,
             newStatus: newStatus,
             oldStatus: oldStatus,
-            type: 'status_change'
+            type: 'status_change',
+            userId: userId 
           },
           sound: 'default',
           priority: 'high',
@@ -121,7 +107,13 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
         });
         
         const result = await response.json();
-        console.log('Notification sent successfully:', result);
+        
+        if (response.ok) {
+          console.log('Notification sent successfully to user:', userId, result);
+        } else {
+          console.error('Error response from Expo:', result);
+          throw new Error(`Expo API error: ${JSON.stringify(result)}`);
+        }
 
         return result;
         
@@ -130,123 +122,28 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
         
         const db = getFirestore();
         
-        // Логируем ошибку в Firestore для отладки
-        await db
-          .collection('notification_errors')
-          .add({
-            requestId: requestId,
-            userId: userId,
-            error: error.message,
-            timestamp: new Date()
-          });
+        try {
+          await db
+            .collection('notification_errors')
+            .add({
+              requestId: requestId,
+              userId: userId,
+              error: error.message,
+              errorStack: error.stack,
+              timestamp: new Date(),
+              newStatus: newStatus,
+              oldStatus: oldStatus
+            });
+        } catch (logError) {
+          console.error('Error logging to Firestore:', logError);
+        }
         
         return null;
       }
+    } else {
+      console.log('Status did not change, skipping notification');
     }
     
     return null;
   }
 );
-
-// Тестовая функция для проверки уведомлений
-// exports.testNotification = onRequest(async (req, res) => {
-//   // Разрешаем CORS
-//   res.set('Access-Control-Allow-Origin', '*');
-//   res.set('Access-Control-Allow-Methods', 'GET, POST');
-//   res.set('Access-Control-Allow-Headers', 'Content-Type');
-  
-//   if (req.method === 'OPTIONS') {
-//     res.status(204).send('');
-//     return;
-//   }
-  
-//   try {
-//     const { userId, message } = req.body;
-    
-//     if (!userId || !message) {
-//       res.status(400).json({ 
-//         success: false, 
-//         error: 'Missing userId or message',
-//         example: {
-//           userId: 'your-user-id',
-//           message: {
-//             title: 'Test Title',
-//             body: 'Test Body'
-//           }
-//         }
-//       });
-//       return;
-//     }
-    
-//     const db = getFirestore();
-    
-//     const userDoc = await db
-//       .collection('users')
-//       .doc(userId)
-//       .get();
-    
-//     if (!userDoc.exists) {
-//       res.status(404).json({ success: false, error: 'User not found' });
-//       return;
-//     }
-    
-//     const userData = userDoc.data();
-//     const expoPushToken = userData.expoPushToken;
-    
-//     if (!expoPushToken) {
-//       res.status(400).json({ 
-//         success: false, 
-//         error: 'No push token found for user',
-//         userData: {
-//           hasToken: !!expoPushToken,
-//           userId: userId
-//         }
-//       });
-//       return;
-//     }
-    
-//     const testMessage = {
-//       to: expoPushToken,
-//       title: message.title || 'Test Notification',
-//       body: message.body || 'This is a test notification',
-//       data: { 
-//         type: 'test',
-//         timestamp: new Date().toISOString()
-//       },
-//       sound: 'default',
-//       priority: 'high'
-//     };
-    
-//     console.log('Sending test notification:', testMessage);
-    
-//     const response = await fetch('https://exp.host/--/api/v2/push/send', {
-//       method: 'POST',
-//       headers: {
-//         'Accept': 'application/json',
-//         'Accept-encoding': 'gzip, deflate',
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify(testMessage),
-//     });
-    
-//     const result = await response.json();
-    
-//     console.log('Expo API response:', result);
-    
-//     res.json({ 
-//       success: true, 
-//       result,
-//       sentTo: expoPushToken,
-//       message: testMessage
-//     });
-    
-//   } catch (error) {
-//     console.error('Test notification error:', error);
-//     res.status(500).json({ 
-//       success: false, 
-//       error: error.message,
-//       stack: error.stack
-//     });
-//   }
-// });
-
