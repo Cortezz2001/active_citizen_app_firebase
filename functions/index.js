@@ -1,11 +1,10 @@
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
-const { onRequest } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
-const {setGlobalOptions} = require("firebase-functions/v2");
+const { setGlobalOptions } = require("firebase-functions/v2");
 
 initializeApp();
-setGlobalOptions({maxInstances: 10});
+setGlobalOptions({ maxInstances: 10 });
 
 exports.sendStatusChangeNotification = onDocumentUpdated(
   "requests/{requestId}",
@@ -43,10 +42,7 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
       try {
         const db = getFirestore();
         
-        const userDoc = await db
-          .collection('users')
-          .doc(userId)
-          .get();
+        const userDoc = await db.collection('users').doc(userId).get();
         
         if (!userDoc.exists) {
           console.log('User not found:', userId);
@@ -61,23 +57,42 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
         }
         
         const expoPushToken = userData.deviceInfo.token;
+        const language = userData.language || 'ru'; // По умолчанию русский
         
-        console.log(`Sending notification to user ${userId} with token: ${expoPushToken.substring(0, 20)}...`);
+        console.log(`Sending notification to user ${userId} with token: ${expoPushToken.substring(0, 20)}... in language: ${language}`);
+        
+        // Объект переводов
+        const translations = {
+          en: {
+            completedTitle: 'Request Completed',
+            completedBody: 'Your request has been completed',
+            rejectedTitle: 'Request Rejected',
+            rejectedBody: 'Your request has been rejected',
+          },
+          ru: {
+            completedTitle: 'Заявка выполнена',
+            completedBody: 'Ваша заявка была выполнена',
+            rejectedTitle: 'Заявка отклонена',
+            rejectedBody: 'Ваша заявка была отклонена',
+          },
+          kz: {
+            completedTitle: 'Өтініш орындалды',
+            completedBody: 'Сіздің өтінішіңіз орындалды',
+            rejectedTitle: 'Өтініш қабылданбады',
+            rejectedBody: 'Сіздің өтінішіңіз қабылданбады',
+          }
+        };
+        
+        // Проверка на поддержку языка
+        const validLanguage = translations[language] ? language : 'ru';
         
         let title, body;
-        
-        switch (newStatus) {
-          case 'Completed':
-            title = 'Request Completed / Заявка выполнена';
-            body = `Your request has been completed / Ваша заявка была выполнена`;
-            break;
-          case 'Rejected':
-            title = 'Request Rejected / Заявка отклонена';
-            body = `Your request has been rejected / Ваша заявка была отклонена`;
-            break;
-          default:
-            console.log(`Unexpected status for notification: ${newStatus}`);
-            return null;
+        if (newStatus === 'Completed') {
+          title = translations[validLanguage].completedTitle;
+          body = translations[validLanguage].completedBody;
+        } else if (newStatus === 'Rejected') {
+          title = translations[validLanguage].rejectedTitle;
+          body = translations[validLanguage].rejectedBody;
         }
         
         const message = {
@@ -123,17 +138,15 @@ exports.sendStatusChangeNotification = onDocumentUpdated(
         const db = getFirestore();
         
         try {
-          await db
-            .collection('notification_errors')
-            .add({
-              requestId: requestId,
-              userId: userId,
-              error: error.message,
-              errorStack: error.stack,
-              timestamp: new Date(),
-              newStatus: newStatus,
-              oldStatus: oldStatus
-            });
+          await db.collection('notification_errors').add({
+            requestId: requestId,
+            userId: userId,
+            error: error.message,
+            errorStack: error.stack,
+            timestamp: new Date(),
+            newStatus: newStatus,
+            oldStatus: oldStatus
+          });
         } catch (logError) {
           console.error('Error logging to Firestore:', logError);
         }
