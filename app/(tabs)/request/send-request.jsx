@@ -647,7 +647,7 @@ const RequestCreationPage = () => {
             return;
         }
 
-        if (status === "draft") {
+        if (status === "Draft") {
             setIsSavingDraft(true);
         } else {
             setIsSubmitting(true);
@@ -720,7 +720,7 @@ const RequestCreationPage = () => {
                 text1: t("send_request.toast.success.title"),
                 text2: t(
                     `send_request.toast.success.${
-                        status === "draft" ? "saved_as_draft" : "submitted"
+                        status === "Draft" ? "saved_as_draft" : "submitted"
                     }`
                 ),
             });
@@ -742,7 +742,7 @@ const RequestCreationPage = () => {
                 text2: `Failed to save request: ${error.message}`,
             });
         } finally {
-            if (status === "draft") {
+            if (status === "Draft") {
                 setIsSavingDraft(false);
             } else {
                 setIsSubmitting(false);
@@ -969,14 +969,14 @@ const RequestCreationPage = () => {
                 <View className="flex-row justify-between mb-8">
                     <CustomButton
                         title={t("send_request.buttons.save_as_draft")}
-                        handlePress={() => handleSaveRequest("draft")}
+                        handlePress={() => handleSaveRequest("Draft")}
                         containerStyles="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg"
                         textStyles="text-gray-700 font-mmedium"
                         isLoading={isSavingDraft}
                     />
                     <CustomButton
                         title={t("send_request.buttons.submit")}
-                        handlePress={() => handleSaveRequest("in progress")}
+                        handlePress={() => handleSaveRequest("In progress")}
                         containerStyles="flex-1 ml-2 bg-primary py-3 px-2 rounded-lg"
                         textStyles="text-white font-mmedium"
                         isLoading={isSubmitting}

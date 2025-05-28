@@ -23,25 +23,25 @@ import Toast from "react-native-toast-message";
 import CustomButton from "../../../components/CustomButton";
 
 const statusColors = {
-    draft: {
+    Draft: {
         bg: "bg-gray-200",
         text: "text-gray-700",
         icon: "edit",
         iconColor: "#374151",
     },
-    "in progress": {
+    "In progress": {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "pending",
         iconColor: "#B45309",
     },
-    rejected: {
+    Rejected: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "cancel",
         iconColor: "#B91C1C",
     },
-    completed: {
+    Completed: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "check-circle",
@@ -77,8 +77,8 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
         iconColor: "#374151",
     };
 
-    const canEdit = item.status === "draft";
-    const canDelete = item.status === "draft";
+    const canEdit = item.status === "Draft";
+    const canDelete = item.status === "Draft";
 
     return (
         <View className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden min-h-[180px] flex flex-col">
@@ -112,7 +112,7 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
                     {item.createdAt.toDate().toLocaleDateString(i18n.language)}
                 </Text>
 
-                {item.status === "rejected" && (
+                {item.status === "Rejected" && (
                     <TouchableOpacity
                         className="mb-3"
                         onPress={() => onViewRejection(item.rejectionReason)}
@@ -173,7 +173,7 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
                         )}
                     </View>
 
-                    {item.status !== "draft" && (
+                    {item.status !== "Draft" && (
                         <View className="flex-row justify-end mb-2">
                             <TouchableOpacity
                                 className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
@@ -234,10 +234,10 @@ const MyRequestsTab = () => {
     const { isKeyboardVisible } = useKeyboard();
 
     const statusOptions = [
-        { id: "draft", name: t("my_requests.statuses.draft") },
-        { id: "in progress", name: t("my_requests.statuses.in progress") },
-        { id: "completed", name: t("my_requests.statuses.completed") },
-        { id: "rejected", name: t("my_requests.statuses.rejected") },
+        { id: "Draft", name: t("my_requests.statuses.draft") },
+        { id: "In progress", name: t("my_requests.statuses.in progress") },
+        { id: "Completed", name: t("my_requests.statuses.completed") },
+        { id: "Rejected", name: t("my_requests.statuses.rejected") },
     ];
 
     const categories = [

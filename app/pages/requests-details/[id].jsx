@@ -22,25 +22,25 @@ import LoadingIndicator from "../../../components/LoadingIndicator";
 const { width, height } = Dimensions.get("window");
 
 const statusColors = {
-    draft: {
+    Draft: {
         bg: "bg-gray-200",
         text: "text-gray-700",
         icon: "edit",
         iconColor: "#374151",
     },
-    "in progress": {
+    "In progress": {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "pending",
         iconColor: "#B45309",
     },
-    rejected: {
+    Rejected: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "cancel",
         iconColor: "#B91C1C",
     },
-    completed: {
+    Completed: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "check-circle",
