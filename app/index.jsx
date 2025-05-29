@@ -1,6 +1,6 @@
 import Swiper from "react-native-swiper";
 import CustomButton from "@/components/CustomButton";
-import { router, Redirect } from "expo-router";
+import { router, Redirect, useNavigationContainerRef } from "expo-router";
 import { Text, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -8,13 +8,33 @@ import { useAuthContext } from "@/lib/context";
 import LottieView from "lottie-react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import LanguageSelector from "../components/LanguageSelector";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { checkInitialNotification } from "../lib/notifications";
 
 export default function Index() {
     const { t } = useTranslation();
     const { user, loading, hasProfile } = useAuthContext();
     const swiperRef = useRef(null);
+    const navigationRef = useNavigationContainerRef();
+    const initialNotificationCheckedRef = useRef(false);
+
+    // Проверка уведомления при запуске приложения (когда было закрыто)
+    useEffect(() => {
+        if (
+            user &&
+            hasProfile &&
+            !loading &&
+            !initialNotificationCheckedRef.current
+        ) {
+            initialNotificationCheckedRef.current = true;
+
+            // Небольшая задержка для завершения всех переходов
+            setTimeout(() => {
+                checkInitialNotification(navigationRef);
+            }, 500);
+        }
+    }, [user, hasProfile, loading, navigationRef]);
 
     // Если пользователь залогинен - сразу редиректим на home
     if (user && hasProfile && !loading) {
