@@ -102,7 +102,9 @@ const RequestCard = ({ item, onPress, i18n, onViewRejection, onDelete }) => {
                         <Text
                             className={`ml-1 text-xs font-mmedium ${statusColor.text}`}
                         >
-                            {t(`my_requests.statuses.${item.status}`)}
+                            {t(
+                                `my_requests.statuses.${item.status.toLowerCase()}`
+                            )}
                         </Text>
                     </View>
                 </View>

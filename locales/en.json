@@ -140,10 +140,10 @@
     },
     "my_requests": {
         "statuses": {
-            "Draft": "Draft",
-            "In progress": "In progress",
-            "Rejected": "Rejected",
-            "Completed": "Completed"
+            "draft": "Draft",
+            "in progress": "In progress",
+            "rejected": "Rejected",
+            "completed": "Completed"
         },
         "created_label": "Created",
         "actions": {

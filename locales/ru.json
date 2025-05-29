@@ -139,10 +139,10 @@
   },
   "my_requests": {
       "statuses": {
-          "Draft": "Черновик",
-          "In progress": "В процессе",
-          "Rejected": "Отклонено",
-          "Completed": "Завершено"
+          "draft": "Черновик",
+          "in progress": "В процессе",
+          "rejected": "Отклонено",
+          "completed": "Завершено"
       },
       "created_label": "Создано",
       "actions": {

@@ -139,10 +139,10 @@
   },
   "my_requests": {
       "statuses": {
-          "Draft": "Жоба",
-          "In progress": "Жұмыс үстінде",
-          "Rejected": "Қабылданбады",
-          "Completed": "Аяқталды"
+          "draft": "Жоба",
+          "in progress": "Жұмыс үстінде",
+          "rejected": "Қабылданбады",
+          "completed": "Аяқталды"
       },
       "created_label": "Құрылды",
       "actions": {
