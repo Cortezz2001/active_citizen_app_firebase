@@ -36,6 +36,7 @@ import {
     getDownloadURL,
     deleteObject,
 } from "firebase/storage";
+import { useTheme } from "../../../lib/themeContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -98,7 +99,6 @@ const categories = [
     },
 ];
 
-// Function to format file size
 const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -107,7 +107,6 @@ const formatFileSize = (bytes) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
-// Function to get address from coordinates using reverse geocoding
 const getAddressFromCoordinates = async (latitude, longitude) => {
     try {
         const result = await Location.reverseGeocodeAsync({
@@ -182,18 +181,16 @@ const RequestCreationPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { fetchRequests } = useData();
     const [isLoadingRequest, setIsLoadingRequest] = useState(false);
-
-    // Map-related state
     const [showMap, setShowMap] = useState(false);
     const [selectedCoordinates, setSelectedCoordinates] = useState(null);
     const [currentLocation, setCurrentLocation] = useState(null);
     const [isLoadingLocation, setIsLoadingLocation] = useState(false);
     const [locationPermission, setLocationPermission] = useState(null);
+    const { isDark } = useTheme();
 
     const categoryOptions = categories.map((cat) => cat.name[i18n.language]);
     const categoryIds = categories.map((cat) => cat.id);
 
-    // Fetch request data if requestId is provided
     useEffect(() => {
         if (requestId) {
             const fetchRequest = async () => {
@@ -259,7 +256,6 @@ const RequestCreationPage = () => {
         }
     }, [requestId, i18n.language]);
 
-    // Request location permissions and get current location on component mount
     useEffect(() => {
         requestLocationPermission();
     }, []);
@@ -288,7 +284,8 @@ const RequestCreationPage = () => {
                             onPress: () =>
                                 Location.requestForegroundPermissionsAsync(),
                         },
-                    ]
+                    ],
+                    { userInterfaceStyle: isDark ? "dark" : "light" }
                 );
             }
         } catch (error) {
@@ -346,7 +343,8 @@ const RequestCreationPage = () => {
                         text: t("send_request.location.permission_settings"),
                         onPress: requestLocationPermission,
                     },
-                ]
+                ],
+                { userInterfaceStyle: isDark ? "dark" : "light" }
             );
             return;
         }
@@ -434,12 +432,10 @@ const RequestCreationPage = () => {
             requestId
         ) {
             try {
-                // Delete file from Firebase Storage
                 const fileRef = ref(storage, fileToRemove.downloadURL);
                 await deleteObject(fileRef);
                 console.log(`File ${fileToRemove.name} deleted from storage`);
 
-                // Update Firestore document to remove the file from mediaFiles
                 const docRef = doc(firestore, "requests", requestId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
@@ -462,10 +458,9 @@ const RequestCreationPage = () => {
                     text1: t("send_request.toast.error.title"),
                     text2: t("send_request.toast.error.file_deletion_failed"),
                 });
-                return; // Prevent removing from state if deletion fails
+                return;
             }
         }
-        // Remove file from local state
         setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     };
 
@@ -752,17 +747,33 @@ const RequestCreationPage = () => {
 
     if (isLoadingRequest) {
         return (
-            <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" color="#006FFD" />
+            <View
+                className={`flex-1 justify-center items-center ${
+                    isDark ? "bg-dark-background" : "bg-secondary"
+                }`}
+            >
+                <ActivityIndicator
+                    size="large"
+                    color={isDark ? "#0066E6" : "#006FFD"}
+                />
             </View>
         );
     }
 
     return (
         <>
-            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+            <ScrollView
+                className={`flex-1 ${
+                    isDark ? "bg-dark-background" : "bg-secondary"
+                }`}
+                showsVerticalScrollIndicator={false}
+            >
                 <View className="mb-2 mt-2">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("send_request.fields.title")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
@@ -772,12 +783,22 @@ const RequestCreationPage = () => {
                         handleChangeText={setTitle}
                         multiline={false}
                         numberOfLines={1}
-                        containerStyle="bg-ghostwhite"
+                        containerStyle={
+                            isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                        }
+                        inputStyle={
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }
+                        isDark={isDark}
                     />
                 </View>
 
                 <View className="mb-2">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("send_request.fields.description")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
@@ -788,12 +809,22 @@ const RequestCreationPage = () => {
                         multiline
                         numberOfLines={4}
                         textAlignVertical="top"
-                        containerStyle="bg-ghostwhite"
+                        containerStyle={
+                            isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                        }
+                        inputStyle={
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }
+                        isDark={isDark}
                     />
                 </View>
 
                 <View className="mb-2">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("send_request.fields.category")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
@@ -803,17 +834,31 @@ const RequestCreationPage = () => {
                         value={category}
                         options={categoryOptions}
                         onSelect={setCategory}
-                        containerStyle="bg-ghostwhite"
+                        containerStyle={
+                            isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                        }
+                        textStyle={
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }
+                        isDark={isDark}
                     />
                 </View>
 
                 <View className="mb-6">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("send_request.fields.location")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TouchableOpacity
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-4 flex-row items-center justify-between min-h-[50px]"
+                        className={`border rounded-lg p-4 flex-row items-center justify-between min-h-[50px] ${
+                            isDark
+                                ? "bg-dark-surface border-gray-600"
+                                : "bg-ghostwhite border-gray-300"
+                        }`}
                         onPress={handleLocationFieldPress}
                         disabled={isLoadingLocation}
                     >
@@ -821,13 +866,17 @@ const RequestCreationPage = () => {
                             <MaterialIcons
                                 name="location-on"
                                 size={24}
-                                color="#006FFD"
+                                color={isDark ? "#0066E6" : "#006FFD"}
                             />
                             <Text
-                                className={`ml-2 flex-1 ${
+                                className={`ml-2 flex-1 font-mregular ${
                                     location
-                                        ? "text-black font-mregular"
-                                        : "text-gray-500 font-mregular"
+                                        ? isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                        : isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-500"
                                 }`}
                                 numberOfLines={2}
                             >
@@ -838,32 +887,49 @@ const RequestCreationPage = () => {
                             </Text>
                         </View>
                         {isLoadingLocation ? (
-                            <ActivityIndicator size="small" color="#006FFD" />
+                            <ActivityIndicator
+                                size="small"
+                                color={isDark ? "#0066E6" : "#006FFD"}
+                            />
                         ) : (
                             <MaterialIcons
                                 name="chevron-right"
                                 size={24}
-                                color="#006FFD"
+                                color={isDark ? "#0066E6" : "#006FFD"}
                             />
                         )}
                     </TouchableOpacity>
                 </View>
 
                 <View className="mb-8">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("send_request.fields.upload_files")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TouchableOpacity
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-4 flex-col items-center justify-center h-24"
+                        className={`border rounded-lg p-4 flex-col items-center justify-center h-24 ${
+                            isDark
+                                ? "bg-dark-surface border-gray-600"
+                                : "bg-ghostwhite border-gray-300"
+                        }`}
                         onPress={pickFiles}
                     >
                         <MaterialIcons
                             name="cloud-upload"
                             size={24}
-                            color="#006FFD"
+                            color={isDark ? "#0066E6" : "#006FFD"}
                         />
-                        <Text className="ml-0 mt-2 text-gray-600 font-mregular">
+                        <Text
+                            className={`mt-2 font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-600"
+                            }`}
+                        >
                             {t("send_request.fields.upload_placeholder")}
                         </Text>
                     </TouchableOpacity>
@@ -873,7 +939,11 @@ const RequestCreationPage = () => {
                             {files.map((file, index) => (
                                 <View
                                     key={index}
-                                    className="bg-ghostwhite border border-gray-200 rounded-lg p-2 mt-1 relative"
+                                    className={`border rounded-lg p-2 mt-1 relative ${
+                                        isDark
+                                            ? "bg-dark-surface border-gray-600"
+                                            : "bg-ghostwhite border-gray-200"
+                                    }`}
                                     style={{ minHeight: 60 }}
                                 >
                                     <View className="flex-row items-center justify-between min-h-[40px]">
@@ -897,10 +967,16 @@ const RequestCreationPage = () => {
                                             size={20}
                                             color={
                                                 file.status === "error"
-                                                    ? "red"
+                                                    ? isDark
+                                                        ? "#F87171"
+                                                        : "red"
                                                     : file.status ===
                                                       "completed"
-                                                    ? "green"
+                                                    ? isDark
+                                                        ? "#34D399"
+                                                        : "green"
+                                                    : isDark
+                                                    ? "#0066E6"
                                                     : "#006FFD"
                                             }
                                         />
@@ -908,15 +984,31 @@ const RequestCreationPage = () => {
                                             <Text
                                                 numberOfLines={1}
                                                 ellipsizeMode="middle"
-                                                className="text-black font-mregular"
+                                                className={`font-mregular ${
+                                                    isDark
+                                                        ? "text-dark-text-primary"
+                                                        : "text-black"
+                                                }`}
                                             >
                                                 {file.name}
                                             </Text>
-                                            <Text className="text-gray-500 text-xs">
+                                            <Text
+                                                className={`text-xs ${
+                                                    isDark
+                                                        ? "text-dark-text-secondary"
+                                                        : "text-gray-500"
+                                                }`}
+                                            >
                                                 {file.size}
                                             </Text>
                                             {file.status === "error" && (
-                                                <Text className="text-red-500 text-xs mt-1">
+                                                <Text
+                                                    className={`text-xs mt-1 ${
+                                                        isDark
+                                                            ? "text-red-400"
+                                                            : "text-red-500"
+                                                    }`}
+                                                >
                                                     {t(
                                                         "send_request.fields.upload_error"
                                                     )}
@@ -924,7 +1016,13 @@ const RequestCreationPage = () => {
                                             )}
                                         </View>
                                         {file.status === "uploading" ? (
-                                            <Text className="text-blue-500 text-xs">
+                                            <Text
+                                                className={`text-xs ${
+                                                    isDark
+                                                        ? "text-blue-400"
+                                                        : "text-blue-500"
+                                                }`}
+                                            >
                                                 {file.progress}%
                                             </Text>
                                         ) : (
@@ -936,7 +1034,11 @@ const RequestCreationPage = () => {
                                                 <MaterialIcons
                                                     name="close"
                                                     size={20}
-                                                    color="#006FFD"
+                                                    color={
+                                                        isDark
+                                                            ? "#0066E6"
+                                                            : "#006FFD"
+                                                    }
                                                 />
                                             </TouchableOpacity>
                                         )}
@@ -950,9 +1052,19 @@ const RequestCreationPage = () => {
                                                 paddingHorizontal: 8,
                                             }}
                                         >
-                                            <View className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                                            <View
+                                                className={`h-1.5 w-full rounded-full overflow-hidden ${
+                                                    isDark
+                                                        ? "bg-gray-700"
+                                                        : "bg-gray-200"
+                                                }`}
+                                            >
                                                 <View
-                                                    className="h-full bg-primary rounded-full"
+                                                    className={`h-full rounded-full ${
+                                                        isDark
+                                                            ? "bg-dark-primary"
+                                                            : "bg-primary"
+                                                    }`}
                                                     style={{
                                                         width: `${file.progress}%`,
                                                     }}
@@ -970,16 +1082,20 @@ const RequestCreationPage = () => {
                     <CustomButton
                         title={t("send_request.buttons.save_as_draft")}
                         handlePress={() => handleSaveRequest("Draft")}
-                        containerStyles="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg"
-                        textStyles="text-gray-700 font-mmedium"
+                        containerStyles={`flex-1 mr-2 py-3 px-2 rounded-lg ${
+                            isDark ? "bg-gray-700" : "bg-gray-200"
+                        }`}
+                        textStyles={`font-mmedium `}
                         isLoading={isSavingDraft}
+                        isDark={isDark}
                     />
                     <CustomButton
                         title={t("send_request.buttons.submit")}
                         handlePress={() => handleSaveRequest("In progress")}
-                        containerStyles="flex-1 ml-2 bg-primary py-3 px-2 rounded-lg"
-                        textStyles="text-white font-mmedium"
+                        containerStyles={`flex-1 ml-2 py-3 px-2 rounded-lg `}
+                        textStyles={`font-mmedium `}
                         isLoading={isSubmitting}
+                        isDark={isDark}
                     />
                 </View>
             </ScrollView>
@@ -989,8 +1105,18 @@ const RequestCreationPage = () => {
                 animationType="slide"
                 onRequestClose={() => setShowMap(false)}
             >
-                <View className="flex-1">
-                    <View className="bg-white border-b border-gray-200 pt-6 pb-4 px-4">
+                <View
+                    className={`flex-1 ${
+                        isDark ? "bg-dark-background" : "bg-secondary"
+                    }`}
+                >
+                    <View
+                        className={`border-b pt-6 pb-4 px-4 ${
+                            isDark
+                                ? "bg-dark-surface border-gray-600"
+                                : "bg-white border-gray-200"
+                        }`}
+                    >
                         <View className="flex-row items-center justify-between">
                             <TouchableOpacity
                                 onPress={() => setShowMap(false)}
@@ -999,10 +1125,16 @@ const RequestCreationPage = () => {
                                 <MaterialIcons
                                     name="close"
                                     size={24}
-                                    color="#000"
+                                    color={isDark ? "#FFFFFF" : "#000"}
                                 />
                             </TouchableOpacity>
-                            <Text className="font-msemibold text-sm text-black">
+                            <Text
+                                className={`font-msemibold text-sm ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-black"
+                                }`}
+                            >
                                 {t("send_request.location.select_location")}
                             </Text>
                             <TouchableOpacity
@@ -1012,14 +1144,18 @@ const RequestCreationPage = () => {
                                 }
                                 className={`p-2 rounded-full ${
                                     selectedCoordinates && !isLoadingLocation
-                                        ? "bg-primary"
+                                        ? isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                        : isDark
+                                        ? "bg-gray-600"
                                         : "bg-gray-300"
                                 }`}
                             >
                                 {isLoadingLocation ? (
                                     <ActivityIndicator
                                         size="small"
-                                        color="#fff"
+                                        color={isDark ? "#000" : "#fff"}
                                     />
                                 ) : (
                                     <MaterialIcons
@@ -1027,7 +1163,11 @@ const RequestCreationPage = () => {
                                         size={24}
                                         color={
                                             selectedCoordinates
-                                                ? "#fff"
+                                                ? isDark
+                                                    ? "#000"
+                                                    : "#fff"
+                                                : isDark
+                                                ? "#A0A0A0"
                                                 : "#999"
                                         }
                                     />
@@ -1049,6 +1189,7 @@ const RequestCreationPage = () => {
                                 onPress={handleMapPress}
                                 showsUserLocation={true}
                                 showsMyLocationButton={true}
+                                userInterfaceStyle={isDark ? "dark" : "light"}
                             >
                                 {selectedCoordinates && (
                                     <Marker
@@ -1056,29 +1197,61 @@ const RequestCreationPage = () => {
                                         title={t(
                                             "send_request.location.selected_location"
                                         )}
-                                        pinColor="#006FFD"
+                                        pinColor={
+                                            isDark ? "#60A5FA" : "#006FFD"
+                                        }
                                     />
                                 )}
                             </MapView>
                         ) : (
-                            <View className="flex-1 items-center justify-center">
+                            <View
+                                className={`flex-1 items-center justify-center ${
+                                    isDark
+                                        ? "bg-dark-background"
+                                        : "bg-secondary"
+                                }`}
+                            >
                                 <ActivityIndicator
                                     size="large"
-                                    color="#006FFD"
+                                    color={isDark ? "#0066E6" : "#006FFD"}
                                 />
-                                <Text className="mt-4 text-gray-600 font-mregular">
+                                <Text
+                                    className={`mt-4 font-mregular ${
+                                        isDark
+                                            ? "text-dark-text-secondary"
+                                            : "text-gray-600"
+                                    }`}
+                                >
                                     {t("send_request.location.loading_map")}
                                 </Text>
                             </View>
                         )}
                     </View>
 
-                    <View className="bg-white border-t border-gray-200 p-4">
-                        <Text className="text-center text-gray-600 font-mregular">
+                    <View
+                        className={`border-t p-4 ${
+                            isDark
+                                ? "bg-dark-surface border-gray-600"
+                                : "bg-white border-gray-200"
+                        }`}
+                    >
+                        <Text
+                            className={`text-center font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-600"
+                            }`}
+                        >
                             {t("send_request.location.tap_to_select")}
                         </Text>
                         {selectedCoordinates && (
-                            <Text className="text-center text-primary font-mmedium mt-2">
+                            <Text
+                                className={`text-center font-mmedium mt-2 ${
+                                    isDark
+                                        ? "text-dark-primary"
+                                        : "text-primary"
+                                }`}
+                            >
                                 {`${selectedCoordinates.latitude.toFixed(
                                     6
                                 )}, ${selectedCoordinates.longitude.toFixed(
