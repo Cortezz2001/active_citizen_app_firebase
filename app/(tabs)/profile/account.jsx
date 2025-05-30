@@ -72,10 +72,10 @@ const Account = () => {
             action: () => router.push("/pages/edit-profile"),
         },
         {
-            id: "privacy_settings",
-            title: t("account.settings.privacy_settings"),
+            id: "privacy_policy",
+            title: t("account.settings.privacy_policy"),
             icon: "privacy-tip",
-            action: () => router.push("/pages/privacy-settings"),
+            action: () => router.push("/pages/privacy-policy"),
         },
         {
             id: "delete_account",

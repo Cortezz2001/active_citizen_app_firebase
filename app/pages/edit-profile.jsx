@@ -229,12 +229,12 @@ const EditProfile = () => {
                 <LoadingIndicator />
             ) : (
                 <ScrollView
-                    className="flex-1"
+                    className="flex-1 px-6"
                     contentContainerStyle={{
                         flexGrow: 1,
                         justifyContent: "center",
                         alignItems: "center",
-                        paddingHorizontal: 24,
+
                         paddingVertical: 30,
                     }}
                     showsVerticalScrollIndicator={false}

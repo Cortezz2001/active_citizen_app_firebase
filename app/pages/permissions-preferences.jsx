@@ -343,7 +343,7 @@ const PermissionsPreferences = () => {
             </View>
 
             <ScrollView
-                className="px-4 pt-4 flex-1"
+                className="px-6 pt-4 flex-1"
                 showsVerticalScrollIndicator={false}
             >
                 {isLoading ? (
@@ -361,7 +361,7 @@ const PermissionsPreferences = () => {
                     </>
                 )}
 
-                <View className="mt-4 mb-6 p-4 bg-blue-50 rounded-lg">
+                <View className="mt-2 mb-6 p-4 bg-blue-50 rounded-lg">
                     <View className="flex-row items-start">
                         <MaterialIcons
                             name="info"

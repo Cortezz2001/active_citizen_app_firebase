@@ -48,7 +48,7 @@
     "account": {
         "settings": {
             "edit_profile": "Edit profile",
-            "privacy_settings": "Privacy settings",
+            "privacy_policy": "Privacy policy",
             "delete_account": "Delete account"
         },
         "delete_alert": {
@@ -631,5 +631,15 @@
         }
       },
       "info_note": "Some permissions can only be disabled in your device settings. If you wish to revoke a permission, go to your device settings."
-    }
+    },
+  "privacy_policy": {
+    "title": "Privacy Policy",
+    "introduction": "We at **Active Citizen** respect your privacy and are committed to protecting your personal data.\n\nThis **Privacy Policy** explains how we collect, use, disclose, and protect your information when using the **Active Citizen (C)** mobile application.",
+    "section1": "**1. Information We Collect**\n\nWe may collect the following types of information:\n- **Personal Data**: When you register, you provide us with your name, surname, and other information.\n- **Location Data**: To process your requests regarding city issues, we may collect data about your location.\n- **Photos and Media**: You may upload photos or other media files when submitting requests.\n- **Usage Data**: We collect information about how you use the Application, including your actions and interactions.",
+    "section2": "**2. Use of Information**\n\nWe use the collected information to:\n- Process your requests and provide services.\n- Improve the Application and develop new features.\n- Communicate with you, including sending notifications and updates.\n- Analyze trends and statistics to improve city management.",
+    "section3": "**3. Information Protection**\n\nWe take reasonable measures to protect your information from unauthorized access, use, or disclosure.",
+    "section4": "**4. Information Disclosure**\n\nWe may disclose your information:\n- To government authorities or services responsible for addressing city issues, to process your requests.\n- To our service providers who assist us in operating the Application.\n- In cases required by law or to protect our rights.",
+    "section5": "**5. Your Rights**\n\nYou have the right to:\n- Request access to your personal data.\n- Correct inaccurate or incomplete data.\n- Request the deletion of your data."
+  }
+    
 }
