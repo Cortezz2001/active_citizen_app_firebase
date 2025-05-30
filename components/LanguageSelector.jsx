@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { changeLanguage } from "../i18n"; // Путь к вашему файлу i18n.js
+import { changeLanguage } from "../i18n";
+import { useTheme } from "../lib/themeContext";
 
 const LanguageSelector = () => {
     const { i18n, t } = useTranslation();
+    const { isDark } = useTheme();
     const [modalVisible, setModalVisible] = useState(false);
 
     const languages = [
@@ -21,8 +23,17 @@ const LanguageSelector = () => {
 
     return (
         <>
-            <TouchableOpacity onPress={() => setModalVisible(true)}>
-                <MaterialIcons name="language" size={24} color="black" />
+            <TouchableOpacity
+                onPress={() => setModalVisible(true)}
+                className={`p-3 rounded-full ${
+                    isDark ? "bg-dark-surface" : "bg-gray-100"
+                }`}
+            >
+                <MaterialIcons
+                    name="language"
+                    size={24}
+                    color={isDark ? "#FFFFFF" : "black"}
+                />
             </TouchableOpacity>
 
             <Modal
@@ -37,10 +48,18 @@ const LanguageSelector = () => {
                     onPress={() => setModalVisible(false)}
                 >
                     <View
-                        className="bg-white m-6 p-4 rounded-xl shadow-lg"
+                        className={`m-6 p-4 rounded-xl shadow-lg ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border"
+                                : "bg-white border-gray-200"
+                        } border`}
                         style={{ marginTop: 100 }}
                     >
-                        <Text className="text-lg font-mbold mb-4">
+                        <Text
+                            className={`text-lg font-mbold mb-4 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {t("language_selector.select_language")}
                         </Text>
 
@@ -49,7 +68,11 @@ const LanguageSelector = () => {
                                 key={lang.code}
                                 className={`p-3 rounded-lg mb-2 flex-row items-center justify-between ${
                                     i18n.language === lang.code
-                                        ? "bg-primary"
+                                        ? isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                        : isDark
+                                        ? "bg-dark-card"
                                         : "bg-ghostwhite"
                                 }`}
                                 onPress={() => selectLanguage(lang.code)}
@@ -58,6 +81,8 @@ const LanguageSelector = () => {
                                     className={`font-mmedium ${
                                         i18n.language === lang.code
                                             ? "text-white"
+                                            : isDark
+                                            ? "text-dark-text-primary"
                                             : "text-gray-800"
                                     }`}
                                 >

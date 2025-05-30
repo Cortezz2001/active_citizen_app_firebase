@@ -4,6 +4,7 @@ module.exports = {
         "./app/**/*.{js,jsx,ts,tsx}",
         "./components/**/*.{js,jsx,ts,tsx}",
     ],
+    darkMode: 'class', // Включаем поддержку темной темы через класс
     theme: {
         extend: {
             colors: {
@@ -13,6 +14,30 @@ module.exports = {
                     DEFAULT: "#FFFFFF",
                     RED: "#FF6B6B",
                 },
+                // Добавляем цвета для темной темы
+                dark: {
+                    primary: "#0066E6",
+                    background: "#0F0F0F",
+                    surface: "#1A1A1A",
+                    card: "#2A2A2A",
+                    border: "#3A3A3A",
+                    text: {
+                        primary: "#FFFFFF",
+                        secondary: "#B3B3B3",
+                        muted: "#666666",
+                    }
+                },
+                light: {
+                    background: "#FFFFFF",
+                    surface: "#F8F9FE",
+                    card: "#FFFFFF",
+                    border: "#E5E5E5",
+                    text: {
+                        primary: "#000000",
+                        secondary: "#666666",
+                        muted: "#999999",
+                    }
+                }
             },
             fontFamily: {
                 mthin: ["Montserrat-Thin", "sans-serif"],

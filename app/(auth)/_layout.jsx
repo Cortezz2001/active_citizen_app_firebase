@@ -1,14 +1,6 @@
-import { Redirect, Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-
-// import { Loader } from "../../components";
-// import { useGlobalContext } from "../../context/GlobalProvider";
+import { Stack } from "expo-router";
 
 const AuthLayout = () => {
-    //   const { loading, isLogged } = useGlobalContext();
-
-    //   if (!loading && isLogged) return <Redirect href="/home" />;
-
     return (
         <>
             <Stack screenOptions={{ animation: "slide_from_right" }}>
@@ -37,9 +29,6 @@ const AuthLayout = () => {
                     }}
                 />
             </Stack>
-
-            {/* <Loader isLoading={loading} /> */}
-            <StatusBar style="dark" />
         </>
     );
 };

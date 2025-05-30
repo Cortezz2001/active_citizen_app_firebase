@@ -1,9 +1,10 @@
-globalThis.RNFB_SILENCE_MODULAR_DEPRECATION_WARNINGS = true; // Отключение предупреждений о переходе Firebase на SDK v22
+globalThis.RNFB_SILENCE_MODULAR_DEPRECATION_WARNINGS = true;
 import "@/i18n";
 import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import { AuthProvider, useAuthContext } from "@/lib/context";
+import { ThemeProvider, useTheme } from "@/lib/themeContext"; // Импортируем провайдер темы
 import Toast from "react-native-toast-message";
 import { View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -15,56 +16,108 @@ import {
     checkAndUpdateToken,
 } from "../lib/notifications";
 import { useNavigationContainerRef } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
-const toastConfig = {
-    success: ({ text1, text2 }) => (
-        <View className="flex-row items-center bg-ghostwhite border-l-4 border-green-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
-            <MaterialIcons name="check-circle" size={24} color="#22c55e" />
-            <View className="flex-1">
-                <Text className="text-green-600 text-base font-msemibold">
-                    {text1}
-                </Text>
-                {text2 ? (
-                    <Text className="text-gray-700 text-sm font-mregular">
-                        {text2}
-                    </Text>
-                ) : null}
-            </View>
-        </View>
-    ),
+// Компонент для Toast с поддержкой темы
+function ThemedToastConfig() {
+    const { isDark } = useTheme();
 
-    error: ({ text1, text2 }) => (
-        <View className="flex-row items-center bg-ghostwhite border-l-4 border-red-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
-            <MaterialIcons name="error" size={24} color="#ef4444" />
-            <View className="flex-1">
-                <Text className="text-red-600 text-base font-msemibold">
-                    {text1}
-                </Text>
-                {text2 ? (
-                    <Text className="text-gray-700 text-sm font-mregular">
-                        {text2}
+    return {
+        success: ({ text1, text2 }) => (
+            <View
+                className={`flex-row items-center border-l-4 border-green-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3 ${
+                    isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                }`}
+            >
+                <MaterialIcons name="check-circle" size={24} color="#22c55e" />
+                <View className="flex-1">
+                    <Text className="text-green-600 text-base font-msemibold">
+                        {text1}
                     </Text>
-                ) : null}
+                    {text2 ? (
+                        <Text
+                            className={`text-sm font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-700"
+                            }`}
+                        >
+                            {text2}
+                        </Text>
+                    ) : null}
+                </View>
             </View>
-        </View>
-    ),
+        ),
 
-    info: ({ text1, text2 }) => (
-        <View className="flex-row items-center bg-ghostwhite border-l-4 border-primary p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3">
-            <MaterialIcons name="info" size={24} color="#3b82f6" />
-            <View className="flex-1">
-                <Text className="text-primary text-base font-msemibold">
-                    {text1}
-                </Text>
-                {text2 ? (
-                    <Text className="text-gray-700 text-sm font-mregular">
-                        {text2}
+        error: ({ text1, text2 }) => (
+            <View
+                className={`flex-row items-center border-l-4 border-red-500 p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3 ${
+                    isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                }`}
+            >
+                <MaterialIcons name="error" size={24} color="#ef4444" />
+                <View className="flex-1">
+                    <Text className="text-red-600 text-base font-msemibold">
+                        {text1}
                     </Text>
-                ) : null}
+                    {text2 ? (
+                        <Text
+                            className={`text-sm font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-700"
+                            }`}
+                        >
+                            {text2}
+                        </Text>
+                    ) : null}
+                </View>
             </View>
-        </View>
-    ),
-};
+        ),
+
+        info: ({ text1, text2 }) => (
+            <View
+                className={`flex-row items-center border-l-4 border-primary p-4 rounded-xl w-[90%] mx-auto shadow-md space-x-3 ${
+                    isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                }`}
+            >
+                <MaterialIcons name="info" size={24} color="#3b82f6" />
+                <View className="flex-1">
+                    <Text className="text-primary text-base font-msemibold">
+                        {text1}
+                    </Text>
+                    {text2 ? (
+                        <Text
+                            className={`text-sm font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-700"
+                            }`}
+                        >
+                            {text2}
+                        </Text>
+                    ) : null}
+                </View>
+            </View>
+        ),
+    };
+}
+
+function ThemedToast() {
+    const toastConfig = ThemedToastConfig();
+    return <Toast config={toastConfig} />;
+}
+
+function GlobalStatusBar() {
+    const { isDark } = useTheme();
+
+    return (
+        <StatusBar
+            style={isDark ? "light" : "dark"}
+            backgroundColor={isDark ? "#0F0F0F" : "#FFFFFF"}
+        />
+    );
+}
 
 function InitialLayout() {
     const { loading } = useAuthContext();
@@ -91,11 +144,8 @@ function InitialLayout() {
                 name="(auth)"
                 options={{
                     headerShown: false,
-                    // Запрещаем жест возврата назад
                     gestureEnabled: false,
-                    // Запрещаем возврат назад через кнопку устройства
                     headerBackVisible: false,
-                    // Делаем невозможным программный возврат назад
                     headerLeft: () => null,
                     animation: "slide_from_right",
                 }}
@@ -140,19 +190,16 @@ export default function RootLayout() {
         if (fontsLoaded) {
             SplashScreen.hideAsync();
 
-            // Инициализация push-уведомлений
             registerForPushNotificationsAsync().then((token) => {
                 if (token) {
                     console.log("Push token registered:", token);
                 }
             });
 
-            // Проверка и обновление токена
             checkAndUpdateToken();
 
-            // Настройка слушателей уведомлений
             const unsubscribe = setupNotificationListeners(navigationRef);
-            return () => unsubscribe(); // Очистка слушателей при размонтировании
+            return () => unsubscribe();
         }
     }, [fontsLoaded, error]);
 
@@ -161,15 +208,18 @@ export default function RootLayout() {
     }
 
     return (
-        <AuthProvider>
-            <DataProvider>
-                <KeyboardProvider>
-                    <>
-                        <InitialLayout />
-                        <Toast config={toastConfig} />
-                    </>
-                </KeyboardProvider>
-            </DataProvider>
-        </AuthProvider>
+        <ThemeProvider>
+            <AuthProvider>
+                <DataProvider>
+                    <KeyboardProvider>
+                        <>
+                            <GlobalStatusBar />
+                            <InitialLayout />
+                            <ThemedToast />
+                        </>
+                    </KeyboardProvider>
+                </DataProvider>
+            </AuthProvider>
+        </ThemeProvider>
     );
 }

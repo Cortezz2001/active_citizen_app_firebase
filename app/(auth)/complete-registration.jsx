@@ -1,8 +1,6 @@
-// Modified parts of complete-registration.jsx
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import { useFirestore } from "../../hooks/useFirestore";
 import auth from "@react-native-firebase/auth";
@@ -21,12 +19,14 @@ import {
     getGenderKeyByName,
 } from "../../lib/genders";
 import { useData } from "../../lib/datacontext";
+import { useTheme } from "../../lib/themeContext"; // Import useTheme
 
 const CompleteRegistration = () => {
     const { t, i18n } = useTranslation();
     const { user, logout, refreshUser } = useAuthContext();
     const { setDocument } = useFirestore();
     const { refreshAllData } = useData();
+    const { isDark } = useTheme(); // Get current theme
     const currentLanguage = i18n.language || "en";
 
     // Get cities in the current language for the dropdown
@@ -42,8 +42,8 @@ const CompleteRegistration = () => {
     const [form, setForm] = useState({
         fname: "",
         lname: "",
-        cityKey: "", // Store the city key, not the display name
-        genderKey: "", // Now storing genderKey instead of gender string
+        cityKey: "",
+        genderKey: "",
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,8 +69,8 @@ const CompleteRegistration = () => {
             await setDocument("users", user.uid, {
                 fname,
                 lname,
-                cityKey, // Store the city key in the database
-                genderKey, // Store the gender key in the database
+                cityKey,
+                genderKey,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             });
@@ -115,7 +115,6 @@ const CompleteRegistration = () => {
 
     // Handle city selection from dropdown
     const handleCitySelect = (selectedCityName) => {
-        // Find the city object that matches the selected name
         const cityData = getCityDropdownData(currentLanguage).find(
             (city) => city.value === selectedCityName
         );
@@ -127,7 +126,6 @@ const CompleteRegistration = () => {
 
     // Handle gender selection from dropdown
     const handleGenderSelect = (selectedGenderName) => {
-        // Find the gender object that matches the selected name
         const genderData = getGenderDropdownData(currentLanguage).find(
             (gender) => gender.value === selectedGenderName
         );
@@ -148,8 +146,9 @@ const CompleteRegistration = () => {
         : "";
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StatusBar style="dark" />
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
             <View className="px-6 pt-4 flex-row mb-2">
                 <TouchableOpacity
                     onPress={handleSignOut}
@@ -159,9 +158,13 @@ const CompleteRegistration = () => {
                     <MaterialIcons
                         name="arrow-back"
                         size={24}
-                        color="#3b82f6"
+                        color={isDark ? "#0066E6" : "#3b82f6"}
                     />
-                    <Text className="ml-1 text-primary font-msemibold">
+                    <Text
+                        className={`ml-1 font-msemibold ${
+                            isDark ? "text-dark-primary" : "text-primary"
+                        }`}
+                    >
                         {t("complete_registration.back_button")}
                     </Text>
                 </TouchableOpacity>
@@ -174,11 +177,19 @@ const CompleteRegistration = () => {
                 }}
                 showsVerticalScrollIndicator={false}
             >
-                <Text className="text-3xl font-mbold text-black text-center mt-2 mb-10">
+                <Text
+                    className={`text-3xl font-mbold text-center mt-2 mb-10 ${
+                        isDark ? "text-dark-text-primary" : "text-black"
+                    }`}
+                >
                     {t("complete_registration.title")}
                 </Text>
                 <View className="flex-1 justify-center">
-                    <Text className="text-black font-msemibold text-left mb-2">
+                    <Text
+                        className={`font-msemibold text-left mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("complete_registration.fields.first_name.label")}{" "}
                         <Text className="text-red-500">
                             {t("complete_registration.required_indicator")}
@@ -194,9 +205,14 @@ const CompleteRegistration = () => {
                         value={form.fname}
                         handleChangeText={(e) => setForm({ ...form, fname: e })}
                         containerStyle="mb-4"
+                        isDark={isDark}
                     />
 
-                    <Text className="text-black font-msemibold text-left mb-2">
+                    <Text
+                        className={`font-msemibold text-left mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("complete_registration.fields.last_name.label")}{" "}
                         <Text className="text-red-500">
                             {t("complete_registration.required_indicator")}
@@ -212,9 +228,14 @@ const CompleteRegistration = () => {
                         value={form.lname}
                         handleChangeText={(e) => setForm({ ...form, lname: e })}
                         containerStyle="mb-4"
+                        isDark={isDark}
                     />
 
-                    <Text className="text-black font-msemibold text-left mb-2">
+                    <Text
+                        className={`font-msemibold text-left mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("complete_registration.fields.city.label")}{" "}
                         <Text className="text-red-500">
                             {t("complete_registration.required_indicator")}
@@ -229,9 +250,14 @@ const CompleteRegistration = () => {
                         options={cityOptions}
                         onSelect={handleCitySelect}
                         containerStyle="mb-4"
+                        isDark={isDark}
                     />
 
-                    <Text className="text-black font-msemibold text-left mb-2">
+                    <Text
+                        className={`font-msemibold text-left mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("complete_registration.fields.gender.label")}{" "}
                         <Text className="text-red-500">
                             {t("complete_registration.required_indicator")}
@@ -246,12 +272,18 @@ const CompleteRegistration = () => {
                         options={genderOptions}
                         onSelect={handleGenderSelect}
                         containerStyle="mb-6"
+                        isDark={isDark}
                     />
 
                     <CustomButton
                         title={t("complete_registration.buttons.complete")}
                         handlePress={handleComplete}
-                        containerStyles="rounded-lg py-3 bg-primary mt-4"
+                        containerStyles={`rounded-lg py-3 ${
+                            isDark ? "bg-dark-primary" : "bg-primary"
+                        } mt-4`}
+                        textStyles={
+                            isDark ? "text-dark-text-primary" : "text-white"
+                        }
                         isLoading={isSubmitting}
                     />
                 </View>

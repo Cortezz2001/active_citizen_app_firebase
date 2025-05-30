@@ -8,6 +8,7 @@ const FormField = ({
     value,
     handleChangeText,
     containerStyle,
+    isDark = false, // Add isDark prop
     ...props
 }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +20,12 @@ const FormField = ({
                 value={value}
                 onChangeText={handleChangeText}
                 secureTextEntry={title === "Password" && !showPassword}
-                className="border border-gray-300 rounded-lg px-4 py-3  font-mregular"
+                className={`border rounded-lg px-4 py-3 font-mregular ${
+                    isDark
+                        ? "border-gray-600 text-dark-text-primary"
+                        : "border-gray-300 text-black"
+                }`}
+                placeholderTextColor={isDark ? "#A0A0A0" : "#6B7280"}
                 {...props}
             />
             {title === "Password" && (
@@ -30,7 +36,7 @@ const FormField = ({
                     <FontAwesome
                         name={showPassword ? "eye" : "eye-slash"}
                         size={20}
-                        color="gray"
+                        color={isDark ? "#A0A0A0" : "gray"}
                     />
                 </TouchableOpacity>
             )}

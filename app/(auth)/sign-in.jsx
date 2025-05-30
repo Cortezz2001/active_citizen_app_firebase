@@ -1,6 +1,5 @@
 import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
 import { useState } from "react";
@@ -11,9 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
 import { useFirestore } from "../../hooks/useFirestore";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../lib/themeContext";
 
 export default function SignIn() {
     const { t } = useTranslation();
+    const { isDark } = useTheme();
     const { sendPhoneVerificationCode, signInWithGoogle } = useAuth();
     const [isSubmitting, setSubmitting] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -73,7 +74,6 @@ export default function SignIn() {
             return;
         }
 
-        // Basic phone validation
         const phoneRegex = /^\+[0-9]{10,15}$/;
         if (!phoneRegex.test(phoneNumber)) {
             Toast.show({
@@ -108,43 +108,99 @@ export default function SignIn() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white justify-center px-6">
-            <StatusBar style="dark" />
+        <SafeAreaView
+            className={`flex-1 justify-center px-6  ${
+                isDark ? "bg-dark-background" : "bg-white"
+            }`}
+        >
             <ScrollView
                 contentContainerStyle={{
                     flexGrow: 1,
                     justifyContent: "center",
                 }}
+                showsVerticalScrollIndicator={false}
             >
-                <Text className="text-3xl font-mbold text-black text-center mb-8">
+                <Text
+                    className={`text-3xl font-mbold text-center mb-8 ${
+                        isDark ? "text-dark-text-primary" : "text-black"
+                    }`}
+                >
                     {t("sign_in.title")}
                 </Text>
 
-                <Text className="text-black font-msemibold text-left mb-2">
+                <Text
+                    className={`font-msemibold text-left mb-2 ${
+                        isDark ? "text-dark-text-primary" : "text-black"
+                    }`}
+                >
                     {t("sign_in.fields.phone_number.label")}
                 </Text>
-                <PhoneField
-                    value={phoneNumber}
-                    handleChangeText={setPhoneNumber}
-                    containerStyle="mb-8"
-                />
+
+                <View
+                    className={`mb-8 ${
+                        isDark ? "bg-dark-surface" : "bg-white"
+                    } rounded-lg border ${
+                        isDark ? "border-dark-border" : "border-gray-300"
+                    }`}
+                >
+                    <PhoneField
+                        value={phoneNumber}
+                        handleChangeText={setPhoneNumber}
+                    />
+                </View>
 
                 <CustomButton
                     title={t("sign_in.buttons.login")}
                     handlePress={handleSignIn}
-                    containerStyles="rounded-lg py-3 mb-6 bg-primary"
-                    textStyles="text-lg"
+                    containerStyles={`rounded-lg py-3 mb-6 ${
+                        isDark ? "bg-dark-primary" : "bg-primary"
+                    }`}
+                    textStyles="text-lg text-white"
                     isLoading={isSubmitting}
                 />
 
                 <View className="flex-row items-center justify-center mb-6 mt-3">
-                    <View className="flex-1 h-[1px] bg-gray-300" />
-                    <Text className="text-gray-500 px-2 font-mmedium">
+                    <View
+                        className={`flex-1 h-[1px] ${
+                            isDark ? "bg-dark-border" : "bg-gray-300"
+                        }`}
+                    />
+                    <Text
+                        className={`px-2 font-mmedium ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-500"
+                        }`}
+                    >
                         {t("sign_in.divider")}
                     </Text>
-                    <View className="flex-1 h-[1px] bg-gray-300" />
+                    <View
+                        className={`flex-1 h-[1px] ${
+                            isDark ? "bg-dark-border" : "bg-gray-300"
+                        }`}
+                    />
                 </View>
-                <GoogleButton onPress={handleGoogleSignIn} />
+
+                <GoogleButton onPress={handleGoogleSignIn} isDark={isDark} />
+
+                {/* Дополнительные элементы для демонстрации темы */}
+                {/* <View
+                    className={`mt-8 p-4 rounded-lg ${
+                        isDark
+                            ? "bg-dark-card border-dark-border"
+                            : "bg-gray-50 border-gray-200"
+                    } border`}
+                >
+                    <Text
+                        className={`text-sm font-mregular ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-600"
+                        }`}
+                    >
+                        Демонстрация адаптивной темы
+                    </Text>
+                </View> */}
             </ScrollView>
         </SafeAreaView>
     );

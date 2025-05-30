@@ -3,7 +3,6 @@ import CustomButton from "@/components/CustomButton";
 import { router, Redirect, useNavigationContainerRef } from "expo-router";
 import { Text, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useAuthContext } from "@/lib/context";
 import LottieView from "lottie-react-native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -11,6 +10,8 @@ import LanguageSelector from "../components/LanguageSelector";
 import { useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { checkInitialNotification } from "../lib/notifications";
+import { useTheme } from "../lib/themeContext";
+import ThemeToggleButton from "../components/ThemeToggleButton";
 
 export default function Index() {
     const { t } = useTranslation();
@@ -18,6 +19,7 @@ export default function Index() {
     const swiperRef = useRef(null);
     const navigationRef = useNavigationContainerRef();
     const initialNotificationCheckedRef = useRef(false);
+    const { isDark } = useTheme();
 
     // Проверка уведомления при запуске приложения (когда было закрыто)
     useEffect(() => {
@@ -52,32 +54,45 @@ export default function Index() {
     // Если пользователь не залогинен - показываем стартовый экран
     return (
         <SafeAreaView className="bg-secondary h-full">
-            <StatusBar style="dark" />
             <Swiper
-                loop={false} // Отключаем бесконечный свайп
+                loop={false}
                 dot={<View className="w-2 h-2 rounded-full bg-gray-300 mx-1" />}
                 activeDotStyle={
                     <View className="w-2 h-2 rounded-full bg-primary mx-1" />
-                } // Активная точка
-                showsButtons={false} // Кнопки "влево/вправо" не отображаются
+                }
+                showsButtons={false}
                 ref={swiperRef}
             >
                 {/* Первая страница */}
-                <View className="flex-1 justify-center items-center px-4 bg-white">
-                    <View className="absolute top-4 right-4 z-10">
-                        <LanguageSelector />
+                <View
+                    className={`flex-1 justify-center items-center px-4 ${
+                        isDark ? "bg-dark-background" : "bg-white"
+                    }`}
+                >
+                    <View className="absolute top-4 right-4 z-10 flex-row">
+                        <View className="mr-2">
+                            <LanguageSelector />
+                        </View>
+                        <ThemeToggleButton />
                     </View>
-
                     <LottieView
                         source={require("../assets/animations/welcome_logo.json")}
                         autoPlay
                         loop
                         style={{ width: 300, height: 230, marginBottom: 32 }}
                     />
-                    <Text className="text-3xl text-black font-mbold text-center">
+                    <Text
+                        className={`text-3xl font-mbold text-center ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("index.slides.welcome.title")}
                     </Text>
-                    <Text className="text-sm font-mmedium text-black mt-4 text-center leading-relaxed">
+                    <Text
+                        className={`text-sm font-mmedium text-center leading-relaxed mt-4 ${
+                            isDark ? "text-dark-text-secondary" : "text-black"
+                        }`}
+                    >
                         {t("index.slides.welcome.description")}
                     </Text>
                     <View className="px-6 pt-10 flex-row mb-2">
@@ -86,20 +101,30 @@ export default function Index() {
                             className="flex-row items-center"
                             accessibilityLabel={t("index.slides.welcome.skip")}
                         >
-                            <Text className="ml-1 text-primary font-msemibold">
+                            <Text
+                                className={`ml-1 font-msemibold ${
+                                    isDark
+                                        ? "text-dark-primary"
+                                        : "text-primary"
+                                }`}
+                            >
                                 {t("index.slides.welcome.skip")}
                             </Text>
                             <MaterialIcons
                                 name="arrow-forward"
                                 size={16}
-                                color="#3b82f6"
+                                color={isDark ? "#0066E6" : "#3b82f6"}
                             />
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 {/* Вторая страница */}
-                <View className="flex-1 justify-center items-center px-6 bg-white">
+                <View
+                    className={`flex-1 justify-center items-center px-6 ${
+                        isDark ? "bg-dark-background" : "bg-white"
+                    }`}
+                >
                     <View className="w-full h-64 mb-6">
                         <LottieView
                             source={require("@/assets/animations/report.json")}
@@ -108,17 +133,30 @@ export default function Index() {
                             style={{ width: "100%", height: "100%" }}
                         />
                     </View>
-
-                    <Text className="text-2xl text-black font-mbold text-center">
+                    <Text
+                        className={`text-2xl font-mbold text-center ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("index.slides.report_issues.title")}
                     </Text>
-                    <Text className="text-sm font-mmedium text-gray-700 mt-3 text-center leading-relaxed">
+                    <Text
+                        className={`text-sm font-mmedium text-center leading-relaxed mt-3 ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {t("index.slides.report_issues.description")}
                     </Text>
                 </View>
 
                 {/* Третья страница */}
-                <View className="flex-1 justify-center items-center px-6 bg-white">
+                <View
+                    className={`flex-1 justify-center items-center px-6 ${
+                        isDark ? "bg-dark-background" : "bg-white"
+                    }`}
+                >
                     <View className="w-full h-64 mb-6">
                         <LottieView
                             source={require("../assets/animations/news.json")}
@@ -127,17 +165,30 @@ export default function Index() {
                             style={{ width: "100%", height: "100%" }}
                         />
                     </View>
-
-                    <Text className="text-2xl text-black font-mbold text-center">
+                    <Text
+                        className={`text-2xl font-mbold text-center ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("index.slides.city_news.title")}
                     </Text>
-                    <Text className="text-sm font-mmedium text-gray-700 mt-3 text-center leading-relaxed">
+                    <Text
+                        className={`text-sm font-mmedium text-center leading-relaxed mt-3 ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {t("index.slides.city_news.description")}
                     </Text>
                 </View>
 
                 {/* Четвертая страница */}
-                <View className="flex-1 justify-center items-center px-6 bg-white">
+                <View
+                    className={`flex-1 justify-center items-center px-6 ${
+                        isDark ? "bg-dark-background" : "bg-white"
+                    }`}
+                >
                     <View className="w-full h-64 mb-6">
                         <LottieView
                             source={require("../assets/animations/join-community.json")}
@@ -146,17 +197,30 @@ export default function Index() {
                             style={{ width: "100%", height: "100%" }}
                         />
                     </View>
-
-                    <Text className="text-2xl text-black font-mbold text-center">
+                    <Text
+                        className={`text-2xl font-mbold text-center ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("index.slides.community_events.title")}
                     </Text>
-                    <Text className="text-sm font-mmedium text-gray-700 mt-3 text-center leading-relaxed">
+                    <Text
+                        className={`text-sm font-mmedium text-center leading-relaxed mt-3 ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {t("index.slides.community_events.description")}
                     </Text>
                 </View>
 
                 {/* Пятая страница */}
-                <View className="flex-1 justify-center items-center px-6 bg-white">
+                <View
+                    className={`flex-1 justify-center items-center px-6 ${
+                        isDark ? "bg-dark-background" : "bg-white"
+                    }`}
+                >
                     <View className="w-full h-64 mb-6">
                         <LottieView
                             source={require("../assets/animations/vote.json")}
@@ -165,16 +229,30 @@ export default function Index() {
                             style={{ width: "100%", height: "100%" }}
                         />
                     </View>
-                    <Text className="text-2xl text-black font-mbold text-center">
+                    <Text
+                        className={`text-2xl font-mbold text-center ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("index.slides.vote_influence.title")}
                     </Text>
-                    <Text className="text-sm font-mmedium text-gray-700 mt-3 text-center leading-relaxed">
+                    <Text
+                        className={`text-sm font-mmedium text-center leading-relaxed mt-3 ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {t("index.slides.vote_influence.description")}
                     </Text>
                 </View>
 
                 {/* Шестая страница */}
-                <View className="flex-1 justify-center items-center px-4 bg-white">
+                <View
+                    className={`flex-1 justify-center items-center px-4 ${
+                        isDark ? "bg-dark-background" : "bg-white"
+                    }`}
+                >
                     <View className="w-full h-64 mb-6">
                         <LottieView
                             source={require("@/assets/animations/login.json")}
@@ -183,16 +261,27 @@ export default function Index() {
                             style={{ width: "100%", height: "100%" }}
                         />
                     </View>
-                    <Text className="text-3xl text-black font-mbold text-center">
+                    <Text
+                        className={`text-3xl font-mbold text-center ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("index.slides.get_started.title")}
                     </Text>
-                    <Text className="text-sm font-mmedium text-black mt-4 text-center leading-relaxed">
+                    <Text
+                        className={`text-sm font-mmedium text-center leading-relaxed mt-4 ${
+                            isDark ? "text-dark-text-secondary" : "text-black"
+                        }`}
+                    >
                         {t("index.slides.get_started.description")}
                     </Text>
                     <CustomButton
                         title={t("index.slides.get_started.continue")}
                         handlePress={() => router.push("/sign-in")}
-                        containerStyles="w-full mt-7 min-h-[62px] bg-primary"
+                        containerStyles={`w-full mt-7 min-h-[62px] ${
+                            isDark ? "bg-dark-primary" : "bg-primary"
+                        }`}
+                        textStyles="text-white"
                     />
                 </View>
             </Swiper>

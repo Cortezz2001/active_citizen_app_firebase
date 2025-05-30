@@ -1,5 +1,6 @@
 import { TextInput } from "react-native";
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "../lib/themeContext";
 
 export default function PhoneField({
     value,
@@ -10,6 +11,7 @@ export default function PhoneField({
     const [displayValue, setDisplayValue] = useState("");
     const [selection, setSelection] = useState({ start: 0, end: 0 });
     const inputRef = useRef(null);
+    const { isDark } = useTheme();
 
     // Карта соответствия позиций символов в форматированной строке и в сырой строке
     const createPositionMap = (formatted) => {
@@ -191,7 +193,12 @@ export default function PhoneField({
             keyboardType="phone-pad"
             maxLength={18} // Length of "+7 (999) 999-99-99"
             placeholder="+7 (___) ___-__-__"
-            className={`border border-gray-300 bg-ghostwhite rounded-lg px-4 py-3 text-black font-mmedium ${containerStyle}`}
+            placeholderTextColor={isDark ? "#9CA3AF" : "#4B5563"}
+            className={`border ${
+                isDark
+                    ? "text-dark-text-secondary bg-dark-card border-dark-border"
+                    : "text-black bg-gray-50 border-gray-200"
+            } rounded-lg px-4 py-3 font-mmedium ${containerStyle}`}
             {...props}
         />
     );

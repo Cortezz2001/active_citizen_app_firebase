@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
 import { useFirestore } from "../../hooks/useFirestore";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/lib/themeContext"; // Импортируем useTheme
 
 export default function SmsCode() {
     const { t } = useTranslation();
@@ -27,6 +28,7 @@ export default function SmsCode() {
     ]);
     const inputRefs = useRef([]);
     const { getDocument } = useFirestore();
+    const { isDark } = useTheme(); // Получаем текущую тему
 
     useEffect(() => {
         if (inputRefs.current[0]) {
@@ -161,13 +163,25 @@ export default function SmsCode() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white justify-center px-6">
-            <StatusBar style="dark" />
+        <SafeAreaView
+            className={`flex-1 justify-center px-6 ${
+                isDark ? "bg-dark-background" : "bg-white"
+            }`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
             <View className="items-center">
-                <Text className="text-2xl font-mbold text-black text-center mb-2">
+                <Text
+                    className={`text-2xl font-mbold text-center mb-2 ${
+                        isDark ? "text-dark-text-primary" : "text-black"
+                    }`}
+                >
                     {t("sms_code.title")}
                 </Text>
-                <Text className="text-sm text-gray-500 text-center mb-8">
+                <Text
+                    className={`text-sm text-center mb-8 ${
+                        isDark ? "text-dark-text-secondary" : "text-gray-500"
+                    }`}
+                >
                     {t("sms_code.instruction")} {"\n"}
                     {phoneNumber}
                 </Text>
@@ -176,16 +190,26 @@ export default function SmsCode() {
                     {[0, 1, 2, 3, 4, 5].map((index) => (
                         <View
                             key={index}
-                            className="w-11 h-12 border-2 rounded-lg justify-around items-center border-gray-300"
+                            className={`w-11 h-12 border-2 rounded-lg justify-around items-center ${
+                                isDark ? "border-gray-600" : "border-gray-300"
+                            }`}
                             style={{
                                 borderColor: verificationCode[index]
-                                    ? "#3b82f6"
+                                    ? isDark
+                                        ? "#0066E6"
+                                        : "#3b82f6"
+                                    : isDark
+                                    ? "#4B5563"
                                     : "#d1d5db",
                             }}
                         >
                             <TextInput
                                 ref={(ref) => (inputRefs.current[index] = ref)}
-                                className="text-black text-xl font-semibold text-center w-full h-full"
+                                className={`text-xl font-semibold text-center w-full h-full ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-black"
+                                }`}
                                 maxLength={1}
                                 keyboardType="number-pad"
                                 value={verificationCode[index]}
@@ -209,9 +233,15 @@ export default function SmsCode() {
                     }
                 >
                     <Text
-                        className={`text-center ${
-                            resendDisabled ? "text-gray-400" : "text-blue-500"
-                        } font-mmedium`}
+                        className={`text-center font-mmedium ${
+                            resendDisabled
+                                ? isDark
+                                    ? "text-gray-500"
+                                    : "text-gray-400"
+                                : isDark
+                                ? "text-dark-primary"
+                                : "text-blue-500"
+                        }`}
                     >
                         {resendDisabled
                             ? t("sms_code.resend.disabled", { timer })
@@ -222,10 +252,16 @@ export default function SmsCode() {
                 <CustomButton
                     title={t("sms_code.buttons.continue")}
                     handlePress={handleVerify}
-                    containerStyles="rounded-lg py-3 bg-primary w-full"
+                    containerStyles={`rounded-lg py-3 w-full ${
+                        isDark ? "bg-dark-primary" : "bg-primary"
+                    }`}
+                    textStyles={
+                        isDark ? "text-dark-text-primary" : "text-white"
+                    }
                     isLoading={isSubmitting}
                 />
             </View>
         </SafeAreaView>
     );
 }
+6;
