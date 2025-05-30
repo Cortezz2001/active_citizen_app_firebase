@@ -23,8 +23,10 @@ const LanguageSelector = ({ isDark }) => {
         <>
             <TouchableOpacity
                 onPress={() => setModalVisible(true)}
-                className={`p-2 rounded-full ${
-                    isDark ? "bg-dark-surface" : "bg-gray-100"
+                className={`p-2 rounded-full border ${
+                    isDark
+                        ? "bg-dark-surface border-dark-border"
+                        : "bg-ghostwhite border-light-border"
                 }`}
             >
                 <MaterialIcons
