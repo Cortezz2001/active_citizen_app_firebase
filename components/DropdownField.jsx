@@ -18,7 +18,7 @@ const DropdownField = ({
     onSelect,
     containerStyle,
     disabled = false,
-    isDark = false, // Add isDark prop
+    isDark,
 }) => {
     const { t } = useTranslation();
     const [modalVisible, setModalVisible] = useState(false);

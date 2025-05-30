@@ -1,6 +1,5 @@
 import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import CustomButton from "@/components/CustomButton";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState, useEffect, useRef } from "react";
@@ -9,8 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
 import { useFirestore } from "../../hooks/useFirestore";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "@/lib/themeContext"; // Импортируем useTheme
-
+import { useTheme } from "@/lib/themeContext";
 export default function SmsCode() {
     const { t } = useTranslation();
     const { phoneNumber } = useLocalSearchParams();
@@ -28,7 +26,7 @@ export default function SmsCode() {
     ]);
     const inputRefs = useRef([]);
     const { getDocument } = useFirestore();
-    const { isDark } = useTheme(); // Получаем текущую тему
+    const { isDark } = useTheme();
 
     useEffect(() => {
         if (inputRefs.current[0]) {
@@ -168,7 +166,6 @@ export default function SmsCode() {
                 isDark ? "bg-dark-background" : "bg-white"
             }`}
         >
-            <StatusBar style={isDark ? "light" : "dark"} />
             <View className="items-center">
                 <Text
                     className={`text-2xl font-mbold text-center mb-2 ${
@@ -252,13 +249,9 @@ export default function SmsCode() {
                 <CustomButton
                     title={t("sms_code.buttons.continue")}
                     handlePress={handleVerify}
-                    containerStyles={`rounded-lg py-3 w-full ${
-                        isDark ? "bg-dark-primary" : "bg-primary"
-                    }`}
-                    textStyles={
-                        isDark ? "text-dark-text-primary" : "text-white"
-                    }
+                    containerStyles={`rounded-lg py-3 w-full`}
                     isLoading={isSubmitting}
+                    isDark={isDark}
                 />
             </View>
         </SafeAreaView>

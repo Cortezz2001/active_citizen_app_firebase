@@ -6,26 +6,28 @@ const CustomButton = ({
     containerStyles,
     textStyles,
     isLoading,
+    isDark,
 }) => {
     return (
         <TouchableOpacity
             onPress={handlePress}
             activeOpacity={0.7}
-            className={`rounded-xl  flex flex-row justify-center items-center ${containerStyles} ${
-                isLoading ? "opacity-50" : ""
-            }`}
+            className={`rounded-xl flex flex-row justify-center items-center ${
+                isDark ? "bg-dark-primary" : "bg-primary"
+            } ${containerStyles} ${isLoading ? "opacity-50" : ""}`}
             disabled={isLoading}
         >
             <Text
-                className={`text-secondary font-msemibold text-center ${textStyles}`}
+                className={`font-msemibold text-center ${
+                    isDark ? "text-dark-text-primary" : "text-secondary"
+                } ${textStyles}`}
             >
                 {title}
             </Text>
-
             {isLoading && (
                 <ActivityIndicator
                     animating={isLoading}
-                    color="#fff"
+                    color={isDark ? "#FFFFFF" : "#006FFD"}
                     size="small"
                     className="ml-2"
                 />

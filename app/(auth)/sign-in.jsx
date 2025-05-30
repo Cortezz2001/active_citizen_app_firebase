@@ -146,17 +146,17 @@ export default function SignIn() {
                     <PhoneField
                         value={phoneNumber}
                         handleChangeText={setPhoneNumber}
+                        isDark={isDark}
                     />
                 </View>
 
                 <CustomButton
                     title={t("sign_in.buttons.login")}
                     handlePress={handleSignIn}
-                    containerStyles={`rounded-lg py-3 mb-6 ${
-                        isDark ? "bg-dark-primary" : "bg-primary"
-                    }`}
+                    containerStyles={`rounded-lg py-3 mb-6`}
                     textStyles="text-lg text-white"
                     isLoading={isSubmitting}
+                    isDark={isDark}
                 />
 
                 <View className="flex-row items-center justify-center mb-6 mt-3">

@@ -158,7 +158,7 @@ const CompleteRegistration = () => {
                     <MaterialIcons
                         name="arrow-back"
                         size={24}
-                        color={isDark ? "#0066E6" : "#3b82f6"}
+                        color={isDark ? "#0066E6" : "#006FFD"}
                     />
                     <Text
                         className={`ml-1 font-msemibold ${
@@ -278,13 +278,9 @@ const CompleteRegistration = () => {
                     <CustomButton
                         title={t("complete_registration.buttons.complete")}
                         handlePress={handleComplete}
-                        containerStyles={`rounded-lg py-3 ${
-                            isDark ? "bg-dark-primary" : "bg-primary"
-                        } mt-4`}
-                        textStyles={
-                            isDark ? "text-dark-text-primary" : "text-white"
-                        }
+                        containerStyles={`rounded-lg py-3 mt-4`}
                         isLoading={isSubmitting}
+                        isDark={isDark}
                     />
                 </View>
             </ScrollView>

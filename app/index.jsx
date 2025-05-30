@@ -71,9 +71,9 @@ export default function Index() {
                 >
                     <View className="absolute top-4 right-4 z-10 flex-row">
                         <View className="mr-2">
-                            <LanguageSelector />
+                            <LanguageSelector isDark={isDark} />
                         </View>
-                        <ThemeToggleButton />
+                        <ThemeToggleButton isDark={isDark} />
                     </View>
                     <LottieView
                         source={require("../assets/animations/welcome_logo.json")}
@@ -278,10 +278,9 @@ export default function Index() {
                     <CustomButton
                         title={t("index.slides.get_started.continue")}
                         handlePress={() => router.push("/sign-in")}
-                        containerStyles={`w-full mt-7 min-h-[62px] ${
-                            isDark ? "bg-dark-primary" : "bg-primary"
-                        }`}
+                        containerStyles={`w-full mt-7 min-h-[62px]`}
                         textStyles="text-white"
+                        isDark={isDark}
                     />
                 </View>
             </Swiper>

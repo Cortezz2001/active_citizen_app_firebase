@@ -1,9 +1,6 @@
-import React from "react";
 import { TouchableOpacity, Image, Text } from "react-native";
-import { useTheme } from "../lib/themeContext";
 
-const GoogleButton = ({ onPress }) => {
-    const { isDark } = useTheme();
+const GoogleButton = ({ onPress, isDark }) => {
     return (
         <TouchableOpacity
             className={`w-full mt-3 border ${

@@ -1,12 +1,12 @@
 import { Text, View, Image, Pressable, Keyboard } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Tabs } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { icons } from "../../constants";
 import { useKeyboard } from "../../hooks/useKeyboard";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/lib/themeContext";
 
-const TabIcon = ({ icon, color, name, focused }) => {
+const TabIcon = ({ icon, color, name, focused, isDark }) => {
     return (
         <View className="flex items-center justify-center w-16 mt-5">
             <Image
@@ -18,7 +18,7 @@ const TabIcon = ({ icon, color, name, focused }) => {
             <Text
                 className={`mt-1 text-xs ${
                     focused ? "font-msemibold" : "font-mregular"
-                }`}
+                } ${isDark ? "text-dark-text-primary" : "text-black"}`}
                 style={{ color }}
                 numberOfLines={1}
             >
@@ -31,18 +31,20 @@ const TabIcon = ({ icon, color, name, focused }) => {
 const TabsLayout = () => {
     const { isKeyboardVisible } = useKeyboard();
     const { t } = useTranslation();
+    const { isDark } = useTheme();
 
     return (
         <>
             <Tabs
                 screenOptions={{
-                    tabBarActiveTintColor: "#006FFD",
-                    tabBarInactiveTintColor: "#8F9098",
+                    tabBarActiveTintColor: isDark ? "#0066E6" : "#006FFD",
+                    tabBarInactiveTintColor: isDark ? "#A0A0A0" : "#8F9098",
                     tabBarShowLabel: false,
                     tabBarStyle: {
+                        backgroundColor: isDark ? "#0F0F0F" : "#FFFFFF",
+                        borderColor: isDark ? "#1A1A1A" : "#E5E7EB",
                         borderTopWidth: 1,
                         height: 65,
-                        // Скрываем tabBar, когда клавиатура видима
                         display: isKeyboardVisible ? "none" : "flex",
                     },
                     tabBarButton: (props) => (
@@ -65,6 +67,7 @@ const TabsLayout = () => {
                                 color={color}
                                 name={t("tabs_layout.request")}
                                 focused={focused}
+                                isDark={isDark}
                             />
                         ),
                     }}
@@ -81,6 +84,7 @@ const TabsLayout = () => {
                                 color={color}
                                 name={t("tabs_layout.home")}
                                 focused={focused}
+                                isDark={isDark}
                             />
                         ),
                     }}
@@ -97,13 +101,12 @@ const TabsLayout = () => {
                                 color={color}
                                 name={t("tabs_layout.profile")}
                                 focused={focused}
+                                isDark={isDark}
                             />
                         ),
                     }}
                 />
             </Tabs>
-
-            <StatusBar backgroundColor="#161622" style="light" />
         </>
     );
 };

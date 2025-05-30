@@ -1,17 +1,16 @@
 import { TextInput } from "react-native";
 import { useState, useEffect, useRef } from "react";
-import { useTheme } from "../lib/themeContext";
 
 export default function PhoneField({
     value,
     handleChangeText,
     containerStyle,
+    isDark,
     ...props
 }) {
     const [displayValue, setDisplayValue] = useState("");
     const [selection, setSelection] = useState({ start: 0, end: 0 });
     const inputRef = useRef(null);
-    const { isDark } = useTheme();
 
     // Карта соответствия позиций символов в форматированной строке и в сырой строке
     const createPositionMap = (formatted) => {

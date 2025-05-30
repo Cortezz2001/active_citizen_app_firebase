@@ -3,8 +3,8 @@ import { TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "../lib/themeContext";
 
-const ThemeToggleButton = () => {
-    const { isDark, toggleTheme } = useTheme();
+const ThemeToggleButton = ({ isDark }) => {
+    const { toggleTheme } = useTheme();
 
     return (
         <>

@@ -5,12 +5,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import images from "@/constants/images";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "@/components/LanguageSelector";
+import { useTheme } from "@/lib/themeContext";
 
 const HomeLayout = () => {
     const router = useRouter();
     const pathname = usePathname();
     const { t, i18n } = useTranslation();
-
+    const { isDark } = useTheme();
     const getCurrentTab = () => {
         const path = pathname.split("/").pop();
         return path === "home" ? "news" : path;
@@ -43,7 +44,11 @@ const HomeLayout = () => {
     };
 
     return (
-        <SafeAreaView className="bg-secondary flex-1">
+        <SafeAreaView
+            className={`flex-1 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
             <View className="px-4 pt-4 flex-1">
                 <View className="flex-row justify-between items-center mb-2">
                     <View className="flex-row items-center flex-1">
@@ -53,16 +58,22 @@ const HomeLayout = () => {
                             resizeMode="contain"
                         />
                         <Text
-                            className={`${getTitleFontSize()} font-mbold flex-shrink-1`}
+                            className={`${getTitleFontSize()} font-mbold flex-shrink-1 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
                             numberOfLines={1}
                         >
                             {t("home_layout.app_title")}
                         </Text>
                     </View>
-                    <LanguageSelector />
+                    <LanguageSelector isDark={isDark} />
                 </View>
 
-                <View className="flex-row justify-between mb-4 bg-white rounded-full">
+                <View
+                    className={`flex-row justify-between mb-4 rounded-full ${
+                        isDark ? "bg-dark-background" : "bg-white"
+                    }`}
+                >
                     {tabs.map((tab) => {
                         const isActive = activeTab.toLowerCase() === tab.key;
                         return (
@@ -70,13 +81,21 @@ const HomeLayout = () => {
                                 key={tab.key}
                                 onPress={() => navigateToTab(tab.key)}
                                 className={`flex-1 py-2 px-1 rounded-full ${
-                                    isActive ? "bg-primary" : "bg-transparent"
+                                    isActive
+                                        ? isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                        : "bg-transparent"
                                 }`}
                             >
                                 <Text
                                     className={`text-center ${getTabFontSize()} font-mmedium ${
                                         isActive
-                                            ? "text-white"
+                                            ? isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-white"
+                                            : isDark
+                                            ? "text-dark-text-secondary"
                                             : "text-gray-600"
                                     }`}
                                     numberOfLines={1}

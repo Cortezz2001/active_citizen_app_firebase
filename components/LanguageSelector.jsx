@@ -3,11 +3,9 @@ import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "../i18n";
-import { useTheme } from "../lib/themeContext";
 
-const LanguageSelector = () => {
+const LanguageSelector = ({ isDark }) => {
     const { i18n, t } = useTranslation();
-    const { isDark } = useTheme();
     const [modalVisible, setModalVisible] = useState(false);
 
     const languages = [

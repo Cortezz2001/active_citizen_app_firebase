@@ -8,7 +8,7 @@ const FormField = ({
     value,
     handleChangeText,
     containerStyle,
-    isDark = false, // Add isDark prop
+    isDark,
     ...props
 }) => {
     const [showPassword, setShowPassword] = useState(false);
