@@ -51,22 +51,27 @@ const HomeLayout = () => {
         >
             <View className="px-4 pt-4 flex-1">
                 <View className="flex-row justify-between items-center mb-2">
-                    <View className="flex-row items-center flex-1">
+                    <View className="flex-row items-center flex-1 mr-2">
                         <Image
                             source={images.logo}
                             className="w-[65px] h-[65px] mr-2"
                             resizeMode="contain"
                         />
                         <Text
-                            className={`${getTitleFontSize()} font-mbold flex-shrink-1 ${
+                            className={`${getTitleFontSize()} font-mbold flex-1 ${
                                 isDark ? "text-dark-text-primary" : "text-black"
                             }`}
                             numberOfLines={1}
+                            adjustsFontSizeToFit={true}
+                            minimumFontScale={0.6}
+                            ellipsizeMode="tail"
                         >
                             {t("home_layout.app_title")}
                         </Text>
                     </View>
-                    <LanguageSelector isDark={isDark} />
+                    <View className="flex-shrink-0">
+                        <LanguageSelector isDark={isDark} />
+                    </View>
                 </View>
 
                 <View

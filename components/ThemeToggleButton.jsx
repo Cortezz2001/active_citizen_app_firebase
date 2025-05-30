@@ -10,7 +10,7 @@ const ThemeToggleButton = ({ isDark }) => {
         <>
             <TouchableOpacity
                 onPress={toggleTheme}
-                className={`p-3 rounded-full ${
+                className={`p-2 rounded-full ${
                     isDark ? "bg-dark-surface" : "bg-gray-100"
                 }`}
             >
