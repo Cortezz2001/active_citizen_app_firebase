@@ -22,10 +22,10 @@ const Settings = () => {
 
     const profileSettingsData = [
         {
-            id: "notification_preferences",
-            title: t("settings.notification_preferences"),
-            icon: "notifications",
-            action: () => router.push("/pages/notification-preferences"),
+            id: "permissions_preferences",
+            title: t("settings.permissions_preferences"),
+            icon: "lock",
+            action: () => router.push("/pages/permissions-preferences"),
         },
         {
             id: "language",

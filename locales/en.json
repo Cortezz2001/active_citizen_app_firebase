@@ -47,8 +47,8 @@
     },
     "account": {
         "settings": {
-            "edit_profile": "Edit Profile",
-            "privacy_settings": "Privacy Settings",
+            "edit_profile": "Edit profile",
+            "privacy_settings": "Privacy settings",
             "delete_account": "Delete account"
         },
         "delete_alert": {
@@ -65,7 +65,7 @@
         }
     },
     "settings": {
-        "notification_preferences": "Notification Preferences",
+        "permissions_preferences": "Permissions preferences",
         "language": "Language",
         "select_language": "Select language",
         "languages": {
@@ -581,5 +581,55 @@
                 "sign_out_failed": "Failed to sign out. Please try again."
             }
         }
+    },
+        "permissions_preferences": {
+      "title": "App Permissions",
+      "description": "Manage permissions to enhance the app experience",
+      "notifications": {
+        "title": "Notifications",
+        "description": "Receive push notifications from the app",
+        "disable_alert": {
+          "title": "Disable Notifications",
+          "message": "To disable notifications, go to your device settings",
+          "cancel": "Cancel",
+          "settings": "Settings"
+        }
+      },
+      "location": {
+        "title": "Location",
+        "description": "Access to your location",
+        "disable_alert": {
+          "title": "Disable Location",
+          "message": "To disable location access, go to your device settings",
+          "cancel": "Cancel",
+          "settings": "Settings"
+        }
+      },
+      "gallery": {
+        "title": "Gallery",
+        "description": "Access to photos and media files",
+        "disable_alert": {
+          "title": "Disable Gallery Access",
+          "message": "To disable gallery access, go to your device settings",
+          "cancel": "Cancel",
+          "settings": "Settings"
+        }
+      },
+      "toast": {
+        "error": {
+          "title": "Error",
+          "notifications": "Failed to obtain notification permission",
+          "location": "Failed to obtain location permission",
+          "gallery": "Failed to obtain gallery access permission",
+          "open_settings": "Failed to open settings"
+        },
+        "success": {
+          "title": "Success",
+          "notifications": "Notification permission granted",
+          "location": "Location permission granted",
+          "gallery": "Gallery access permission granted"
+        }
+      },
+      "info_note": "Some permissions can only be disabled in your device settings. If you wish to revoke a permission, go to your device settings."
     }
 }
