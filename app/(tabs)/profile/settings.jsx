@@ -4,10 +4,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "../../../i18n";
+import { useTheme } from "../../../lib/themeContext";
 
 const Settings = () => {
     const { t, i18n } = useTranslation();
-    const [modalVisible, setModalVisible] = useState(false);
+    const { theme, setThemeMode } = useTheme();
+    const [languageModalVisible, setLanguageModalVisible] = useState(false);
+    const [themeModalVisible, setThemeModalVisible] = useState(false);
 
     const languages = [
         { code: "en", name: t("settings.languages.english") },
@@ -15,9 +18,20 @@ const Settings = () => {
         { code: "kz", name: t("settings.languages.kazakh") },
     ];
 
+    const themes = [
+        { code: "light", name: t("settings.themes.light") },
+        { code: "dark", name: t("settings.themes.dark") },
+        { code: "system", name: t("settings.themes.system") },
+    ];
+
     const selectLanguage = async (langCode) => {
         await changeLanguage(langCode);
-        setModalVisible(false);
+        setLanguageModalVisible(false);
+    };
+
+    const selectTheme = (themeCode) => {
+        setThemeMode(themeCode);
+        setThemeModalVisible(false);
     };
 
     const profileSettingsData = [
@@ -31,7 +45,13 @@ const Settings = () => {
             id: "language",
             title: t("settings.language"),
             icon: "language",
-            action: () => setModalVisible(true),
+            action: () => setLanguageModalVisible(true),
+        },
+        {
+            id: "theme",
+            title: t("settings.theme"),
+            icon: "color-lens",
+            action: () => setThemeModalVisible(true),
         },
     ];
 
@@ -61,17 +81,17 @@ const Settings = () => {
                 ))}
             </View>
 
-            {/* Модальное окно для выбора языка */}
+            {/* Language selection modal */}
             <Modal
                 animationType="fade"
                 transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
+                visible={languageModalVisible}
+                onRequestClose={() => setLanguageModalVisible(false)}
             >
                 <TouchableOpacity
                     style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
                     activeOpacity={1}
-                    onPress={() => setModalVisible(false)}
+                    onPress={() => setLanguageModalVisible(false)}
                 >
                     <View
                         className="bg-white m-6 p-4 rounded-xl shadow-lg"
@@ -80,7 +100,6 @@ const Settings = () => {
                         <Text className="text-lg font-mbold mb-4">
                             {t("settings.select_language")}
                         </Text>
-
                         {languages.map((lang) => (
                             <TouchableOpacity
                                 key={lang.code}
@@ -101,6 +120,57 @@ const Settings = () => {
                                     {lang.name}
                                 </Text>
                                 {i18n.language === lang.code && (
+                                    <MaterialIcons
+                                        name="check"
+                                        size={20}
+                                        color="white"
+                                    />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* Theme selection modal */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={themeModalVisible}
+                onRequestClose={() => setThemeModalVisible(false)}
+            >
+                <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    activeOpacity={1}
+                    onPress={() => setThemeModalVisible(false)}
+                >
+                    <View
+                        className="bg-white m-6 p-4 rounded-xl shadow-lg"
+                        style={{ marginTop: 100 }}
+                    >
+                        <Text className="text-lg font-mbold mb-4">
+                            {t("settings.select_theme")}
+                        </Text>
+                        {themes.map((themeItem) => (
+                            <TouchableOpacity
+                                key={themeItem.code}
+                                className={`p-3 rounded-lg mb-2 flex-row items-center justify-between ${
+                                    theme === themeItem.code
+                                        ? "bg-primary"
+                                        : "bg-ghostwhite"
+                                }`}
+                                onPress={() => selectTheme(themeItem.code)}
+                            >
+                                <Text
+                                    className={`font-mmedium ${
+                                        theme === themeItem.code
+                                            ? "text-white"
+                                            : "text-gray-800"
+                                    }`}
+                                >
+                                    {themeItem.name}
+                                </Text>
+                                {theme === themeItem.code && (
                                     <MaterialIcons
                                         name="check"
                                         size={20}

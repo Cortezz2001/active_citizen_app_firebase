@@ -689,7 +689,7 @@ const NewsTab = () => {
                                         className={`font-mmedium ${
                                             isDark
                                                 ? "text-dark-text-primary"
-                                                : "text-gray-700"
+                                                : "text-white"
                                         }`}
                                     >
                                         {t("news.filter_modal.apply")}
