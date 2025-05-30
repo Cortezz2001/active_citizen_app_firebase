@@ -16,25 +16,47 @@ import LoadingIndicator from "../../../../components/LoadingIndicator";
 import SearchComponent from "../../../../components/SearchComponent";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { ActivityIndicator } from "react-native";
+import FilterButton from "../../../../components/FilterButton";
+import { useTheme } from "../../../../lib/themeContext";
 
-const EmptyStateMessage = ({ searchText }) => {
+const EmptyStateMessage = ({ searchText, isDark }) => {
     const { t } = useTranslation();
     return (
-        <View className="flex-1 items-center justify-center py-10 bg-secondary">
-            <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
-            <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+        <View
+            className={`flex-1 items-center justify-center py-10 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
+            <MaterialIcons
+                name="search-off"
+                size={64}
+                color={isDark ? "#A0A0A0" : "#9CA3AF"}
+            />
+            <Text
+                className={`text-lg font-mmedium mt-4 text-center ${
+                    isDark ? "text-dark-text-secondary" : "text-gray-400"
+                }`}
+            >
                 {t("no_events_found", { search: searchText })}
             </Text>
-            <Text className="text-gray-400 mt-2 text-center">
+            <Text
+                className={`mt-2 text-center ${
+                    isDark ? "text-dark-text-secondary" : "text-gray-400"
+                }`}
+            >
                 {t("adjust_search")}
             </Text>
         </View>
     );
 };
 
-const EventCard = ({ item, onPress, i18n }) => (
+const EventCard = ({ item, onPress, i18n, isDark }) => (
     <TouchableOpacity
-        className="rounded-lg mb-4 shadow-md bg-ghostwhite border border-gray-200 overflow-hidden h-44"
+        className={`rounded-lg mb-4 shadow-md border overflow-hidden h-44 ${
+            isDark
+                ? "bg-dark-surface border-gray-600"
+                : "bg-ghostwhite border-gray-200"
+        }`}
         onPress={onPress}
         activeOpacity={0.7}
     >
@@ -45,14 +67,26 @@ const EventCard = ({ item, onPress, i18n }) => (
             />
             <View className="p-4 flex-1">
                 <Text
-                    className="font-msemibold text-lg text-gray-800"
+                    className={`font-msemibold text-lg ${
+                        isDark ? "text-dark-text-primary" : "text-gray-800"
+                    }`}
                     numberOfLines={2}
                 >
                     {item.title[i18n.language] || item.title.en}
                 </Text>
                 <View className="flex-row items-center mt-2">
-                    <MaterialIcons name="event" size={16} color="#6B7280" />
-                    <Text className="text-gray-500 ml-1 text-sm font-mmedium">
+                    <MaterialIcons
+                        name="event"
+                        size={16}
+                        color={isDark ? "#A0A0A0" : "#6B7280"}
+                    />
+                    <Text
+                        className={`ml-1 text-sm font-mmedium ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-500"
+                        }`}
+                    >
                         {new Date(item.date.toDate()).toLocaleDateString(
                             i18n.language
                         )}
@@ -62,21 +96,32 @@ const EventCard = ({ item, onPress, i18n }) => (
                     <MaterialIcons
                         name="location-on"
                         size={16}
-                        color="#6B7280"
+                        color={isDark ? "#A0A0A0" : "#6B7280"}
                     />
                     <Text
-                        className="text-gray-500 ml-1 text-sm font-mmedium"
+                        className={`ml-1 text-sm font-mmedium ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-500"
+                        }`}
                         numberOfLines={1}
                     >
                         {item.location.name[i18n.language] ||
                             item.location.name.en}
                     </Text>
                 </View>
-                {/* Добавленный блок для отображения категории */}
                 <View className="flex-row items-center mt-1">
-                    <MaterialIcons name="category" size={16} color="#6B7280" />
+                    <MaterialIcons
+                        name="category"
+                        size={16}
+                        color={isDark ? "#A0A0A0" : "#6B7280"}
+                    />
                     <Text
-                        className="text-gray-500 ml-1 text-sm font-mmedium"
+                        className={`ml-1 text-sm font-mmedium ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-500"
+                        }`}
                         numberOfLines={1}
                     >
                         {item.categoryName?.[i18n.language] ||
@@ -119,7 +164,7 @@ const EventsTab = () => {
         endDate: null,
         categories: [],
     });
-
+    const { isDark } = useTheme();
     const eventCategories = [
         {
             id: "XTIA01ZY2LlASXoK8BXf",
@@ -288,19 +333,36 @@ const EventsTab = () => {
         if (!isEventsLoadingMore) return null;
         return (
             <View className="py-4 flex items-center justify-center">
-                <ActivityIndicator size="small" color="#006FFD" />
+                <ActivityIndicator
+                    size="small"
+                    color={isDark ? "#0066E6" : "#006FFD"}
+                />
             </View>
         );
     };
 
     const renderEmptyList = () => {
         if (searchText) {
-            return <EmptyStateMessage searchText={searchText} />;
+            return (
+                <EmptyStateMessage searchText={searchText} isDark={isDark} />
+            );
         }
         return (
-            <View className="flex-1 items-center justify-center py-10 bg-secondary">
-                <MaterialIcons name="info" size={64} color="#9CA3AF" />
-                <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+            <View
+                className={`flex-1 items-center justify-center py-10 ${
+                    isDark ? "bg-dark-background" : "bg-secondary"
+                }`}
+            >
+                <MaterialIcons
+                    name="info"
+                    size={64}
+                    color={isDark ? "#A0A0A0" : "#9CA3AF"}
+                />
+                <Text
+                    className={`text-lg font-mmedium mt-4 text-center ${
+                        isDark ? "text-dark-text-secondary" : "text-gray-400"
+                    }`}
+                >
                     {t("no_events_available")}
                 </Text>
             </View>
@@ -321,12 +383,20 @@ const EventsTab = () => {
 
     const renderContent = () => {
         if (isLoading) {
-            return <LoadingIndicator />;
+            return <LoadingIndicator isDark={isDark} />;
         }
         if (error) {
             return (
-                <View className="flex-1 justify-center items-center">
-                    <Text className="text-red-500">
+                <View
+                    className={`flex-1 justify-center items-center ${
+                        isDark ? "bg-dark-background" : "bg-secondary"
+                    }`}
+                >
+                    <Text
+                        className={`${
+                            isDark ? "text-red-400" : "text-red-500"
+                        }`}
+                    >
                         {t("error")}: {error}
                     </Text>
                 </View>
@@ -340,6 +410,7 @@ const EventsTab = () => {
                         item={item}
                         onPress={() => handleEventPress(item)}
                         i18n={i18n}
+                        isDark={isDark}
                     />
                 )}
                 keyExtractor={(item) => item.id}
@@ -352,9 +423,9 @@ const EventsTab = () => {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
-                        tintColor="#006FFD"
-                        colors={["#006FFD"]}
-                        progressBackgroundColor="#FFFFFF"
+                        tintColor={isDark ? "#0066E6" : "#006FFD"}
+                        colors={[isDark ? "#0066E6" : "#006FFD"]}
+                        progressBackgroundColor={isDark ? "#2D2D2D" : "#FFFFFF"}
                     />
                 }
             />
@@ -362,7 +433,11 @@ const EventsTab = () => {
     };
 
     return (
-        <View className="flex-1">
+        <View
+            className={`flex-1 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
             <View className="flex-row items-center mb-4">
                 <View className="flex-1">
                     <SearchComponent
@@ -370,24 +445,17 @@ const EventsTab = () => {
                         setSearchText={setSearchText}
                         onClear={handleClearSearch}
                         tabName="events"
+                        isDark={isDark}
                     />
                 </View>
-                <TouchableOpacity
-                    className="ml-2 p-2 bg-ghostwhite rounded-full shadow-md border border-gray-200"
+                <FilterButton
                     onPress={() => setShowFilterModal(true)}
-                >
-                    <MaterialIcons
-                        name="filter-list"
-                        size={24}
-                        color={
-                            Object.values(eventFilters).some((v) =>
-                                Array.isArray(v) ? v.length > 0 : v !== null
-                            )
-                                ? "#006FFD"
-                                : "#9CA3AF"
-                        }
-                    />
-                </TouchableOpacity>
+                    hasActiveFilters={Object.values(eventFilters).some((v) =>
+                        Array.isArray(v) ? v.length > 0 : v !== null
+                    )}
+                    containerStyles="ml-2"
+                    isDark={isDark}
+                />
             </View>
 
             {renderContent()}
@@ -399,14 +467,29 @@ const EventsTab = () => {
                 onRequestClose={() => setShowFilterModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => setShowFilterModal(false)}
                 >
                     <View className="flex-1 justify-end">
-                        <View className="bg-white rounded-t-xl p-5">
+                        <View
+                            className={`rounded-t-xl p-5 ${
+                                isDark ? "bg-dark-surface" : "bg-white"
+                            }`}
+                        >
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-lg font-mbold">
+                                <Text
+                                    className={`text-lg font-mbold ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("events.filter_modal.title")}
                                 </Text>
                                 <TouchableOpacity
@@ -415,25 +498,35 @@ const EventsTab = () => {
                                     <MaterialIcons
                                         name="close"
                                         size={24}
-                                        color="#374151"
+                                        color={isDark ? "#FFFFFF" : "#374151"}
                                     />
                                 </TouchableOpacity>
                             </View>
 
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("events.filter_modal.categories")}
                                 </Text>
                                 <View className="flex-row flex-wrap">
                                     {eventCategories.map((category) => (
                                         <TouchableOpacity
                                             key={category.id}
-                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border border-gray-200 ${
+                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
                                                 tempFilters.categories.includes(
                                                     category.id
                                                 )
-                                                    ? "border-primary bg-primary"
-                                                    : "bg-gray-100"
+                                                    ? isDark
+                                                        ? "border-dark-primary bg-dark-primary"
+                                                        : "border-primary bg-primary"
+                                                    : isDark
+                                                    ? "bg-gray-700 border-gray-600"
+                                                    : "bg-gray-100 border-gray-200"
                                             }`}
                                             onPress={() =>
                                                 toggleCategory(category.id)
@@ -445,6 +538,8 @@ const EventsTab = () => {
                                                         category.id
                                                     )
                                                         ? "text-white"
+                                                        : isDark
+                                                        ? "text-dark-text-primary"
                                                         : "text-gray-700"
                                                 }`}
                                             >
@@ -456,21 +551,37 @@ const EventsTab = () => {
                             </View>
 
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("events.filter_modal.date_range")}
                                 </Text>
                                 <View className="flex-row justify-between">
                                     <TouchableOpacity
-                                        className={`flex-1 mr-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
+                                        className={`flex-1 mr-2 p-3 rounded-lg border items-center justify-center ${
                                             tempFilters.startDate
-                                                ? "border-2 border-primary"
-                                                : "border-gray-200 bg-gray-100"
+                                                ? isDark
+                                                    ? "border-2 border-dark-primary"
+                                                    : "border-2 border-primary"
+                                                : isDark
+                                                ? "bg-gray-700 border-gray-600"
+                                                : "bg-gray-100 border-gray-200"
                                         }`}
                                         onPress={() =>
                                             setShowStartDatePicker(true)
                                         }
                                     >
-                                        <Text className="text-gray-700 font-mregular">
+                                        <Text
+                                            className={`font-mregular ${
+                                                isDark
+                                                    ? "text-dark-text-primary"
+                                                    : "text-gray-700"
+                                            }`}
+                                        >
                                             {tempFilters.startDate
                                                 ? formatDate(
                                                       tempFilters.startDate
@@ -481,16 +592,26 @@ const EventsTab = () => {
                                         </Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        className={`flex-1 mr-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
+                                        className={`flex-1 mr-2 p-3 rounded-lg border items-center justify-center ${
                                             tempFilters.endDate
-                                                ? "border-2 border-primary"
-                                                : "border-gray-200 bg-gray-100"
+                                                ? isDark
+                                                    ? "border-2 border-dark-primary"
+                                                    : "border-2 border-primary"
+                                                : isDark
+                                                ? "bg-gray-700 border-gray-600"
+                                                : "bg-gray-100 border-gray-200"
                                         }`}
                                         onPress={() =>
                                             setShowEndDatePicker(true)
                                         }
                                     >
-                                        <Text className="text-gray-700 font-mregular">
+                                        <Text
+                                            className={`font-mregular ${
+                                                isDark
+                                                    ? "text-dark-text-primary"
+                                                    : "text-gray-700"
+                                            }`}
+                                        >
                                             {tempFilters.endDate
                                                 ? formatDate(
                                                       tempFilters.endDate
@@ -505,18 +626,36 @@ const EventsTab = () => {
 
                             <View className="flex-row justify-between">
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-gray-200 rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark ? "bg-gray-700" : "bg-gray-200"
+                                    }`}
                                     onPress={handleResetFilters}
                                 >
-                                    <Text className="text-gray-700 font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-gray-700"
+                                        }`}
+                                    >
                                         {t("events.filter_modal.reset")}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-primary rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                    }`}
                                     onPress={handleApplyFilters}
                                 >
-                                    <Text className="text-white font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-white"
+                                        }`}
+                                    >
                                         {t("events.filter_modal.apply")}
                                     </Text>
                                 </TouchableOpacity>

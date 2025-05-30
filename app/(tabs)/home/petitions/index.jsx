@@ -17,6 +17,8 @@ import { ActivityIndicator } from "react-native";
 import { useKeyboard } from "../../../../hooks/useKeyboard";
 import Toast from "react-native-toast-message";
 import CustomButton from "../../../../components/CustomButton";
+import { useTheme } from "../../../../lib/themeContext";
+import FilterButton from "../../../../components/FilterButton";
 
 const petitionCategories = [
     {
@@ -77,22 +79,38 @@ const petitionCategories = [
     },
 ];
 
-const EmptyStateMessage = ({ searchText }) => {
+const EmptyStateMessage = ({ searchText, isDark }) => {
     const { t } = useTranslation();
     return (
-        <View className="flex-1 items-center justify-center py-10 bg-secondary">
-            <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
-            <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+        <View
+            className={`flex-1 items-center justify-center py-10 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
+            <MaterialIcons
+                name="search-off"
+                size={64}
+                color={isDark ? "#A0A0A0" : "#9CA3AF"}
+            />
+            <Text
+                className={`text-lg font-mmedium mt-4 text-center ${
+                    isDark ? "text-dark-text-secondary" : "text-gray-400"
+                }`}
+            >
                 {t("no_petitions_found", { search: searchText })}
             </Text>
-            <Text className="text-gray-400 mt-2 text-center">
+            <Text
+                className={`mt-2 text-center ${
+                    isDark ? "text-dark-text-secondary" : "text-gray-400"
+                }`}
+            >
                 {t("adjust_search")}
             </Text>
         </View>
     );
 };
 
-const PetitionCard = ({ item, onPress, i18n }) => {
+const PetitionCard = ({ item, onPress, i18n, isDark }) => {
     const { t } = useTranslation();
     const hasSigned = item.hasSigned;
     const isCompleted = item.status === "Completed";
@@ -100,52 +118,76 @@ const PetitionCard = ({ item, onPress, i18n }) => {
 
     return (
         <TouchableOpacity
-            className={`rounded-lg mb-4 shadow-md bg-ghostwhite overflow-hidden border border-gray-200`}
+            className={`rounded-lg mb-4 shadow-md border overflow-hidden ${
+                isDark
+                    ? "bg-dark-surface border-gray-600"
+                    : "bg-ghostwhite border-gray-200"
+            }`}
             onPress={onPress}
             activeOpacity={0.7}
         >
             <View className="p-4">
                 <View className="flex-row justify-between items-start mb-2">
-                    <Text className="font-msemibold text-lg text-gray-900 flex-1 mr-2">
+                    <Text
+                        className={`font-msemibold text-lg flex-1 mr-2 ${
+                            isDark ? "text-dark-text-primary" : "text-gray-900"
+                        }`}
+                    >
                         {item.title[i18n.language] || item.title.en}
                     </Text>
                     {isCompleted ? (
                         <View
-                            className={`px-2 py-1 rounded-full flex-row items-center bg-green-100`}
+                            className={`px-2 py-1 rounded-full flex-row items-center ${
+                                isDark ? "bg-green-900" : "bg-green-100"
+                            }`}
                         >
                             <MaterialIcons
-                                name={"check-circle"}
+                                name="check-circle"
                                 size={16}
-                                color={"#047857"}
+                                color={isDark ? "#34D399" : "#047857"}
                             />
                             <Text
-                                className={`ml-1 text-xs font-mmedium text-green-700`}
+                                className={`ml-1 text-xs font-mmedium ${
+                                    isDark ? "text-green-300" : "text-green-700"
+                                }`}
                             >
-                                {t(`completed`)}
+                                {t("completed")}
                             </Text>
                         </View>
                     ) : isPublished ? (
                         <View
-                            className={`px-2 py-1 rounded-full flex-row items-center bg-blue-100`}
+                            className={`px-2 py-1 rounded-full flex-row items-center ${
+                                isDark ? "bg-blue-900" : "bg-blue-100"
+                            }`}
                         >
                             <MaterialIcons
-                                name={"public"}
+                                name="public"
                                 size={16}
-                                color={"#006FFD"}
+                                color={isDark ? "#60A5FA" : "#006FFD"}
                             />
-
                             <Text
-                                className={`ml-1 text-xs font-mmedium text-blue-700`}
+                                className={`ml-1 text-xs font-mmedium ${
+                                    isDark ? "text-blue-300" : "text-blue-700"
+                                }`}
                             >
-                                {t(`active`)}
+                                {t("active")}
                             </Text>
                         </View>
                     ) : null}
                 </View>
-
                 <View className="flex-row items-center my-2">
-                    <MaterialIcons name="category" size={16} color="#6B7280" />
-                    <Text className="text-gray-500 ml-1 text-sm font-mmedium">
+                    <MaterialIcons
+                        name="category"
+                        size={16}
+                        color={isDark ? "#A0A0A0" : "#6B7280"}
+                    />
+                    <Text
+                        className={`text-sm font-mmedium ml-1 ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-500"
+                        }`}
+                    >
                         {item.categoryName[i18n.language] ||
                             item.categoryName.en}
                     </Text>
@@ -156,19 +198,37 @@ const PetitionCard = ({ item, onPress, i18n }) => {
                             <MaterialIcons
                                 name="people"
                                 size={18}
-                                color="#006FFD"
+                                color={isDark ? "#0066E6" : "#006FFD"}
                             />
-                            <Text className="ml-1 text-primary font-mmedium">
+                            <Text
+                                className={`ml-1 font-mmedium ${
+                                    isDark
+                                        ? "text-dark-primary"
+                                        : "text-primary"
+                                }`}
+                            >
                                 {item.totalSignatures} {t("supporters")}
                             </Text>
                         </View>
-                        <Text className="text-gray-500 font-mregular">
+                        <Text
+                            className={`font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-500"
+                            }`}
+                        >
                             {t("target")}: {item.targetSignatures}
                         </Text>
                     </View>
-                    <View className="h-2 bg-gray-200 rounded-full w-full mt-1">
+                    <View
+                        className={`h-2 rounded-full w-full mt-1 ${
+                            isDark ? "bg-gray-700" : "bg-gray-200"
+                        }`}
+                    >
                         <View
-                            className="h-2 bg-primary rounded-full"
+                            className={`h-2 rounded-full ${
+                                isDark ? "bg-dark-primary" : "bg-primary"
+                            }`}
                             style={{
                                 width: `${Math.min(
                                     100,
@@ -186,15 +246,23 @@ const PetitionCard = ({ item, onPress, i18n }) => {
                             <MaterialIcons
                                 name="check-circle"
                                 size={24}
-                                color="#10B981"
+                                color={isDark ? "#34D399" : "#10B981"}
                             />
                         </View>
                     ) : !isCompleted ? (
                         <CustomButton
                             title={t("sign")}
                             handlePress={() => onPress()}
-                            containerStyles="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300 shadow-lg"
-                            textStyles="text-gray-700 font-mmedium text-sm"
+                            containerStyles={`px-3 py-1 rounded-full border shadow-lg ${
+                                isDark
+                                    ? "bg-dark-surface border-gray-600"
+                                    : "bg-ghostwhite border-gray-300"
+                            }`}
+                            textStyles={`font-mmedium text-sm ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-700"
+                            }`}
                         />
                     ) : null}
                 </View>
@@ -232,6 +300,7 @@ const PetitionsTab = () => {
         categories: [],
     });
     const { isKeyboardVisible } = useKeyboard();
+    const { isDark } = useTheme();
 
     const statusOptions = [
         { id: "Published", name: t("active") },
@@ -343,19 +412,36 @@ const PetitionsTab = () => {
         if (!isPetitionsLoadingMore) return null;
         return (
             <View className="py-4 flex items-center justify-center">
-                <ActivityIndicator size="small" color="#006FFD" />
+                <ActivityIndicator
+                    size="small"
+                    color={isDark ? "#0066E6" : "#006FFD"}
+                />
             </View>
         );
     };
 
     const renderEmptyList = () => {
         if (searchText) {
-            return <EmptyStateMessage searchText={searchText} />;
+            return (
+                <EmptyStateMessage searchText={searchText} isDark={isDark} />
+            );
         }
         return (
-            <View className="flex-1 items-center justify-center py-10 bg-secondary">
-                <MaterialIcons name="info" size={64} color="#9CA3AF" />
-                <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+            <View
+                className={`flex-1 items-center justify-center py-10 ${
+                    isDark ? "bg-dark-background" : "bg-secondary"
+                }`}
+            >
+                <MaterialIcons
+                    name="info"
+                    size={64}
+                    color={isDark ? "#A0A0A0" : "#9CA3AF"}
+                />
+                <Text
+                    className={`text-lg font-mmedium mt-4 text-center ${
+                        isDark ? "text-dark-text-secondary" : "text-gray-400"
+                    }`}
+                >
                     {t("no_petitions_available")}
                 </Text>
             </View>
@@ -376,12 +462,20 @@ const PetitionsTab = () => {
 
     const renderContent = () => {
         if (isLoading) {
-            return <LoadingIndicator />;
+            return <LoadingIndicator isDark={isDark} />;
         }
         if (error) {
             return (
-                <View className="flex-1 justify-center items-center">
-                    <Text className="text-red-500">
+                <View
+                    className={`flex-1 justify-center items-center ${
+                        isDark ? "bg-dark-background" : "bg-secondary"
+                    }`}
+                >
+                    <Text
+                        className={`${
+                            isDark ? "text-red-400" : "text-red-500"
+                        }`}
+                    >
                         {t("petitions.error")}: {error}
                     </Text>
                 </View>
@@ -395,6 +489,7 @@ const PetitionsTab = () => {
                         item={item}
                         onPress={() => handlePetitionPress(item)}
                         i18n={i18n}
+                        isDark={isDark}
                     />
                 )}
                 keyExtractor={(item) => item.id}
@@ -407,9 +502,9 @@ const PetitionsTab = () => {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
-                        tintColor="#006FFD"
-                        colors={["#006FFD"]}
-                        progressBackgroundColor="#FFFFFF"
+                        tintColor={isDark ? "#0066E6" : "#006FFD"}
+                        colors={[isDark ? "#0066E6" : "#006FFD"]}
+                        progressBackgroundColor={isDark ? "#2D2D2D" : "#FFFFFF"}
                     />
                 }
             />
@@ -427,7 +522,11 @@ const PetitionsTab = () => {
     };
 
     return (
-        <View className="flex-1">
+        <View
+            className={`flex-1 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
             <View className="flex-row items-center mb-4">
                 <View className="flex-1">
                     <SearchComponent
@@ -435,33 +534,34 @@ const PetitionsTab = () => {
                         setSearchText={setSearchText}
                         onClear={handleClearSearch}
                         tabName="petitions"
+                        isDark={isDark}
                     />
                 </View>
-                <TouchableOpacity
-                    className="ml-2 p-2 bg-ghostwhite rounded-full shadow-md border border-gray-200"
+                <FilterButton
                     onPress={() => setShowFilterModal(true)}
-                >
-                    <MaterialIcons
-                        name="filter-list"
-                        size={24}
-                        color={
-                            petitionFilters.status.length > 0 ||
-                            petitionFilters.categories.length > 0
-                                ? "#006FFD"
-                                : "#9CA3AF"
-                        }
-                    />
-                </TouchableOpacity>
+                    hasActiveFilters={
+                        petitionFilters.status.length > 0 ||
+                        petitionFilters.categories.length > 0
+                    }
+                    containerStyles="ml-2"
+                    isDark={isDark}
+                />
             </View>
 
             {renderContent()}
 
             {!isKeyboardVisible && (
                 <TouchableOpacity
-                    className="absolute bottom-5 right-4 bg-primary rounded-full w-14 h-14 items-center justify-center shadow-lg"
+                    className={`absolute bottom-5 right-4 rounded-full w-14 h-14 items-center justify-center shadow-lg ${
+                        isDark ? "bg-dark-primary" : "bg-primary"
+                    }`}
                     onPress={() => setShowOptionsModal(true)}
                 >
-                    <MaterialIcons name="add" size={30} color="white" />
+                    <MaterialIcons
+                        name="add"
+                        size={30}
+                        color={isDark ? "#FFFFFF" : "white"}
+                    />
                 </TouchableOpacity>
             )}
 
@@ -472,21 +572,40 @@ const PetitionsTab = () => {
                 onRequestClose={() => setShowOptionsModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => setShowOptionsModal(false)}
                 >
-                    <View className="absolute bottom-24 right-4 bg-white rounded-lg shadow-lg">
+                    <View
+                        className={`absolute bottom-24 right-4 rounded-lg shadow-lg ${
+                            isDark ? "bg-dark-surface" : "bg-white"
+                        }`}
+                    >
                         <TouchableOpacity
-                            className="flex-row items-center px-4 py-3 border-b border-gray-100"
+                            className={`flex-row items-center px-4 py-3 ${
+                                isDark
+                                    ? "border-b border-gray-600"
+                                    : "border-b border-gray-100"
+                            }`}
                             onPress={navigateToAddPetition}
                         >
                             <MaterialIcons
                                 name="add-circle-outline"
                                 size={24}
-                                color="#006FFD"
+                                color={isDark ? "#0066E6" : "#006FFD"}
                             />
-                            <Text className="ml-3 font-mmedium text-gray-800">
+                            <Text
+                                className={`ml-3 font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-gray-800"
+                                }`}
+                            >
                                 {t("petitions.create_new_petition")}
                             </Text>
                         </TouchableOpacity>
@@ -497,9 +616,15 @@ const PetitionsTab = () => {
                             <MaterialIcons
                                 name="list"
                                 size={24}
-                                color="#006FFD"
+                                color={isDark ? "#0066E6" : "#006FFD"}
                             />
-                            <Text className="ml-3 font-mmedium text-gray-800">
+                            <Text
+                                className={`ml-3 font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-gray-800"
+                                }`}
+                            >
                                 {t("petitions.my_petitions")}
                             </Text>
                         </TouchableOpacity>
@@ -514,14 +639,29 @@ const PetitionsTab = () => {
                 onRequestClose={() => setShowFilterModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => setShowFilterModal(false)}
                 >
                     <View className="flex-1 justify-end">
-                        <View className="bg-white rounded-t-xl p-5">
+                        <View
+                            className={`rounded-t-xl p-5 ${
+                                isDark ? "bg-dark-surface" : "bg-white"
+                            }`}
+                        >
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-lg font-mbold">
+                                <Text
+                                    className={`text-lg font-mbold ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("petitions.filter_modal.title")}
                                 </Text>
                                 <TouchableOpacity
@@ -530,24 +670,34 @@ const PetitionsTab = () => {
                                     <MaterialIcons
                                         name="close"
                                         size={24}
-                                        color="#374151"
+                                        color={isDark ? "#FFFFFF" : "#374151"}
                                     />
                                 </TouchableOpacity>
                             </View>
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("petitions.filter_modal.status")}
                                 </Text>
                                 <View className="flex-row flex-wrap">
                                     {statusOptions.map((status) => (
                                         <TouchableOpacity
                                             key={status.id}
-                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border border-gray-200 ${
+                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
                                                 tempFilters.status.includes(
                                                     status.id
                                                 )
-                                                    ? "border-primary bg-primary"
-                                                    : "bg-gray-100"
+                                                    ? isDark
+                                                        ? "border-dark-primary bg-dark-primary"
+                                                        : "border-primary bg-primary"
+                                                    : isDark
+                                                    ? "bg-gray-700 border-gray-600"
+                                                    : "bg-gray-100 border-gray-200"
                                             }`}
                                             onPress={() =>
                                                 toggleStatus(status.id)
@@ -559,6 +709,8 @@ const PetitionsTab = () => {
                                                         status.id
                                                     )
                                                         ? "text-white"
+                                                        : isDark
+                                                        ? "text-dark-text-primary"
                                                         : "text-gray-700"
                                                 }`}
                                             >
@@ -569,19 +721,29 @@ const PetitionsTab = () => {
                                 </View>
                             </View>
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("petitions.filter_modal.categories")}
                                 </Text>
                                 <View className="flex-row flex-wrap">
                                     {petitionCategories.map((category) => (
                                         <TouchableOpacity
                                             key={category.id}
-                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border border-gray-200 ${
+                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
                                                 tempFilters.categories.includes(
                                                     category.id
                                                 )
-                                                    ? "border-primary bg-primary"
-                                                    : "bg-gray-100"
+                                                    ? isDark
+                                                        ? "border-dark-primary bg-dark-primary"
+                                                        : "border-primary bg-primary"
+                                                    : isDark
+                                                    ? "bg-gray-700 border-gray-600"
+                                                    : "bg-gray-100 border-gray-200"
                                             }`}
                                             onPress={() =>
                                                 toggleCategory(category.id)
@@ -593,6 +755,8 @@ const PetitionsTab = () => {
                                                         category.id
                                                     )
                                                         ? "text-white"
+                                                        : isDark
+                                                        ? "text-dark-text-primary"
                                                         : "text-gray-700"
                                                 }`}
                                             >
@@ -604,18 +768,36 @@ const PetitionsTab = () => {
                             </View>
                             <View className="flex-row justify-between">
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-gray-200 rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark ? "bg-gray-700" : "bg-gray-200"
+                                    }`}
                                     onPress={handleResetFilters}
                                 >
-                                    <Text className="text-gray-700 font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-gray-700"
+                                        }`}
+                                    >
                                         {t("petitions.filter_modal.reset")}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-primary rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                    }`}
                                     onPress={handleApplyFilters}
                                 >
-                                    <Text className="text-white font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-white"
+                                        }`}
+                                    >
                                         {t("petitions.filter_modal.apply")}
                                     </Text>
                                 </TouchableOpacity>
