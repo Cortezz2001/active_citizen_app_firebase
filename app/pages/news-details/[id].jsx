@@ -25,6 +25,7 @@ import LoadingIndicator from "../../../components/LoadingIndicator";
 import Markdown from "react-native-markdown-display";
 import { markdownStyles } from "../../../lib/markdownStyles";
 import { markdownRules } from "../../../lib/markdownRules";
+import { useTheme } from "../../../lib/themeContext";
 
 const NewsDetailsScreen = () => {
     const { t, i18n } = useTranslation();
@@ -33,6 +34,7 @@ const NewsDetailsScreen = () => {
     const { getDocument, getCollection } = useFirestore();
     const { user } = useAuth();
     const { updateNewsCommentCount } = useData();
+    const { isDark } = useTheme();
 
     const [newsItem, setNewsItem] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -280,7 +282,7 @@ const NewsDetailsScreen = () => {
             setComments([newComment, ...comments]);
             setCommentCount((prevCount) => prevCount + 1);
             setCommentText("");
-            setHasMoreComments(true); // Обновляем флаг, так как добавился новый комментарий
+            setHasMoreComments(true);
             await updateNewsCommentCount(id);
         } catch (error) {
             console.error("Error adding comment:", error);
@@ -307,7 +309,13 @@ const NewsDetailsScreen = () => {
     };
 
     const renderComment = ({ item }) => (
-        <View className="bg-ghostwhite p-4 rounded-lg mb-2 border border-gray-100 shadow-sm">
+        <View
+            className={`p-4 rounded-lg mb-2 border shadow-sm ${
+                isDark
+                    ? "bg-dark-surface border-dark-border"
+                    : "bg-ghostwhite border-gray-100"
+            }`}
+        >
             <View className="flex-row items-center justify-between mb-2">
                 <View className="flex-row items-center w-2/3">
                     {item.userAvatar ? (
@@ -317,27 +325,43 @@ const NewsDetailsScreen = () => {
                             resizeMode="cover"
                         />
                     ) : (
-                        <View className="w-10 h-10 rounded-full bg-gray-200 mr-2 flex items-center justify-center">
+                        <View
+                            className={`w-10 h-10 rounded-full mr-2 flex items-center justify-center ${
+                                isDark ? "bg-dark-border" : "bg-gray-200"
+                            }`}
+                        >
                             <MaterialIcons
                                 name="person"
                                 size={24}
-                                color="#6B7280"
+                                color={isDark ? "#B3B3B3" : "#6B7280"}
                             />
                         </View>
                     )}
                     <Text
-                        className="font-mmedium text-gray-800"
+                        className={`font-mmedium ${
+                            isDark ? "text-dark-text-primary" : "text-gray-800"
+                        }`}
                         numberOfLines={1}
                         ellipsizeMode="tail"
                     >
                         {item.userName}
                     </Text>
                 </View>
-                <Text className="text-gray-500 text-sm font-mmedium w-1/3 text-right">
+                <Text
+                    className={`text-sm font-mmedium w-1/3 text-right ${
+                        isDark ? "text-dark-text-secondary" : "text-gray-500"
+                    }`}
+                >
                     {formatCommentDate(item.createdAt)}
                 </Text>
             </View>
-            <Text className="text-gray-700 font-mmedium">{item.content}</Text>
+            <Text
+                className={`font-mmedium ${
+                    isDark ? "text-dark-text-primary" : "text-gray-700"
+                }`}
+            >
+                {item.content}
+            </Text>
         </View>
     );
 
@@ -345,20 +369,32 @@ const NewsDetailsScreen = () => {
         if (!isLoadingMoreComments) return null;
         return (
             <View className="py-4 flex items-center justify-center">
-                <ActivityIndicator size="small" color="#006FFD" />
+                <ActivityIndicator
+                    size="small"
+                    color={isDark ? "#40C4FF" : "#006FFD"}
+                />
             </View>
         );
     };
 
     if (loading) {
-        return <LoadingIndicator />;
+        return <LoadingIndicator isDark={isDark} />;
     }
 
     if (error || !newsItem) {
         return (
-            <SafeAreaView className="flex-1 bg-gray-50">
-                <StatusBar style="dark" />
-                <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white shadow-sm">
+            <SafeAreaView
+                className={`flex-1 ${
+                    isDark ? "bg-dark-background" : "bg-gray-50"
+                }`}
+            >
+                <View
+                    className={`px-6 pt-4 pb-2 flex-row items-center border-b shadow-sm ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center mr-4"
@@ -367,10 +403,14 @@ const NewsDetailsScreen = () => {
                         <MaterialIcons
                             name="arrow-back"
                             size={24}
-                            color="black"
+                            color={isDark ? "#FFFFFF" : "black"}
                         />
                     </TouchableOpacity>
-                    <Text className="text-2xl font-mbold text-black">
+                    <Text
+                        className={`text-2xl font-mbold ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("error")}
                     </Text>
                 </View>
@@ -378,12 +418,22 @@ const NewsDetailsScreen = () => {
                     <MaterialIcons
                         name="error-outline"
                         size={64}
-                        color="#EF4444"
+                        color={isDark ? "#FF6B6B" : "#EF4444"}
                     />
-                    <Text className="text-red-500 text-lg font-mmedium mt-4 text-center">
+                    <Text
+                        className={`text-lg font-mmedium mt-4 text-center ${
+                            isDark ? "text-dark-text-primary" : "text-red-500"
+                        }`}
+                    >
                         {t("news_not_found")}
                     </Text>
-                    <Text className="text-gray-500 mt-2 text-center">
+                    <Text
+                        className={`mt-2 text-center ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-500"
+                        }`}
+                    >
                         {error}
                     </Text>
                 </View>
@@ -392,21 +442,36 @@ const NewsDetailsScreen = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-50">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center justify-between border-b border-gray-200 bg-white shadow-sm">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-gray-50"}`}
+        >
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center justify-between border-b shadow-sm ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center"
                     accessibilityLabel={t("back")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={handleShare}
                     accessibilityLabel={t("share")}
                 >
-                    <MaterialIcons name="share" size={24} color="#006FFD" />
+                    <MaterialIcons
+                        name="share"
+                        size={24}
+                        color={isDark ? "#0066E6" : "#006FFD"}
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -417,8 +482,18 @@ const NewsDetailsScreen = () => {
                     resizeMode="cover"
                 />
 
-                <View className="bg-white rounded-xl -mt-6 p-6 shadow-sm border border-gray-100 mb-4">
-                    <Text className="text-2xl font-mbold text-gray-900 mb-3">
+                <View
+                    className={`rounded-xl -mt-6 p-6 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-100"
+                    } mb-4`}
+                >
+                    <Text
+                        className={`text-2xl font-mbold mb-3 ${
+                            isDark ? "text-dark-text-primary" : "text-gray-900"
+                        }`}
+                    >
                         {newsItem.title[i18n.language] || newsItem.title.en}
                     </Text>
 
@@ -427,9 +502,15 @@ const NewsDetailsScreen = () => {
                             <MaterialIcons
                                 name="category"
                                 size={16}
-                                color="#6B7280"
+                                color={isDark ? "#B3B3B3" : "#6B7280"}
                             />
-                            <Text className="text-gray-600 ml-1 text-sm font-mmedium">
+                            <Text
+                                className={`ml-1 text-sm font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-600"
+                                }`}
+                            >
                                 {t("category")}:{" "}
                                 {newsItem.categoryName[i18n.language] ||
                                     newsItem.categoryName.en}
@@ -439,9 +520,15 @@ const NewsDetailsScreen = () => {
                             <MaterialIcons
                                 name="access-time"
                                 size={16}
-                                color="#6B7280"
+                                color={isDark ? "#B3B3B3" : "#6B7280"}
                             />
-                            <Text className="text-gray-600 ml-1 text-sm font-mmedium">
+                            <Text
+                                className={`ml-1 text-sm font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-600"
+                                }`}
+                            >
                                 {t("published_date")}:{" "}
                                 {new Date(
                                     newsItem.createdAt.toDate()
@@ -450,15 +537,27 @@ const NewsDetailsScreen = () => {
                         </View>
                     </View>
 
-                    <View className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-100">
-                        <Text className="text-gray-800 font-mitalic">
+                    <View
+                        className={`p-4 rounded-lg mb-6 border ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border"
+                                : "bg-gray-50 border-gray-100"
+                        }`}
+                    >
+                        <Text
+                            className={`font-mitalic ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-800"
+                            }`}
+                        >
                             {newsItem.shortDescription[i18n.language] ||
                                 newsItem.shortDescription.en}
                         </Text>
                     </View>
 
                     <Markdown
-                        style={markdownStyles}
+                        style={markdownStyles(isDark)}
                         mergeStyle={false}
                         rules={markdownRules}
                     >
@@ -470,32 +569,63 @@ const NewsDetailsScreen = () => {
                             <MaterialIcons
                                 name="link"
                                 size={16}
-                                color="#6B7280"
+                                color={isDark ? "#B3B3B3" : "#6B7280"}
                             />
-                            <Text className="text-gray-500 ml-1 text-sm font-mmedium">
+                            <Text
+                                className={`ml-1 text-sm font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-500"
+                                }`}
+                            >
                                 {t("source")}: {newsItem.source}
                             </Text>
                         </View>
                     )}
                 </View>
 
-                <View className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <View
+                    className={`p-6 rounded-lg shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-100"
+                    }`}
+                >
                     <View className="flex-row items-center mb-4">
                         <MaterialIcons
                             name="comment"
                             size={24}
-                            color="#374151"
+                            color={isDark ? "#FFFFFF" : "#374151"}
                         />
-                        <Text className="text-xl font-mbold text-gray-900 ml-2">
+                        <Text
+                            className={`text-xl font-mbold ml-2 ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-900"
+                            }`}
+                        >
                             {t("comments")} ({commentCount})
                         </Text>
                     </View>
 
                     <View className="mb-4">
-                        <View className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex-row items-center">
+                        <View
+                            className={`p-4 rounded-lg border flex-row items-center ${
+                                isDark
+                                    ? "bg-dark-surface border-dark-border"
+                                    : "bg-gray-50 border-gray-200"
+                            }`}
+                        >
                             <TextInput
-                                className="flex-1 bg-transparent"
+                                className={`flex-1 bg-transparent ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-black"
+                                }`}
                                 placeholder={t("write_comment")}
+                                placeholderTextColor={
+                                    isDark ? "#666666" : "#9CA3AF"
+                                }
                                 value={commentText}
                                 onChangeText={setCommentText}
                                 multiline
@@ -511,7 +641,7 @@ const NewsDetailsScreen = () => {
                                 {isCommentSubmitting ? (
                                     <ActivityIndicator
                                         size="small"
-                                        color="#006FFD"
+                                        color={isDark ? "#0066E6" : "#006FFD"}
                                     />
                                 ) : (
                                     <MaterialIcons
@@ -519,7 +649,11 @@ const NewsDetailsScreen = () => {
                                         size={24}
                                         color={
                                             commentText.trim()
-                                                ? "#006FFD"
+                                                ? isDark
+                                                    ? "#0066E6"
+                                                    : "#006FFD"
+                                                : isDark
+                                                ? "#666666"
                                                 : "#9CA3AF"
                                         }
                                     />
@@ -529,7 +663,7 @@ const NewsDetailsScreen = () => {
                     </View>
 
                     {commentsLoading ? (
-                        <LoadingIndicator />
+                        <LoadingIndicator isDark={isDark} />
                     ) : comments.length > 0 ? (
                         <FlatList
                             data={comments}
@@ -541,13 +675,25 @@ const NewsDetailsScreen = () => {
                             scrollEnabled={false}
                         />
                     ) : (
-                        <View className="bg-gray-50 p-8 rounded-xl border border-gray-100 items-center">
+                        <View
+                            className={`p-8 rounded-xl border items-center ${
+                                isDark
+                                    ? "bg-dark-surface border-dark-border"
+                                    : "bg-gray-50 border-gray-100"
+                            }`}
+                        >
                             <MaterialIcons
                                 name="chat-bubble-outline"
                                 size={40}
-                                color="#9CA3AF"
+                                color={isDark ? "#666666" : "#9CA3AF"}
                             />
-                            <Text className="text-gray-500 text-center mt-2">
+                            <Text
+                                className={`text-center mt-2 ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-500"
+                                }`}
+                            >
                                 {t("no_comments")}
                             </Text>
                         </View>
