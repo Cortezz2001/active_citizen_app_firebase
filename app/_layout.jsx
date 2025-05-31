@@ -176,7 +176,7 @@ function InitialLayout() {
                 options={{
                     headerShown: false,
                     gestureEnabled: false,
-                    animation: "fade",
+                    animation: "slide_from_right",
                 }}
             />
         </Stack>
