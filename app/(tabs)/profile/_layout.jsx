@@ -5,14 +5,13 @@ import {
     Text,
     TouchableOpacity,
     ScrollView,
-    Image,
     ActivityIndicator,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuthContext } from "../../../lib/context";
-import { useTheme } from "../../../lib/themeContext"; // Import useTheme
+import { useTheme } from "../../../lib/themeContext";
 import CustomAlert from "../../../components/CustomAlertTwoButtons";
 import * as ImagePicker from "expo-image-picker";
 import { storage } from "../../../lib/firebase";
@@ -25,17 +24,27 @@ import {
     listAll,
     deleteObject,
 } from "firebase/storage";
+import FastImage from "react-native-fast-image";
 
 const ProfileLayout = () => {
     const router = useRouter();
     const pathname = usePathname();
     const { user, logout, refreshUser } = useAuthContext();
-    const { isDark } = useTheme(); // Access theme state
+    const { isDark } = useTheme();
     const [alertVisible, setAlertVisible] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(user?.photoURL || null);
+    const [imageLoading, setImageLoading] = useState(true);
 
     const { t } = useTranslation();
+
+    // Обновляем avatarUrl при изменении user
+    useEffect(() => {
+        if (user?.photoURL !== avatarUrl) {
+            setAvatarUrl(user?.photoURL || null);
+            setImageLoading(true);
+        }
+    }, [user?.photoURL]);
 
     // Извлекаем текущую вкладку из пути
     const getCurrentTab = () => {
@@ -117,6 +126,10 @@ const ProfileLayout = () => {
             await auth().currentUser.updateProfile({
                 photoURL: downloadURL,
             });
+
+            // Предзагружаем новое изображение в кэш FastImage
+            FastImage.preload([{ uri: downloadURL }]);
+
             setAvatarUrl(downloadURL);
             await refreshUser();
             Toast.show({
@@ -152,26 +165,68 @@ const ProfileLayout = () => {
         }
     };
 
+    // Обработчики для FastImage
+    const handleImageLoadStart = () => {
+        setImageLoading(true);
+    };
+
+    const handleImageLoadEnd = () => {
+        setImageLoading(false);
+    };
+
+    const handleImageError = (error) => {
+        console.error("FastImage loading error:", error);
+        setImageLoading(false);
+    };
+
     const renderProfileHeader = () => (
         <View className="items-center mb-6">
             <TouchableOpacity onPress={pickImage} disabled={uploadingImage}>
                 <View className="relative">
-                    <Image
+                    <FastImage
                         source={
                             avatarUrl
-                                ? { uri: avatarUrl }
+                                ? {
+                                      uri: avatarUrl,
+                                      priority: FastImage.priority.high,
+                                      cache: FastImage.cacheControl.immutable,
+                                  }
                                 : require("../../../assets/images/anonymous.png")
                         }
-                        className="w-32 h-32 rounded-full border-4 border-primary"
+                        style={{
+                            width: 128,
+                            height: 128,
+                            borderRadius: 64,
+                        }}
+                        onLoadStart={handleImageLoadStart}
+                        onLoadEnd={handleImageLoadEnd}
+                        onError={handleImageError}
+                        resizeMode={FastImage.resizeMode.cover}
+                        fallback={true} // Для Android - показывает placeholder при ошибке
                     />
-                    {uploadingImage ? (
+
+                    {/* Индикатор загрузки изображения */}
+                    {imageLoading && avatarUrl && (
+                        <View className="absolute inset-0 bg-black bg-opacity-30 rounded-full justify-center items-center">
+                            <ActivityIndicator
+                                size="large"
+                                color={isDark ? "#fff" : "#000"}
+                            />
+                        </View>
+                    )}
+
+                    {/* Индикатор загрузки при выгрузке нового изображения */}
+                    {uploadingImage && (
                         <View className="absolute inset-0 bg-black bg-opacity-50 rounded-full justify-center items-center">
                             <ActivityIndicator
                                 size="large"
                                 color={isDark ? "#fff" : "#000"}
                             />
                         </View>
-                    ) : (
+                    )}
+
+                    {/* Иконка камеры */}
+                    {!uploadingImage && (
                         <View
                             className={`absolute bottom-0 right-0 ${
                                 isDark ? "bg-dark-primary" : "bg-primary"
@@ -180,7 +235,7 @@ const ProfileLayout = () => {
                             <MaterialIcons
                                 name="camera-alt"
                                 size={20}
-                                color={isDark ? "#fff" : "#fff"}
+                                color="#fff"
                             />
                         </View>
                     )}
