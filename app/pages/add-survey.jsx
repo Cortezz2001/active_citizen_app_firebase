@@ -27,6 +27,7 @@ import {
 import DropdownField from "../../components/DropdownField";
 import { useData } from "../../lib/datacontext";
 import CustomButton from "../../components/CustomButton";
+import { useTheme } from "../../lib/themeContext";
 const categories = [
     {
         id: "RkdtDA478Mzbz1ludDqk",
@@ -105,7 +106,7 @@ const AddSurveyPage = () => {
     const [isLoadingUser, setIsLoadingUser] = useState(true);
     const [cityKey, setCityKey] = useState("");
     const { fetchUserSurveys } = useData();
-
+    const { isDark } = useTheme();
     const categoryOptions = categories.map((cat) => cat.name[i18n.language]);
     const categoryIds = categories.map((cat) => cat.id);
 
@@ -439,25 +440,45 @@ const AddSurveyPage = () => {
 
     if (isLoadingSurvey || isLoadingUser) {
         return (
-            <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" color="#006FFD" />
+            <View
+                className={`flex-1 justify-center items-center ${
+                    isDark ? "bg-dark-background" : "bg-white"
+                }`}
+            >
+                <ActivityIndicator
+                    size="large"
+                    color={isDark ? "#0066E6" : "#006FFD"}
+                />
             </View>
         );
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center border-b ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                     accessibilityLabel={t("add_survey.back_button")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
                 <Text
-                    className="text-2xl font-mbold text-black"
+                    className={`text-2xl font-mbold ${
+                        isDark ? "text-dark-text-primary" : "text-black"
+                    }`}
                     numberOfLines={2}
                     adjustsFontSizeToFit
                 >
@@ -473,13 +494,24 @@ const AddSurveyPage = () => {
             >
                 {/* Survey Title */}
                 <View className="mb-4 mt-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_survey.fields.title.label")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
+                        className={`border rounded-lg p-3 font-mregular ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border text-dark-text-primary"
+                                : "bg-ghostwhite border-gray-300 text-black"
+                        }`}
                         placeholder={t("add_survey.fields.title.placeholder")}
+                        placeholderTextColor={
+                            isDark ? "#A0A0A0" : "rgba(0, 0, 0, 0.5)"
+                        }
                         value={title}
                         onChangeText={setTitle}
                     />
@@ -487,15 +519,26 @@ const AddSurveyPage = () => {
 
                 {/* Survey Description */}
                 <View className="mb-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_survey.fields.description.label")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
+                        className={`border rounded-lg p-3 font-mregular ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border text-dark-text-primary"
+                                : "bg-ghostwhite border-gray-300 text-black"
+                        }`}
                         placeholder={t(
                             "add_survey.fields.description.placeholder"
                         )}
+                        placeholderTextColor={
+                            isDark ? "#A0A0A0" : "rgba(0, 0, 0, 0.5)"
+                        }
                         value={description}
                         onChangeText={setDescription}
                         multiline
@@ -506,7 +549,11 @@ const AddSurveyPage = () => {
 
                 {/* Survey Category */}
                 <View className="mb-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_survey.fields.category")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
@@ -516,22 +563,39 @@ const AddSurveyPage = () => {
                         value={category}
                         options={categoryOptions}
                         onSelect={setCategory}
-                        containerStyle="bg-ghostwhite"
+                        containerStyle={
+                            isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                        }
+                        isDark={isDark}
                     />
                 </View>
 
                 {/* Questions Section */}
-                <Text className="font-mbold text-lg text-gray-800 mb-4">
+                <Text
+                    className={`font-mbold text-lg mb-4 ${
+                        isDark ? "text-dark-text-primary" : "text-gray-800"
+                    }`}
+                >
                     {t("add_survey.fields.questions.label")}
                 </Text>
 
                 {questions.map((question, index) => (
                     <View
                         key={question.id}
-                        className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200"
+                        className={`rounded-lg p-4 mb-4 border shadow-sm ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border"
+                                : "bg-white border-gray-200"
+                        }`}
                     >
                         <View className="flex-row justify-between items-center mb-2">
-                            <Text className="font-mmedium text-gray-700">
+                            <Text
+                                className={`font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-700"
+                                }`}
+                            >
                                 {t(
                                     "add_survey.fields.questions.question_label",
                                     { index: index + 1 }
@@ -543,17 +607,24 @@ const AddSurveyPage = () => {
                                 <MaterialIcons
                                     name="delete"
                                     size={20}
-                                    color="#6B7280"
+                                    color={isDark ? "#F87171" : "#6B7280"}
                                 />
                             </TouchableOpacity>
                         </View>
 
                         {/* Question Text */}
                         <TextInput
-                            className="bg-ghostwhite border border-gray-300 rounded-lg p-3 mb-3 font-mregular"
+                            className={`border rounded-lg p-3 mb-3 font-mregular ${
+                                isDark
+                                    ? "bg-dark-background border-dark-border text-dark-text-primary"
+                                    : "bg-ghostwhite border-gray-300 text-gray-900"
+                            }`}
                             placeholder={t(
                                 "add_survey.fields.questions.placeholder"
                             )}
+                            placeholderTextColor={
+                                isDark ? "#A0A0A0" : "rgba(0, 0, 0, 0.5)"
+                            }
                             value={question.text}
                             onChangeText={(text) =>
                                 updateQuestionText(question.id, text)
@@ -561,11 +632,15 @@ const AddSurveyPage = () => {
                         />
 
                         {/* Question Type Selector */}
-                        <View className="flex-row mb-3 flex-wrap">
+                        <View className="flex-row mb-4 flex-wrap">
                             <TouchableOpacity
-                                className={`mr-2 px-3 py-1 mb-1 rounded-full ${
+                                className={`mr-2 px-4 py-1 mb-1 rounded-full ${
                                     question.type === "singleChoice"
-                                        ? "bg-primary"
+                                        ? isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                        : isDark
+                                        ? "bg-gray-700"
                                         : "bg-gray-200"
                                 }`}
                                 onPress={() =>
@@ -576,11 +651,13 @@ const AddSurveyPage = () => {
                                 }
                             >
                                 <Text
-                                    className={`${
+                                    className={`font-mlight ${
                                         question.type === "singleChoice"
                                             ? "text-white"
+                                            : isDark
+                                            ? "text-dark-text-primary"
                                             : "text-gray-700"
-                                    } font-mlight`}
+                                    }`}
                                     style={{ flexShrink: 1 }}
                                 >
                                     {t(
@@ -589,9 +666,13 @@ const AddSurveyPage = () => {
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                className={`mr-2 px-3 py-1 rounded-full ${
+                                className={`mr-2 px-4 py-1 mb-1 rounded-full ${
                                     question.type === "multipleChoice"
-                                        ? "bg-primary"
+                                        ? isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                        : isDark
+                                        ? "bg-gray-700"
                                         : "bg-gray-200"
                                 }`}
                                 onPress={() =>
@@ -602,11 +683,13 @@ const AddSurveyPage = () => {
                                 }
                             >
                                 <Text
-                                    className={`${
+                                    className={`font-mlight ${
                                         question.type === "multipleChoice"
                                             ? "text-white"
+                                            : isDark
+                                            ? "text-dark-text-primary"
                                             : "text-gray-700"
-                                    } font-mlight`}
+                                    }`}
                                     style={{ flexShrink: 1 }}
                                 >
                                     {t(
@@ -618,7 +701,13 @@ const AddSurveyPage = () => {
 
                         {/* Options */}
                         <View>
-                            <Text className="font-mmedium text-gray-700 mb-2">
+                            <Text
+                                className={`font-mmedium mb-2 ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-700"
+                                }`}
+                            >
                                 {t("add_survey.fields.options.label")}
                             </Text>
                             {question.options.map((option, optIndex) => (
@@ -633,15 +722,24 @@ const AddSurveyPage = () => {
                                                 : "check-box-outline-blank"
                                         }
                                         size={20}
-                                        color="#6B7280"
+                                        color={isDark ? "#A0A0A0" : "#6B7280"}
                                         style={{ marginRight: 8 }}
                                     />
                                     <TextInput
-                                        className="flex-1 bg-ghostwhite border border-gray-300 rounded-lg p-2 font-mregular"
+                                        className={`flex-1 border rounded-lg p-2 font-mregular ${
+                                            isDark
+                                                ? "bg-dark-background border-dark-border text-dark-text-primary"
+                                                : "bg-ghostwhite border-gray-300 text-gray-900"
+                                        }`}
                                         placeholder={t(
                                             "add_survey.fields.options.placeholder",
                                             { index: optIndex + 1 }
                                         )}
+                                        placeholderTextColor={
+                                            isDark
+                                                ? "#A0A0A0"
+                                                : "rgba(0, 0, 0, 0.5)"
+                                        }
                                         value={option}
                                         onChangeText={(text) =>
                                             updateOption(
@@ -664,7 +762,11 @@ const AddSurveyPage = () => {
                                             <MaterialIcons
                                                 name="remove-circle-outline"
                                                 size={20}
-                                                color="#EF4444"
+                                                color={
+                                                    isDark
+                                                        ? "#F87171"
+                                                        : "#EF4444"
+                                                }
                                             />
                                         </TouchableOpacity>
                                     )}
@@ -677,9 +779,15 @@ const AddSurveyPage = () => {
                                 <MaterialIcons
                                     name="add-circle-outline"
                                     size={20}
-                                    color="#006FFD"
+                                    color={isDark ? "#0066E6" : "#006FFD"}
                                 />
-                                <Text className="ml-2 text-primary font-mmedium">
+                                <Text
+                                    className={`ml-2 font-mmedium ${
+                                        isDark
+                                            ? "text-dark-primary"
+                                            : "text-primary"
+                                    }`}
+                                >
                                     {t("add_survey.buttons.add_option")}
                                 </Text>
                             </TouchableOpacity>
@@ -689,16 +797,24 @@ const AddSurveyPage = () => {
 
                 {/* Add Question Button */}
                 <TouchableOpacity
-                    className="flex-row items-center justify-center bg-white py-3 rounded-lg mb-6 border border-primary"
+                    className={`flex-row items-center justify-center py-3 rounded-lg mb-6 border ${
+                        isDark
+                            ? "bg-dark-surface border-dark-primary"
+                            : "bg-white border-primary"
+                    }`}
                     onPress={addQuestion}
                 >
                     <MaterialIcons
                         name="add"
                         size={20}
                         commonwealth="true"
-                        color="#006FFD"
+                        color={isDark ? "#0066E6" : "#006FFD"}
                     />
-                    <Text className="ml-2 text-primary font-mmedium">
+                    <Text
+                        className={`ml-2 font-mmedium ${
+                            isDark ? "text-dark-primary" : "text-primary"
+                        }`}
+                    >
                         {t("add_survey.buttons.add_question")}
                     </Text>
                 </TouchableOpacity>
@@ -708,16 +824,24 @@ const AddSurveyPage = () => {
                     <CustomButton
                         title={t("add_survey.buttons.save_draft")}
                         handlePress={() => saveSurvey(true)}
-                        containerStyles="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg"
-                        textStyles="text-gray-700 font-mmedium"
+                        containerStyles={`flex-1 mr-2 py-3 px-2 rounded-lg ${
+                            isDark ? "bg-gray-700" : "bg-gray-200"
+                        }`}
+                        textStyles={`font-mmedium ${
+                            isDark ? "text-dark-text-primary" : "text-gray-700"
+                        }`}
                         isLoading={isSavingDraft}
+                        isDark={isDark}
                     />
                     <CustomButton
                         title={t("add_survey.buttons.submit")}
                         handlePress={() => saveSurvey(false)}
-                        containerStyles="flex-1 ml-2 bg-primary py-3 px-2 rounded-lg"
+                        containerStyles={`flex-1 ml-2 py-3 px-2 rounded-lg ${
+                            isDark ? "bg-dark-primary" : "bg-primary"
+                        }`}
                         textStyles="text-white font-mmedium"
                         isLoading={isSubmitting}
+                        isDark={isDark}
                     />
                 </View>
             </ScrollView>

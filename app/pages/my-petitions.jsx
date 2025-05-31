@@ -22,51 +22,84 @@ import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { firestore } from "../../lib/firebase";
 import Toast from "react-native-toast-message";
 import CustomButton from "../../components/CustomButton";
+import { useTheme } from "../../lib/themeContext";
+import FilterButton from "../../components/FilterButton";
 
-// Цвета для статусов (аналогично surveys)
+// Status colors with dark mode support
 const statusColors = {
     Draft: {
         bg: "bg-gray-200",
         text: "text-gray-700",
         icon: "edit",
         iconColor: "#374151",
+        darkBg: "bg-dark-border",
+        darkText: "text-dark-text-secondary",
+        darkIconColor: "#B3B3B3",
     },
     "In progress": {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "pending",
         iconColor: "#B45309",
+        darkBg: "bg-yellow-900",
+        darkText: "text-yellow-200",
+        darkIconColor: "#FBBF24",
     },
     Rejected: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "cancel",
         iconColor: "#B91C1C",
+        darkBg: "bg-red-900",
+        darkText: "text-red-200",
+        darkIconColor: "#F87171",
     },
     Completed: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "check-circle",
         iconColor: "#047857",
+        darkBg: "bg-green-900",
+        darkText: "text-green-200",
+        darkIconColor: "#34D399",
     },
     Published: {
         bg: "bg-blue-100",
         text: "text-blue-700",
         icon: "public",
         iconColor: "#1D4ED8",
+        darkBg: "bg-blue-900",
+        darkText: "text-blue-200",
+        darkIconColor: "#60A5FA",
     },
 };
 
-// Компонент для пустого состояния
-const EmptyStateMessage = ({ searchText }) => {
+// Empty state component
+const EmptyStateMessage = ({ searchText, isDark }) => {
     const { t } = useTranslation();
     return (
-        <View className="flex-1 items-center justify-center py-10 bg-secondary">
-            <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
-            <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+        <View
+            className={`flex-1 items-center justify-center py-10 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
+            <MaterialIcons
+                name="search-off"
+                size={64}
+                color={isDark ? "#A0A0A0" : "#9CA3AF"}
+            />
+            <Text
+                className={`text-lg font-mmedium mt-4 text-center ${
+                    isDark ? "text-dark-text-secondary" : "text-gray-400"
+                }`}
+            >
                 {t("my_petitions.empty_state.no_petitions")}
             </Text>
-            <Text className="text-gray-400 mt-2 text-center">
+            <Text
+                className={`mt-2 text-center ${
+                    isDark ? "text-dark-text-secondary" : "text-gray-400"
+                }`}
+            >
                 {searchText
                     ? t("my_petitions.empty_state.search_advice")
                     : t("my_petitions.empty_state.create_advice")}
@@ -75,8 +108,8 @@ const EmptyStateMessage = ({ searchText }) => {
     );
 };
 
-// Компонент карточки петиции
-const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
+// Petition card component
+const PetitionCard = ({ item, i18n, onViewRejection, onDelete, isDark }) => {
     const { t } = useTranslation();
     const router = useRouter();
 
@@ -85,6 +118,9 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
         text: "text-gray-700",
         icon: "help",
         iconColor: "#374151",
+        darkBg: "bg-dark-border",
+        darkText: "text-dark-text-secondary",
+        darkIconColor: "#B3B3B3",
     };
 
     const canEdit = item.status === "Draft";
@@ -95,26 +131,42 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
     };
 
     return (
-        <View className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden min-h-[180px] flex flex-col">
+        <View
+            className={`rounded-lg mb-4 shadow-sm border overflow-hidden min-h-[180px] flex flex-col ${
+                isDark
+                    ? "bg-dark-surface border-dark-border"
+                    : "bg-ghostwhite border-gray-200"
+            }`}
+        >
             <View className="p-4 flex-1">
                 <View className="flex-row justify-between items-start mb-2">
                     <Text
-                        className="font-msemibold text-lg text-gray-900 flex-1 mr-2"
+                        className={`font-msemibold text-lg flex-1 mr-2 ${
+                            isDark ? "text-dark-text-primary" : "text-gray-900"
+                        }`}
                         numberOfLines={2}
                         ellipsizeMode="tail"
                     >
                         {item.title[i18n.language] || item.title.en}
                     </Text>
                     <View
-                        className={`px-2 py-1 rounded-full flex-row items-center ${statusColor.bg}`}
+                        className={`px-2 py-1 rounded-full flex-row items-center ${
+                            isDark ? statusColor.darkBg : statusColor.bg
+                        }`}
                     >
                         <MaterialIcons
                             name={statusColor.icon}
                             size={16}
-                            color={statusColor.iconColor}
+                            color={
+                                isDark
+                                    ? statusColor.darkIconColor
+                                    : statusColor.iconColor
+                            }
                         />
                         <Text
-                            className={`ml-1 text-xs font-mmedium ${statusColor.text}`}
+                            className={`ml-1 text-xs font-mmedium ${
+                                isDark ? statusColor.darkText : statusColor.text
+                            }`}
                         >
                             {t(
                                 `my_petitions.statuses.${item.status.toLowerCase()}`
@@ -123,7 +175,11 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
                     </View>
                 </View>
 
-                <Text className="text-gray-500 text-sm mb-3 font-mmedium">
+                <Text
+                    className={`text-sm mb-3 font-mmedium ${
+                        isDark ? "text-dark-text-secondary" : "text-gray-500"
+                    }`}
+                >
                     {t("my_petitions.created_label")}:{" "}
                     {item.createdAt.toDate().toLocaleDateString(i18n.language)}
                 </Text>
@@ -132,11 +188,15 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
                     item.status === "Completed") && (
                     <View className="flex-row items-center mb-3">
                         <MaterialIcons
-                            name="how-to-vote"
+                            name="people"
                             size={18}
-                            color="#006FFD"
+                            color={isDark ? "#0066E6" : "#006FFD"}
                         />
-                        <Text className="ml-1 text-primary font-mmedium">
+                        <Text
+                            className={`ml-1 font-mmedium ${
+                                isDark ? "text-dark-primary" : "text-primary"
+                            }`}
+                        >
                             {item.totalSignatures || 0}{" "}
                             {t("my_petitions.signatures_label")}
                         </Text>
@@ -152,9 +212,13 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
                             <MaterialIcons
                                 name="info"
                                 size={18}
-                                color="#EF4444"
+                                color={isDark ? "#F87171" : "#EF4444"}
                             />
-                            <Text className="ml-1 text-red-500 font-mmedium">
+                            <Text
+                                className={`ml-1 font-mmedium ${
+                                    isDark ? "text-red-400" : "text-red-500"
+                                }`}
+                            >
                                 {t(
                                     "my_petitions.actions.view_rejection_reason"
                                 )}
@@ -167,7 +231,11 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
                     <View className="flex-row justify-end mb-2">
                         {canEdit && (
                             <TouchableOpacity
-                                className="mr-3 px-3 py-1 rounded-full border border-blue-500"
+                                className={`mr-3 px-3 py-1 rounded-full border ${
+                                    isDark
+                                        ? "border-blue-600"
+                                        : "border-blue-500"
+                                }`}
                                 onPress={() =>
                                     router.push({
                                         pathname: "/pages/add-petition",
@@ -179,9 +247,15 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
                                     <MaterialIcons
                                         name="edit"
                                         size={18}
-                                        color="#006FFD"
+                                        color={isDark ? "#0066E6" : "#006FFD"}
                                     />
-                                    <Text className="ml-1 text-primary font-mmedium">
+                                    <Text
+                                        className={`ml-1 font-mmedium ${
+                                            isDark
+                                                ? "text-dark-primary"
+                                                : "text-primary"
+                                        }`}
+                                    >
                                         {t("my_petitions.actions.edit")}
                                     </Text>
                                 </View>
@@ -189,16 +263,24 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
                         )}
                         {canDelete && (
                             <TouchableOpacity
-                                className="px-3 py-1 rounded-full border border-red-400"
+                                className={`px-3 py-1 rounded-full border ${
+                                    isDark ? "border-red-600" : "border-red-400"
+                                }`}
                                 onPress={() => onDelete(item.id)}
                             >
                                 <View className="flex-row items-center">
                                     <MaterialIcons
                                         name="delete"
                                         size={18}
-                                        color="#EF4444"
+                                        color={isDark ? "#F87171" : "#EF4444"}
                                     />
-                                    <Text className="ml-1 text-red-500 font-mmedium">
+                                    <Text
+                                        className={`ml-1 font-mmedium ${
+                                            isDark
+                                                ? "text-red-400"
+                                                : "text-red-500"
+                                        }`}
+                                    >
                                         {t("my_petitions.actions.delete")}
                                     </Text>
                                 </View>
@@ -209,12 +291,22 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
                     {item.status !== "Draft" && (
                         <View className="flex-row justify-end mb-2">
                             <TouchableOpacity
-                                className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
+                                className={`px-3 py-1 rounded-full border ${
+                                    isDark
+                                        ? "bg-dark-surface border-dark-border"
+                                        : "bg-ghostwhite border-gray-300"
+                                }`}
                                 onPress={() =>
                                     router.push(getDetailsRoute(item.id))
                                 }
                             >
-                                <Text className="text-gray-700 font-mmedium">
+                                <Text
+                                    className={`font-mmedium ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-gray-700"
+                                    }`}
+                                >
                                     {t("my_petitions.actions.view_details")}
                                 </Text>
                             </TouchableOpacity>
@@ -226,7 +318,7 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete }) => {
     );
 };
 
-// Основной компонент страницы
+// Main component
 const MyPetitionsPage = () => {
     const { t, i18n } = useTranslation();
     const router = useRouter();
@@ -246,6 +338,7 @@ const MyPetitionsPage = () => {
         loadMoreUserPetitions,
         isUserPetitionsLoadingMore,
     } = useData();
+    const { isDark } = useTheme();
     const [refreshing, setRefreshing] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [debouncedSearchText, setDebouncedSearchText] = useState("");
@@ -265,7 +358,6 @@ const MyPetitionsPage = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const { isKeyboardVisible } = useKeyboard();
 
-    // Опции статусов (аналогично surveys)
     const statusOptions = [
         { id: "Draft", name: t("my_petitions.statuses.draft") },
         { id: "In progress", name: t("my_petitions.statuses.in progress") },
@@ -274,7 +366,6 @@ const MyPetitionsPage = () => {
         { id: "Published", name: t("my_petitions.statuses.published") },
     ];
 
-    // Категории петиций
     const petitionCategories = [
         {
             id: "idfw7SRpl5RWJounhx5o",
@@ -308,7 +399,7 @@ const MyPetitionsPage = () => {
             id: "N9yPRzFYhGpOGD2y1B1q",
             name: {
                 en: "Social Sphere",
-                kz: "Алеуметтік сала",
+                kz: "Әлеуметтік сала",
                 ru: "Социальная сфера",
             },
         },
@@ -334,7 +425,6 @@ const MyPetitionsPage = () => {
         },
     ];
 
-    // Форматирование даты
     const formatDate = (date) => {
         if (!date) return "";
         return date.toLocaleDateString(i18n.language, {
@@ -344,19 +434,16 @@ const MyPetitionsPage = () => {
         });
     };
 
-    // Загрузка данных при монтировании
     useEffect(() => {
         fetchUserPetitions();
     }, []);
 
-    // Синхронизация временных фильтров с глобальными при открытии модального окна
     useEffect(() => {
         if (showFilterModal) {
             setTempFilters({ ...userPetitionFilters });
         }
     }, [showFilterModal, userPetitionFilters]);
 
-    // Переключение статуса в фильтрах
     const toggleStatus = (statusId) => {
         setTempFilters((prev) => ({
             ...prev,
@@ -366,7 +453,6 @@ const MyPetitionsPage = () => {
         }));
     };
 
-    // Переключение категории в фильтрах
     const toggleCategory = (categoryId) => {
         setTempFilters((prev) => ({
             ...prev,
@@ -376,7 +462,6 @@ const MyPetitionsPage = () => {
         }));
     };
 
-    // Применение фильтров
     const handleApplyFilters = async () => {
         updateUserPetitionFilters(tempFilters);
         setShowFilterModal(false);
@@ -389,7 +474,6 @@ const MyPetitionsPage = () => {
         }
     };
 
-    // Сброс фильтров
     const handleResetFilters = async () => {
         const emptyFilters = {
             statuses: [],
@@ -408,7 +492,6 @@ const MyPetitionsPage = () => {
         }
     };
 
-    // Задержка для debounce поиска
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             setDebouncedSearchText(searchText);
@@ -416,13 +499,11 @@ const MyPetitionsPage = () => {
         return () => clearTimeout(timeoutId);
     }, [searchText]);
 
-    // Очистка поиска
     const handleClearSearch = () => {
         setSearchText("");
         resetUserPetitionSearch();
     };
 
-    // Выполнение поиска при изменении debouncedSearchText
     useEffect(() => {
         const performSearch = async () => {
             if (debouncedSearchText.trim()) {
@@ -438,7 +519,6 @@ const MyPetitionsPage = () => {
         performSearch();
     }, [debouncedSearchText, i18n.language, userPetitionFilters]);
 
-    // Обновление списка
     const onRefresh = async () => {
         setRefreshing(true);
         try {
@@ -458,7 +538,6 @@ const MyPetitionsPage = () => {
         }
     };
 
-    // Загрузка дополнительных данных при достижении конца списка
     const handleEndReached = () => {
         if (
             !userPetitionsLoading &&
@@ -469,44 +548,56 @@ const MyPetitionsPage = () => {
         }
     };
 
-    // Компонент подвала списка (индикатор загрузки)
     const renderFooter = () => {
         if (!isUserPetitionsLoadingMore) return null;
         return (
             <View className="py-4 flex items-center justify-center">
-                <ActivityIndicator size="small" color="#006FFD" />
+                <ActivityIndicator
+                    size="small"
+                    color={isDark ? "#0066E6" : "#006FFD"}
+                />
             </View>
         );
     };
 
-    // Компонент пустого списка
     const renderEmptyList = () => {
         if (searchText) {
-            return <EmptyStateMessage searchText={searchText} />;
+            return (
+                <EmptyStateMessage searchText={searchText} isDark={isDark} />
+            );
         }
         return (
-            <View className="flex-1 items-center justify-center py-10 bg-secondary">
-                <MaterialIcons name="info" size={64} color="#9CA3AF" />
-                <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+            <View
+                className={`flex-1 items-center justify-center py-10 ${
+                    isDark ? "bg-dark-background" : "bg-secondary"
+                }`}
+            >
+                <MaterialIcons
+                    name="info"
+                    size={64}
+                    color={isDark ? "#A0A0A0" : "#9CA3AF"}
+                />
+                <Text
+                    className={`text-lg font-mmedium mt-4 text-center ${
+                        isDark ? "text-dark-text-secondary" : "text-gray-400"
+                    }`}
+                >
                     {t("my_petitions.empty_state.no_petitions")}
                 </Text>
             </View>
         );
     };
 
-    // Просмотр причины отклонения
     const handleViewRejection = (reason) => {
         setRejectionReason(reason);
         setShowRejectionModal(true);
     };
 
-    // Подтверждение удаления петиции
     const handleDeletePetition = (petitionId) => {
         setPetitionToDelete(petitionId);
         setShowDeleteModal(true);
     };
 
-    // Удаление петиции
     const confirmDelete = async () => {
         if (!petitionToDelete) return;
 
@@ -546,7 +637,6 @@ const MyPetitionsPage = () => {
         }
     };
 
-    // Данные для отображения
     const displayData = isUserPetitionSearchActive
         ? paginatedUserPetitionSearchResults
         : paginatedUserPetitions;
@@ -559,17 +649,32 @@ const MyPetitionsPage = () => {
         : userPetitionsError;
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <View className="px-6 pt-12 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <View
+                className={`px-6 pt-12 pb-2 flex-row items-center border-b ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
                 <View className="flex-1">
                     <Text
-                        className="text-2xl font-mbold text-black"
+                        className={`text-2xl font-mbold ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
                         numberOfLines={1}
                         adjustsFontSizeToFit
                         minimumFontScale={0.6}
@@ -581,7 +686,11 @@ const MyPetitionsPage = () => {
                     onPress={() => router.push("/pages/add-petition")}
                     className="ml-4"
                 >
-                    <MaterialIcons name="add" size={24} color="#006FFD" />
+                    <MaterialIcons
+                        name="add"
+                        size={24}
+                        color={isDark ? "#0066E6" : "#006FFD"}
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -593,32 +702,35 @@ const MyPetitionsPage = () => {
                             setSearchText={setSearchText}
                             onClear={handleClearSearch}
                             tabName="petitions"
+                            isDark={isDark}
                         />
                     </View>
-                    <TouchableOpacity
-                        className="ml-2 p-2 bg-ghostwhite rounded-full shadow-md border border-gray-200"
+                    <FilterButton
                         onPress={() => setShowFilterModal(true)}
-                    >
-                        <MaterialIcons
-                            name="filter-list"
-                            size={24}
-                            color={
-                                userPetitionFilters.statuses.length > 0 ||
-                                userPetitionFilters.categories.length > 0 ||
-                                userPetitionFilters.startDate ||
-                                userPetitionFilters.endDate
-                                    ? "#006FFD"
-                                    : "#9CA3AF"
-                            }
-                        />
-                    </TouchableOpacity>
+                        hasActiveFilters={
+                            userPetitionFilters.statuses.length > 0 ||
+                            userPetitionFilters.categories.length > 0 ||
+                            userPetitionFilters.startDate ||
+                            userPetitionFilters.endDate
+                        }
+                        containerStyles="ml-2"
+                        isDark={isDark}
+                    />
                 </View>
 
                 {isLoading ? (
-                    <LoadingIndicator />
+                    <LoadingIndicator isDark={isDark} />
                 ) : error ? (
-                    <View className="flex-1 justify-center items-center">
-                        <Text className="text-red-500">
+                    <View
+                        className={`flex-1 justify-center items-center ${
+                            isDark ? "bg-dark-background" : "bg-secondary"
+                        }`}
+                    >
+                        <Text
+                            className={`${
+                                isDark ? "text-red-400" : "text-red-500"
+                            }`}
+                        >
                             {t("my_petitions.error")}: {error}
                         </Text>
                     </View>
@@ -631,6 +743,7 @@ const MyPetitionsPage = () => {
                                 i18n={i18n}
                                 onViewRejection={handleViewRejection}
                                 onDelete={handleDeletePetition}
+                                isDark={isDark}
                             />
                         )}
                         keyExtractor={(item) => item.id}
@@ -643,16 +756,18 @@ const MyPetitionsPage = () => {
                             <RefreshControl
                                 refreshing={refreshing}
                                 onRefresh={onRefresh}
-                                tintColor="#006FFD"
-                                colors={["#006FFD"]}
-                                progressBackgroundColor="#FFFFFF"
+                                tintColor={isDark ? "#0066E6" : "#006FFD"}
+                                colors={[isDark ? "#0066E6" : "#006FFD"]}
+                                progressBackgroundColor={
+                                    isDark ? "#2D2D2D" : "#FFFFFF"
+                                }
                             />
                         }
                     />
                 )}
             </View>
 
-            {/* Модальное окно для фильтров */}
+            {/* Filter Modal */}
             <Modal
                 transparent={true}
                 visible={showFilterModal}
@@ -660,14 +775,29 @@ const MyPetitionsPage = () => {
                 onRequestClose={() => setShowFilterModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => setShowFilterModal(false)}
                 >
                     <View className="flex-1 justify-end">
-                        <View className="bg-white rounded-t-xl p-5">
+                        <View
+                            className={`rounded-t-xl p-5 ${
+                                isDark ? "bg-dark-surface" : "bg-white"
+                            }`}
+                        >
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-lg font-mbold">
+                                <Text
+                                    className={`text-lg font-mbold ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_petitions.filter_modal.title")}
                                 </Text>
                                 <TouchableOpacity
@@ -676,24 +806,34 @@ const MyPetitionsPage = () => {
                                     <MaterialIcons
                                         name="close"
                                         size={24}
-                                        color="#374151"
+                                        color={isDark ? "#FFFFFF" : "#374151"}
                                     />
                                 </TouchableOpacity>
                             </View>
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_petitions.filter_modal.status")}
                                 </Text>
                                 <View className="flex-row flex-wrap">
                                     {statusOptions.map((status) => (
                                         <TouchableOpacity
                                             key={status.id}
-                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border border-gray-200 ${
+                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
                                                 tempFilters.statuses.includes(
                                                     status.id
                                                 )
-                                                    ? "border-primary bg-primary"
-                                                    : "bg-gray-100"
+                                                    ? isDark
+                                                        ? "border-dark-primary bg-dark-primary"
+                                                        : "border-primary bg-primary"
+                                                    : isDark
+                                                    ? "bg-gray-700 border-gray-600"
+                                                    : "bg-gray-100 border-gray-200"
                                             }`}
                                             onPress={() =>
                                                 toggleStatus(status.id)
@@ -705,6 +845,8 @@ const MyPetitionsPage = () => {
                                                         status.id
                                                     )
                                                         ? "text-white"
+                                                        : isDark
+                                                        ? "text-dark-text-primary"
                                                         : "text-gray-700"
                                                 }`}
                                             >
@@ -715,19 +857,29 @@ const MyPetitionsPage = () => {
                                 </View>
                             </View>
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_petitions.filter_modal.categories")}
                                 </Text>
                                 <View className="flex-row flex-wrap">
                                     {petitionCategories.map((category) => (
                                         <TouchableOpacity
                                             key={category.id}
-                                            className={`mr-2 mb-2 px-4 py-1 rounded-full border border-gray-200 ${
+                                            className={`mr-2 mb-2 px-4 py-1 rounded-full border ${
                                                 tempFilters.categories.includes(
                                                     category.id
                                                 )
-                                                    ? "border-primary bg-primary"
-                                                    : "bg-gray-100"
+                                                    ? isDark
+                                                        ? "border-dark-primary bg-dark-primary"
+                                                        : "border-primary bg-primary"
+                                                    : isDark
+                                                    ? "bg-gray-700 border-gray-600"
+                                                    : "bg-gray-100 border-gray-200"
                                             }`}
                                             onPress={() =>
                                                 toggleCategory(category.id)
@@ -739,6 +891,8 @@ const MyPetitionsPage = () => {
                                                         category.id
                                                     )
                                                         ? "text-white"
+                                                        : isDark
+                                                        ? "text-dark-text-primary"
                                                         : "text-gray-700"
                                                 }`}
                                             >
@@ -749,21 +903,37 @@ const MyPetitionsPage = () => {
                                 </View>
                             </View>
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_petitions.filter_modal.date_range")}
                                 </Text>
                                 <View className="flex-row justify-between">
                                     <TouchableOpacity
-                                        className={`flex-1 mr-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
+                                        className={`flex-1 mr-2 p-3 rounded-lg border items-center justify-center ${
                                             tempFilters.startDate
-                                                ? "border-2 border-primary"
+                                                ? isDark
+                                                    ? "border-2 border-dark-primary bg-gray-700"
+                                                    : "border-2 border-primary"
+                                                : isDark
+                                                ? "bg-gray-700 border-gray-600"
                                                 : "border-gray-200 bg-gray-100"
                                         }`}
                                         onPress={() =>
                                             setShowStartDatePicker(true)
                                         }
                                     >
-                                        <Text className="text-gray-700 font-mregular">
+                                        <Text
+                                            className={`font-mregular ${
+                                                isDark
+                                                    ? "text-dark-text-primary"
+                                                    : "text-gray-700"
+                                            }`}
+                                        >
                                             {tempFilters.startDate
                                                 ? formatDate(
                                                       tempFilters.startDate
@@ -774,16 +944,26 @@ const MyPetitionsPage = () => {
                                         </Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        className={`flex-1 ml-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
+                                        className={`flex-1 ml-2 p-3 rounded-lg border items-center justify-center ${
                                             tempFilters.endDate
-                                                ? "border-2 border-primary"
+                                                ? isDark
+                                                    ? "border-2 border-dark-primary bg-gray-700"
+                                                    : "border-2 border-primary"
+                                                : isDark
+                                                ? "bg-gray-700 border-gray-600"
                                                 : "border-gray-200 bg-gray-100"
                                         }`}
                                         onPress={() =>
                                             setShowEndDatePicker(true)
                                         }
                                     >
-                                        <Text className="text-gray-700 font-mregular">
+                                        <Text
+                                            className={`font-mregular ${
+                                                isDark
+                                                    ? "text-dark-text-primary"
+                                                    : "text-gray-700"
+                                            }`}
+                                        >
                                             {tempFilters.endDate
                                                 ? formatDate(
                                                       tempFilters.endDate
@@ -797,18 +977,36 @@ const MyPetitionsPage = () => {
                             </View>
                             <View className="flex-row justify-between">
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-gray-200 rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark ? "bg-gray-700" : "bg-gray-200"
+                                    }`}
                                     onPress={handleResetFilters}
                                 >
-                                    <Text className="text-gray-700 font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-gray-700"
+                                        }`}
+                                    >
                                         {t("my_petitions.filter_modal.reset")}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-primary rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                    }`}
                                     onPress={handleApplyFilters}
                                 >
-                                    <Text className="text-white font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-white"
+                                        }`}
+                                    >
                                         {t("my_petitions.filter_modal.apply")}
                                     </Text>
                                 </TouchableOpacity>
@@ -818,7 +1016,7 @@ const MyPetitionsPage = () => {
                 </TouchableOpacity>
             </Modal>
 
-            {/* Модальное окно для причины отклонения */}
+            {/* Rejection Reason Modal */}
             <Modal
                 transparent={true}
                 visible={showRejectionModal}
@@ -826,20 +1024,43 @@ const MyPetitionsPage = () => {
                 onRequestClose={() => setShowRejectionModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => setShowRejectionModal(false)}
                 >
                     <View className="flex-1 justify-center items-center">
-                        <View className="bg-white rounded-xl p-5 w-11/12 max-w-md">
+                        <View
+                            className={`rounded-xl p-5 w-11/12 max-w-md ${
+                                isDark
+                                    ? "bg-dark-surface border-dark-border"
+                                    : "bg-white border-light-border"
+                            }`}
+                        >
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-lg font-mbold mb-2">
+                                <Text
+                                    className={`text-lg font-mbold mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t(
                                         "my_petitions.rejection_reason_modal.title"
                                     )}
                                 </Text>
                             </View>
-                            <Text className="text-gray-600 mb-4">
+                            <Text
+                                className={`mb-4 ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-600"
+                                }`}
+                            >
                                 {rejectionReason[i18n.language] ||
                                     rejectionReason.en ||
                                     t(
@@ -847,10 +1068,18 @@ const MyPetitionsPage = () => {
                                     )}
                             </Text>
                             <TouchableOpacity
-                                className="px-6 py-3 bg-primary rounded-full self-end"
+                                className={`px-6 py-3 rounded-full self-end ${
+                                    isDark ? "bg-dark-primary" : "bg-primary"
+                                }`}
                                 onPress={() => setShowRejectionModal(false)}
                             >
-                                <Text className="text-white font-mmedium">
+                                <Text
+                                    className={`font-mmedium ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-white"
+                                    }`}
+                                >
                                     {t(
                                         "my_petitions.rejection_reason_modal.close_button"
                                     )}
@@ -861,7 +1090,7 @@ const MyPetitionsPage = () => {
                 </TouchableOpacity>
             </Modal>
 
-            {/* Модальное окно для подтверждения удаления */}
+            {/* Delete Confirmation Modal */}
             <Modal
                 transparent={true}
                 visible={showDeleteModal}
@@ -869,27 +1098,58 @@ const MyPetitionsPage = () => {
                 onRequestClose={() => setShowDeleteModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => !isDeleting && setShowDeleteModal(false)}
                 >
                     <View className="flex-1 justify-center items-center">
-                        <View className="bg-white rounded-xl p-5 w-11/12 max-w-md">
+                        <View
+                            className={`rounded-xl p-5 w-11/12 max-w-md ${
+                                isDark
+                                    ? "bg-dark-surface border-dark-border"
+                                    : "bg-white border-light-border"
+                            }`}
+                        >
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-lg font-mbold">
+                                <Text
+                                    className={`text-lg font-mbold ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_petitions.delete_modal.title")}
                                 </Text>
                             </View>
-                            <Text className="text-gray-700 font-mregular mb-6">
+                            <Text
+                                className={`font-mregular mb-6 ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-gray-700"
+                                }`}
+                            >
                                 {t("my_petitions.delete_modal.message")}
                             </Text>
                             <View className="flex-row justify-between">
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-gray-200 rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark ? "bg-gray-700" : "bg-gray-200"
+                                    }`}
                                     onPress={() => setShowDeleteModal(false)}
                                     disabled={isDeleting}
                                 >
-                                    <Text className="text-gray-700 font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-gray-700"
+                                        }`}
+                                    >
                                         {t(
                                             "my_petitions.delete_modal.cancel_button"
                                         )}
@@ -900,9 +1160,12 @@ const MyPetitionsPage = () => {
                                         "my_petitions.delete_modal.delete_button"
                                     )}
                                     handlePress={confirmDelete}
-                                    containerStyles="px-6 py-3 bg-red-500 rounded-full"
+                                    containerStyles={`px-6 py-3 rounded-full ${
+                                        isDark ? "bg-red-600" : "bg-red-500"
+                                    }`}
                                     textStyles="text-white font-mmedium"
                                     isLoading={isDeleting}
+                                    isDark={isDark}
                                 />
                             </View>
                         </View>
@@ -910,7 +1173,6 @@ const MyPetitionsPage = () => {
                 </TouchableOpacity>
             </Modal>
 
-            {/* Выбор даты */}
             {showStartDatePicker && (
                 <DateTimePicker
                     value={tempFilters.startDate || new Date()}
@@ -925,6 +1187,7 @@ const MyPetitionsPage = () => {
                             }));
                         }
                     }}
+                    themeVariant={isDark ? "dark" : "light"}
                 />
             )}
             {showEndDatePicker && (
@@ -941,6 +1204,7 @@ const MyPetitionsPage = () => {
                             }));
                         }
                     }}
+                    themeVariant={isDark ? "dark" : "light"}
                 />
             )}
         </SafeAreaView>

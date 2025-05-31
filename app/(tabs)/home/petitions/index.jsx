@@ -132,6 +132,7 @@ const PetitionCard = ({ item, onPress, i18n, isDark }) => {
                         className={`font-msemibold text-lg flex-1 mr-2 ${
                             isDark ? "text-dark-text-primary" : "text-gray-900"
                         }`}
+                        numberOfLines={3}
                     >
                         {item.title[i18n.language] || item.title.en}
                     </Text>

@@ -22,6 +22,8 @@ import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { firestore } from "../../lib/firebase";
 import Toast from "react-native-toast-message";
 import CustomButton from "../../components/CustomButton";
+import { useTheme } from "../../lib/themeContext";
+import FilterButton from "../../components/FilterButton";
 
 const statusColors = {
     Draft: {
@@ -29,42 +31,73 @@ const statusColors = {
         text: "text-gray-700",
         icon: "edit",
         iconColor: "#374151",
+        darkBg: "bg-dark-border",
+        darkText: "text-dark-text-secondary",
+        darkIconColor: "#B3B3B3",
     },
     "In progress": {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "pending",
         iconColor: "#B45309",
+        darkBg: "bg-yellow-900",
+        darkText: "text-yellow-200",
+        darkIconColor: "#FBBF24",
     },
     Rejected: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "cancel",
         iconColor: "#B91C1C",
+        darkBg: "bg-red-900",
+        darkText: "text-red-200",
+        darkIconColor: "#F87171",
     },
     Completed: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "check-circle",
         iconColor: "#047857",
+        darkBg: "bg-green-900",
+        darkText: "text-green-200",
+        darkIconColor: "#34D399",
     },
     Published: {
         bg: "bg-blue-100",
         text: "text-blue-700",
         icon: "public",
         iconColor: "#1D4ED8",
+        darkBg: "bg-blue-900",
+        darkText: "text-blue-200",
+        darkIconColor: "#60A5FA",
     },
 };
 
-const EmptyStateMessage = ({ searchText }) => {
+const EmptyStateMessage = ({ searchText, isDark }) => {
     const { t } = useTranslation();
     return (
-        <View className="flex-1 items-center justify-center py-10 bg-secondary">
-            <MaterialIcons name="search-off" size={64} color="#9CA3AF" />
-            <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+        <View
+            className={`flex-1 items-center justify-center py-10 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
+            <MaterialIcons
+                name="search-off"
+                size={64}
+                color={isDark ? "#A0A0A0" : "#9CA3AF"}
+            />
+            <Text
+                className={`text-lg font-mmedium mt-4 text-center ${
+                    isDark ? "text-dark-text-secondary" : "text-gray-400"
+                }`}
+            >
                 {t("my_surveys.empty_state.no_surveys")}
             </Text>
-            <Text className="text-gray-400 mt-2 text-center">
+            <Text
+                className={`mt-2 text-center ${
+                    isDark ? "text-dark-text-secondary" : "text-gray-400"
+                }`}
+            >
                 {searchText
                     ? t("my_surveys.empty_state.search_advice")
                     : t("my_surveys.empty_state.create_advice")}
@@ -73,7 +106,7 @@ const EmptyStateMessage = ({ searchText }) => {
     );
 };
 
-const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
+const SurveyCard = ({ item, i18n, onViewRejection, onDelete, isDark }) => {
     const { t } = useTranslation();
     const router = useRouter();
 
@@ -82,6 +115,9 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
         text: "text-gray-700",
         icon: "help",
         iconColor: "#374151",
+        darkBg: "bg-dark-border",
+        darkText: "text-dark-text-secondary",
+        darkIconColor: "#B3B3B3",
     };
 
     const canEdit = item.status === "Draft";
@@ -103,26 +139,42 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
     };
 
     return (
-        <View className="bg-ghostwhite rounded-lg mb-4 shadow-sm border border-gray-200 overflow-hidden min-h-[180px] flex flex-col">
+        <View
+            className={`rounded-lg mb-4 shadow-sm border overflow-hidden min-h-[180px] flex flex-col ${
+                isDark
+                    ? "bg-dark-surface border-dark-border"
+                    : "bg-ghostwhite border-gray-200"
+            }`}
+        >
             <View className="p-4 flex-1">
                 <View className="flex-row justify-between items-start mb-2">
                     <Text
-                        className="font-msemibold text-lg text-gray-900 flex-1 mr-2"
+                        className={`font-msemibold text-lg flex-1 mr-2 ${
+                            isDark ? "text-dark-text-primary" : "text-gray-900"
+                        }`}
                         numberOfLines={2}
                         ellipsizeMode="tail"
                     >
                         {item.title[i18n.language] || item.title.en}
                     </Text>
                     <View
-                        className={`px-2 py-1 rounded-full flex-row items-center ${statusColor.bg}`}
+                        className={`px-2 py-1 rounded-full flex-row items-center ${
+                            isDark ? statusColor.darkBg : statusColor.bg
+                        }`}
                     >
                         <MaterialIcons
                             name={statusColor.icon}
                             size={16}
-                            color={statusColor.iconColor}
+                            color={
+                                isDark
+                                    ? statusColor.darkIconColor
+                                    : statusColor.iconColor
+                            }
                         />
                         <Text
-                            className={`ml-1 text-xs font-mmedium ${statusColor.text}`}
+                            className={`ml-1 text-xs font-mmedium ${
+                                isDark ? statusColor.darkText : statusColor.text
+                            }`}
                         >
                             {t(
                                 `my_surveys.statuses.${item.status.toLowerCase()}`
@@ -131,7 +183,11 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                     </View>
                 </View>
 
-                <Text className="text-gray-500 text-sm mb-3 font-mmedium">
+                <Text
+                    className={`text-sm mb-3 font-mmedium ${
+                        isDark ? "text-dark-text-secondary" : "text-gray-500"
+                    }`}
+                >
                     {t("my_surveys.created_label")}:{" "}
                     {item.createdAt.toDate().toLocaleDateString(i18n.language)}
                 </Text>
@@ -142,9 +198,13 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                         <MaterialIcons
                             name="how-to-vote"
                             size={18}
-                            color="#006FFD"
+                            color={isDark ? "#60A5FA" : "#006FFD"}
                         />
-                        <Text className="ml-1 text-primary font-mmedium">
+                        <Text
+                            className={`ml-1 font-mmedium ${
+                                isDark ? "text-dark-primary" : "text-primary"
+                            }`}
+                        >
                             {item.totalVotes || 0} {t("my_surveys.votes_label")}
                         </Text>
                     </View>
@@ -159,9 +219,13 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                             <MaterialIcons
                                 name="info"
                                 size={18}
-                                color="#EF4444"
+                                color={isDark ? "#F87171" : "#EF4444"}
                             />
-                            <Text className="ml-1 text-red-500 font-mmedium">
+                            <Text
+                                className={`ml-1 font-mmedium ${
+                                    isDark ? "text-red-400" : "text-red-500"
+                                }`}
+                            >
                                 {t("my_surveys.actions.view_rejection_reason")}
                             </Text>
                         </View>
@@ -172,7 +236,11 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                     <View className="flex-row justify-end mb-2">
                         {canEdit && (
                             <TouchableOpacity
-                                className="mr-3 px-3 py-1 rounded-full border border-blue-500"
+                                className={`mr-3 px-3 py-1 rounded-full border ${
+                                    isDark
+                                        ? "border-blue-600"
+                                        : "border-blue-500"
+                                }`}
                                 onPress={() =>
                                     router.push({
                                         pathname: "/pages/add-survey",
@@ -184,9 +252,15 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                                     <MaterialIcons
                                         name="edit"
                                         size={18}
-                                        color="#006FFD"
+                                        color={isDark ? "#0066E6" : "#006FFD"}
                                     />
-                                    <Text className="ml-1 text-primary font-mmedium">
+                                    <Text
+                                        className={`ml-1 font-mmedium ${
+                                            isDark
+                                                ? "text-dark-primary"
+                                                : "text-primary"
+                                        }`}
+                                    >
                                         {t("my_surveys.actions.edit")}
                                     </Text>
                                 </View>
@@ -194,16 +268,24 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                         )}
                         {canDelete && (
                             <TouchableOpacity
-                                className="px-3 py-1 rounded-full border border-red-400"
+                                className={`px-3 py-1 rounded-full border ${
+                                    isDark ? "border-red-600" : "border-red-400"
+                                }`}
                                 onPress={() => onDelete(item.id)}
                             >
                                 <View className="flex-row items-center">
                                     <MaterialIcons
                                         name="delete"
                                         size={18}
-                                        color="#EF4444"
+                                        color={isDark ? "#F87171" : "#EF4444"}
                                     />
-                                    <Text className="ml-1 text-red-500 font-mmedium">
+                                    <Text
+                                        className={`ml-1 font-mmedium ${
+                                            isDark
+                                                ? "text-red-400"
+                                                : "text-red-500"
+                                        }`}
+                                    >
                                         {t("my_surveys.actions.delete")}
                                     </Text>
                                 </View>
@@ -215,7 +297,11 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                         <View className="flex-row justify-end mb-2">
                             {getDetailsRoute(item.status, item.id) && (
                                 <TouchableOpacity
-                                    className="bg-ghostwhite px-3 py-1 rounded-full border border-gray-300"
+                                    className={`px-3 py-1 rounded-full border ${
+                                        isDark
+                                            ? "bg-dark-surface border-dark-border"
+                                            : "bg-ghostwhite border-gray-300"
+                                    }`}
                                     onPress={() => {
                                         router.push(
                                             getDetailsRoute(
@@ -225,7 +311,13 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete }) => {
                                         );
                                     }}
                                 >
-                                    <Text className="text-gray-700 font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-gray-700"
+                                        }`}
+                                    >
                                         {t("my_surveys.actions.view_details")}
                                     </Text>
                                 </TouchableOpacity>
@@ -257,6 +349,7 @@ const MySurveysPage = () => {
         loadMoreUserSurveys,
         isUserSurveysLoadingMore,
     } = useData();
+    const { isDark } = useTheme();
     const [refreshing, setRefreshing] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [debouncedSearchText, setDebouncedSearchText] = useState("");
@@ -466,19 +559,36 @@ const MySurveysPage = () => {
         if (!isUserSurveysLoadingMore) return null;
         return (
             <View className="py-4 flex items-center justify-center">
-                <ActivityIndicator size="small" color="#006FFD" />
+                <ActivityIndicator
+                    size="small"
+                    color={isDark ? "#0066E6" : "#006FFD"}
+                />
             </View>
         );
     };
 
     const renderEmptyList = () => {
         if (searchText) {
-            return <EmptyStateMessage searchText={searchText} />;
+            return (
+                <EmptyStateMessage searchText={searchText} isDark={isDark} />
+            );
         }
         return (
-            <View className="flex-1 items-center justify-center py-10 bg-secondary">
-                <MaterialIcons name="info" size={64} color="#9CA3AF" />
-                <Text className="text-gray-400 text-lg font-mmedium mt-4 text-center">
+            <View
+                className={`flex-1 items-center justify-center py-10 ${
+                    isDark ? "bg-dark-background" : "bg-secondary"
+                }`}
+            >
+                <MaterialIcons
+                    name="info"
+                    size={64}
+                    color={isDark ? "#A0A0A0" : "#9CA3AF"}
+                />
+                <Text
+                    className={`text-lg font-mmedium mt-4 text-center ${
+                        isDark ? "text-dark-text-secondary" : "text-gray-400"
+                    }`}
+                >
                     {t("my_surveys.empty_state.no_surveys")}
                 </Text>
             </View>
@@ -546,17 +656,32 @@ const MySurveysPage = () => {
         : userSurveysError;
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <View className="px-6 pt-12 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <View
+                className={`px-6 pt-12 pb-2 flex-row items-center border-b ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
                 <View className="flex-1">
                     <Text
-                        className="text-2xl font-mbold text-black"
+                        className={`text-2xl font-mbold ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
                         numberOfLines={1}
                         adjustsFontSizeToFit
                         minimumFontScale={0.6}
@@ -568,7 +693,11 @@ const MySurveysPage = () => {
                     onPress={() => router.push("/pages/add-survey")}
                     className="ml-4"
                 >
-                    <MaterialIcons name="add" size={24} color="#006FFD" />
+                    <MaterialIcons
+                        name="add"
+                        size={24}
+                        color={isDark ? "#0066E6" : "#006FFD"}
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -580,32 +709,35 @@ const MySurveysPage = () => {
                             setSearchText={setSearchText}
                             onClear={handleClearSearch}
                             tabName="surveys"
+                            isDark={isDark}
                         />
                     </View>
-                    <TouchableOpacity
-                        className="ml-2 p-2 bg-ghostwhite rounded-full shadow-md border border-gray-200"
+                    <FilterButton
                         onPress={() => setShowFilterModal(true)}
-                    >
-                        <MaterialIcons
-                            name="filter-list"
-                            size={24}
-                            color={
-                                userSurveyFilters.statuses.length > 0 ||
-                                userSurveyFilters.categories.length > 0 ||
-                                userSurveyFilters.startDate ||
-                                userSurveyFilters.endDate
-                                    ? "#006FFD"
-                                    : "#9CA3AF"
-                            }
-                        />
-                    </TouchableOpacity>
+                        hasActiveFilters={
+                            userSurveyFilters.statuses.length > 0 ||
+                            userSurveyFilters.categories.length > 0 ||
+                            userSurveyFilters.startDate ||
+                            userSurveyFilters.endDate
+                        }
+                        containerStyles="ml-2"
+                        isDark={isDark}
+                    />
                 </View>
 
                 {isLoading ? (
-                    <LoadingIndicator />
+                    <LoadingIndicator isDark={isDark} />
                 ) : error ? (
-                    <View className="flex-1 justify-center items-center">
-                        <Text className="text-red-500">
+                    <View
+                        className={`flex-1 justify-center items-center ${
+                            isDark ? "bg-dark-background" : "bg-secondary"
+                        }`}
+                    >
+                        <Text
+                            className={`${
+                                isDark ? "text-red-400" : "text-red-500"
+                            }`}
+                        >
                             {t("my_surveys.error")}: {error}
                         </Text>
                     </View>
@@ -618,6 +750,7 @@ const MySurveysPage = () => {
                                 i18n={i18n}
                                 onViewRejection={handleViewRejection}
                                 onDelete={handleDeleteSurvey}
+                                isDark={isDark}
                             />
                         )}
                         keyExtractor={(item) => item.id}
@@ -630,9 +763,11 @@ const MySurveysPage = () => {
                             <RefreshControl
                                 refreshing={refreshing}
                                 onRefresh={onRefresh}
-                                tintColor="#006FFD"
-                                colors={["#006FFD"]}
-                                progressBackgroundColor="#FFFFFF"
+                                tintColor={isDark ? "#0066E6" : "#006FFD"}
+                                colors={[isDark ? "#0066E6" : "#006FFD"]}
+                                progressBackgroundColor={
+                                    isDark ? "#2D2D2D" : "#FFFFFF"
+                                }
                             />
                         }
                     />
@@ -647,14 +782,29 @@ const MySurveysPage = () => {
                 onRequestClose={() => setShowFilterModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => setShowFilterModal(false)}
                 >
                     <View className="flex-1 justify-end">
-                        <View className="bg-white rounded-t-xl p-5 ">
+                        <View
+                            className={`rounded-t-xl p-5 ${
+                                isDark ? "bg-dark-surface" : "bg-white"
+                            }`}
+                        >
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-lg font-mbold">
+                                <Text
+                                    className={`text-lg font-mbold ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_surveys.filter_modal.title")}
                                 </Text>
                                 <TouchableOpacity
@@ -663,24 +813,34 @@ const MySurveysPage = () => {
                                     <MaterialIcons
                                         name="close"
                                         size={24}
-                                        color="#374151"
+                                        color={isDark ? "#FFFFFF" : "#374151"}
                                     />
                                 </TouchableOpacity>
                             </View>
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_surveys.filter_modal.status")}
                                 </Text>
                                 <View className="flex-row flex-wrap">
                                     {statusOptions.map((status) => (
                                         <TouchableOpacity
                                             key={status.id}
-                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border border-gray-200 ${
+                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
                                                 tempFilters.statuses.includes(
                                                     status.id
                                                 )
-                                                    ? "border-primary bg-primary"
-                                                    : "bg-gray-100"
+                                                    ? isDark
+                                                        ? "border-dark-primary bg-dark-primary"
+                                                        : "border-primary bg-primary"
+                                                    : isDark
+                                                    ? "bg-gray-700 border-gray-600"
+                                                    : "bg-gray-100 border-gray-200"
                                             }`}
                                             onPress={() =>
                                                 toggleStatus(status.id)
@@ -692,6 +852,8 @@ const MySurveysPage = () => {
                                                         status.id
                                                     )
                                                         ? "text-white"
+                                                        : isDark
+                                                        ? "text-dark-text-primary"
                                                         : "text-gray-700"
                                                 }`}
                                             >
@@ -702,19 +864,29 @@ const MySurveysPage = () => {
                                 </View>
                             </View>
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_surveys.filter_modal.categories")}
                                 </Text>
                                 <View className="flex-row flex-wrap">
                                     {categories.map((category) => (
                                         <TouchableOpacity
                                             key={category.id}
-                                            className={`mr-2 mb-2 px-4 py-1 rounded-full border border-gray-200 ${
+                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
                                                 tempFilters.categories.includes(
                                                     category.id
                                                 )
-                                                    ? "border-primary bg-primary"
-                                                    : "bg-gray-100"
+                                                    ? isDark
+                                                        ? "border-dark-primary bg-dark-primary"
+                                                        : "border-primary bg-primary"
+                                                    : isDark
+                                                    ? "bg-gray-700 border-gray-600"
+                                                    : "bg-gray-100 border-gray-200"
                                             }`}
                                             onPress={() =>
                                                 toggleCategory(category.id)
@@ -726,6 +898,8 @@ const MySurveysPage = () => {
                                                         category.id
                                                     )
                                                         ? "text-white"
+                                                        : isDark
+                                                        ? "text-dark-text-primary"
                                                         : "text-gray-700"
                                                 }`}
                                             >
@@ -736,21 +910,37 @@ const MySurveysPage = () => {
                                 </View>
                             </View>
                             <View className="mb-6">
-                                <Text className="text-base font-mmedium mb-2">
+                                <Text
+                                    className={`text-base font-mmedium mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_surveys.filter_modal.date_range")}
                                 </Text>
                                 <View className="flex-row justify-between">
                                     <TouchableOpacity
-                                        className={`flex-1 mr-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
+                                        className={`flex-1 mr-2 p-3 rounded-lg border items-center justify-center ${
                                             tempFilters.startDate
-                                                ? "border-2 border-primary"
+                                                ? isDark
+                                                    ? "border-2 border-dark-primary bg-gray-700"
+                                                    : "border-2 border-primary"
+                                                : isDark
+                                                ? "bg-gray-700 border-gray-600"
                                                 : "border-gray-200 bg-gray-100"
                                         }`}
                                         onPress={() =>
                                             setShowStartDatePicker(true)
                                         }
                                     >
-                                        <Text className="text-gray-700 font-mregular">
+                                        <Text
+                                            className={`font-mregular ${
+                                                isDark
+                                                    ? "text-dark-text-primary"
+                                                    : "text-gray-700"
+                                            }`}
+                                        >
                                             {tempFilters.startDate
                                                 ? formatDate(
                                                       tempFilters.startDate
@@ -761,16 +951,26 @@ const MySurveysPage = () => {
                                         </Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        className={`flex-1 ml-2 p-3 bg-gray-100 rounded-lg border items-center justify-center ${
+                                        className={`flex-1 ml-2 p-3 rounded-lg border items-center justify-center ${
                                             tempFilters.endDate
-                                                ? "border-2 border-primary"
+                                                ? isDark
+                                                    ? "border-2 border-dark-primary bg-gray-700"
+                                                    : "border-2 border-primary"
+                                                : isDark
+                                                ? "bg-gray-700 border-gray-600"
                                                 : "border-gray-200 bg-gray-100"
                                         }`}
                                         onPress={() =>
                                             setShowEndDatePicker(true)
                                         }
                                     >
-                                        <Text className="text-gray-700 font-mregular">
+                                        <Text
+                                            className={`font-mregular ${
+                                                isDark
+                                                    ? "text-dark-text-primary"
+                                                    : "text-gray-700"
+                                            }`}
+                                        >
                                             {tempFilters.endDate
                                                 ? formatDate(
                                                       tempFilters.endDate
@@ -784,18 +984,36 @@ const MySurveysPage = () => {
                             </View>
                             <View className="flex-row justify-between">
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-gray-200 rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark ? "bg-gray-700" : "bg-gray-200"
+                                    }`}
                                     onPress={handleResetFilters}
                                 >
-                                    <Text className="text-gray-700 font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-gray-700"
+                                        }`}
+                                    >
                                         {t("my_surveys.filter_modal.reset")}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-primary rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                    }`}
                                     onPress={handleApplyFilters}
                                 >
-                                    <Text className="text-white font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-white"
+                                        }`}
+                                    >
                                         {t("my_surveys.filter_modal.apply")}
                                     </Text>
                                 </TouchableOpacity>
@@ -812,20 +1030,43 @@ const MySurveysPage = () => {
                 onRequestClose={() => setShowRejectionModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => setShowRejectionModal(false)}
                 >
                     <View className="flex-1 justify-center items-center">
-                        <View className="bg-white rounded-xl p-5 w-11/12 max-w-md">
+                        <View
+                            className={`rounded-xl p-5 w-11/12 max-w-md ${
+                                isDark
+                                    ? "bg-dark-surface border-dark-border"
+                                    : "bg-white border-light-border"
+                            }`}
+                        >
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-lg font-mbold mb-2">
+                                <Text
+                                    className={`text-lg font-mbold mb-2 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t(
                                         "my_surveys.rejection_reason_modal.title"
                                     )}
                                 </Text>
                             </View>
-                            <Text className="text-gray-600 mb-4">
+                            <Text
+                                className={`mb-4 ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-600"
+                                }`}
+                            >
                                 {rejectionReason[i18n.language] ||
                                     rejectionReason.en ||
                                     t(
@@ -833,10 +1074,18 @@ const MySurveysPage = () => {
                                     )}
                             </Text>
                             <TouchableOpacity
-                                className="px-6 py-3 bg-primary rounded-full self-end"
+                                className={`px-6 py-3 rounded-full self-end ${
+                                    isDark ? "bg-dark-primary" : "bg-primary"
+                                }`}
                                 onPress={() => setShowRejectionModal(false)}
                             >
-                                <Text className="text-white font-mmedium">
+                                <Text
+                                    className={`font-mmedium ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-white"
+                                    }`}
+                                >
                                     {t(
                                         "my_surveys.rejection_reason_modal.close_button"
                                     )}
@@ -854,27 +1103,58 @@ const MySurveysPage = () => {
                 onRequestClose={() => setShowDeleteModal(false)}
             >
                 <TouchableOpacity
-                    style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+                    style={{
+                        flex: 1,
+                        backgroundColor: isDark
+                            ? "rgba(0,0,0,0.6)"
+                            : "rgba(0,0,0,0.5)",
+                    }}
                     activeOpacity={1}
                     onPress={() => !isDeleting && setShowDeleteModal(false)}
                 >
                     <View className="flex-1 justify-center items-center">
-                        <View className="bg-white rounded-xl p-5 w-11/12 max-w-md">
+                        <View
+                            className={`rounded-xl p-5 w-11/12 max-w-md ${
+                                isDark
+                                    ? "bg-dark-surface border-dark-border"
+                                    : "bg-white border-light-border"
+                            }`}
+                        >
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-lg font-mbold">
+                                <Text
+                                    className={`text-lg font-mbold ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-black"
+                                    }`}
+                                >
                                     {t("my_surveys.delete_modal.title")}
                                 </Text>
                             </View>
-                            <Text className="text-gray-700 font-mregular mb-6">
+                            <Text
+                                className={`font-mregular mb-6 ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-gray-700"
+                                }`}
+                            >
                                 {t("my_surveys.delete_modal.message")}
                             </Text>
                             <View className="flex-row justify-between">
                                 <TouchableOpacity
-                                    className="px-6 py-3 bg-gray-200 rounded-full"
+                                    className={`px-6 py-3 rounded-full ${
+                                        isDark ? "bg-gray-700" : "bg-gray-200"
+                                    }`}
                                     onPress={() => setShowDeleteModal(false)}
                                     disabled={isDeleting}
                                 >
-                                    <Text className="text-gray-700 font-mmedium">
+                                    <Text
+                                        className={`font-mmedium ${
+                                            isDark
+                                                ? "text-dark-text-primary"
+                                                : "text-gray-700"
+                                        }`}
+                                    >
                                         {t(
                                             "my_surveys.delete_modal.cancel_button"
                                         )}
@@ -885,9 +1165,12 @@ const MySurveysPage = () => {
                                         "my_surveys.delete_modal.delete_button"
                                     )}
                                     handlePress={confirmDelete}
-                                    containerStyles="px-6 py-3 bg-red-500 rounded-full"
+                                    containerStyles={`px-6 py-3 rounded-full ${
+                                        isDark ? "bg-red-600" : "bg-red-500"
+                                    }`}
                                     textStyles="text-white font-mmedium"
                                     isLoading={isDeleting}
+                                    isDark={isDark}
                                 />
                             </View>
                         </View>
@@ -909,6 +1192,7 @@ const MySurveysPage = () => {
                             }));
                         }
                     }}
+                    themeVariant={isDark ? "dark" : "light"}
                 />
             )}
             {showEndDatePicker && (
@@ -925,6 +1209,7 @@ const MySurveysPage = () => {
                             }));
                         }
                     }}
+                    themeVariant={isDark ? "dark" : "light"}
                 />
             )}
         </SafeAreaView>

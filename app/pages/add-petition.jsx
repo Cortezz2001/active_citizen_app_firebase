@@ -27,6 +27,7 @@ import {
 import DropdownField from "../../components/DropdownField";
 import { useData } from "../../lib/datacontext";
 import CustomButton from "../../components/CustomButton";
+import { useTheme } from "../../lib/themeContext";
 
 const petitionCategories = [
     {
@@ -61,7 +62,7 @@ const petitionCategories = [
         id: "N9yPRzFYhGpOGD2y1B1q",
         name: {
             en: "Social Sphere",
-            kz: "Алеуметтік сала",
+            kz: "Әлеуметтік сала",
             ru: "Социальная сфера",
         },
     },
@@ -106,6 +107,7 @@ const AddPetitionPage = () => {
     const [isLoadingUser, setIsLoadingUser] = useState(true);
     const [cityKey, setCityKey] = useState("");
     const { fetchUserPetitions } = useData();
+    const { isDark } = useTheme();
 
     const categoryOptions = petitionCategories.map(
         (cat) => cat.name[i18n.language]
@@ -220,6 +222,14 @@ const AddPetitionPage = () => {
                 type: "error",
                 text1: t("add_petition.toast.error.title"),
                 text2: t("add_petition.toast.error.title_required"),
+            });
+            return false;
+        }
+        if (title.trim().length < 10 || title.trim().length > 100) {
+            Toast.show({
+                type: "error",
+                text1: t("add_petition.toast.error.title"),
+                text2: t("add_petition.toast.error.title_length"),
             });
             return false;
         }
@@ -353,25 +363,46 @@ const AddPetitionPage = () => {
 
     if (isLoadingPetition || isLoadingUser) {
         return (
-            <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" color="#006FFD" />
+            <View
+                className={`flex-1 justify-center items-center ${
+                    isDark ? "bg-dark-background" : "bg-white"
+                }`}
+            >
+                <ActivityIndicator
+                    size="large"
+                    color={isDark ? "#0066E6" : "#006FFD"}
+                />
             </View>
         );
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center border-b ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                     accessibilityLabel={t("add_petition.back_button")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
                 <Text
-                    className="text-2xl font-mbold text-black"
+                    className={`text-2xl font-mbold ${
+                        isDark ? "text-dark-text-primary" : "text-black"
+                    }`}
                     numberOfLines={2}
                     adjustsFontSizeToFit
                 >
@@ -386,28 +417,50 @@ const AddPetitionPage = () => {
                 showsVerticalScrollIndicator={false}
             >
                 <View className="mb-4 mt-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_petition.fields.title.label")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
+                        className={`border rounded-lg p-3 font-mregular ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border text-dark-text-primary"
+                                : "bg-ghostwhite border-gray-300 text-black"
+                        }`}
                         placeholder={t("add_petition.fields.title.placeholder")}
+                        placeholderTextColor={
+                            isDark ? "#A0A0A0" : "rgba(0, 0, 0, 0.5)"
+                        }
                         value={title}
                         onChangeText={setTitle}
                     />
                 </View>
 
                 <View className="mb-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_petition.fields.description.label")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
+                        className={`border rounded-lg p-3 font-mregular ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border text-dark-text-primary"
+                                : "bg-ghostwhite border-gray-300 text-black"
+                        }`}
                         placeholder={t(
                             "add_petition.fields.description.placeholder"
                         )}
+                        placeholderTextColor={
+                            isDark ? "#A0A0A0" : "rgba(0, 0, 0, 0.5)"
+                        }
                         value={description}
                         onChangeText={setDescription}
                         multiline
@@ -417,15 +470,26 @@ const AddPetitionPage = () => {
                 </View>
 
                 <View className="mb-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_petition.fields.problem.label")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
+                        className={`border rounded-lg p-3 font-mregular ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border text-dark-text-primary"
+                                : "bg-ghostwhite border-gray-300 text-black"
+                        }`}
                         placeholder={t(
                             "add_petition.fields.problem.placeholder"
                         )}
+                        placeholderTextColor={
+                            isDark ? "#A0A0A0" : "rgba(0, 0, 0, 0.5)"
+                        }
                         value={problem}
                         onChangeText={setProblem}
                         multiline
@@ -435,15 +499,26 @@ const AddPetitionPage = () => {
                 </View>
 
                 <View className="mb-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_petition.fields.solution.label")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
+                        className={`border rounded-lg p-3 font-mregular ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border text-dark-text-primary"
+                                : "bg-ghostwhite border-gray-300 text-black"
+                        }`}
                         placeholder={t(
                             "add_petition.fields.solution.placeholder"
                         )}
+                        placeholderTextColor={
+                            isDark ? "#A0A0A0" : "rgba(0, 0, 0, 0.5)"
+                        }
                         value={solution}
                         onChangeText={setSolution}
                         multiline
@@ -453,15 +528,26 @@ const AddPetitionPage = () => {
                 </View>
 
                 <View className="mb-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_petition.fields.target_supporters.label")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
                     <TextInput
-                        className="bg-ghostwhite border border-gray-300 rounded-lg p-3 font-mregular"
+                        className={`border rounded-lg p-3 font-mregular ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border text-dark-text-primary"
+                                : "bg-ghostwhite border-gray-300 text-black"
+                        }`}
                         placeholder={t(
                             "add_petition.fields.target_supporters.placeholder"
                         )}
+                        placeholderTextColor={
+                            isDark ? "#A0A0A0" : "rgba(0, 0, 0, 0.5)"
+                        }
                         value={targetSupporters}
                         onChangeText={setTargetSupporters}
                         keyboardType="numeric"
@@ -469,7 +555,11 @@ const AddPetitionPage = () => {
                 </View>
 
                 <View className="mb-4">
-                    <Text className="font-msemibold text-black mb-2">
+                    <Text
+                        className={`font-msemibold mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("add_petition.fields.category")}
                         <Text className="text-red-500"> *</Text>
                     </Text>
@@ -479,7 +569,10 @@ const AddPetitionPage = () => {
                         value={category}
                         options={categoryOptions}
                         onSelect={setCategory}
-                        containerStyle="bg-ghostwhite"
+                        containerStyle={
+                            isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                        }
+                        isDark={isDark}
                     />
                 </View>
 
@@ -487,16 +580,24 @@ const AddPetitionPage = () => {
                     <CustomButton
                         title={t("add_petition.buttons.save_draft")}
                         handlePress={() => savePetition(true)}
-                        containerStyles="flex-1 mr-2 bg-gray-200 py-3 px-2 rounded-lg"
-                        textStyles="text-gray-700 font-mmedium"
+                        containerStyles={`flex-1 mr-2 py-3 px-2 rounded-lg ${
+                            isDark ? "bg-gray-700" : "bg-gray-200"
+                        }`}
+                        textStyles={`font-mmedium ${
+                            isDark ? "text-dark-text-primary" : "text-gray-700"
+                        }`}
                         isLoading={isSavingDraft}
+                        isDark={isDark}
                     />
                     <CustomButton
                         title={t("add_petition.buttons.submit")}
                         handlePress={() => savePetition(false)}
-                        containerStyles="flex-1 ml-2 bg-primary py-3 px-2 rounded-lg"
+                        containerStyles={`flex-1 ml-2 py-3 px-2 rounded-lg ${
+                            isDark ? "bg-dark-primary" : "bg-primary"
+                        }`}
                         textStyles="text-white font-mmedium"
                         isLoading={isSubmitting}
+                        isDark={isDark}
                     />
                 </View>
             </ScrollView>
