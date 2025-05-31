@@ -10,29 +10,29 @@ import {
     Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar"; // Added StatusBar
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Notifications from "expo-notifications";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../lib/themeContext"; // Import useTheme
 import Toast from "react-native-toast-message";
 import LoadingIndicator from "../../components/LoadingIndicator";
 
 const PermissionsPreferences = () => {
     const { t } = useTranslation();
+    const { isDark } = useTheme(); // Access theme state
 
-    // States for permissions
     const [permissions, setPermissions] = useState({
         notifications: false,
         location: false,
         gallery: false,
     });
 
-    // Loading state
     const [isLoading, setIsLoading] = useState(true);
 
-    // Check current permissions on component mount
     useEffect(() => {
         checkAllPermissions();
     }, []);
@@ -41,15 +41,10 @@ const PermissionsPreferences = () => {
         try {
             setIsLoading(true);
 
-            // Check notification permission
             const notificationStatus =
                 await Notifications.getPermissionsAsync();
-
-            // Check location permission
             const locationStatus =
                 await Location.getForegroundPermissionsAsync();
-
-            // Check gallery permission
             const galleryStatus =
                 await ImagePicker.getMediaLibraryPermissionsAsync();
 
@@ -65,7 +60,6 @@ const PermissionsPreferences = () => {
         }
     };
 
-    // Function to open app settings
     const openAppSettings = async () => {
         try {
             if (Platform.OS === "ios") {
@@ -83,7 +77,6 @@ const PermissionsPreferences = () => {
         }
     };
 
-    // Function to toggle notification permission
     const toggleNotificationPermission = async (value) => {
         if (value) {
             try {
@@ -102,7 +95,6 @@ const PermissionsPreferences = () => {
                         ),
                     });
                 } else {
-                    // Если разрешение не получено, показываем Alert с предложением перейти в настройки
                     Alert.alert(
                         t(
                             "permissions_preferences.notifications.disable_alert.title"
@@ -140,7 +132,6 @@ const PermissionsPreferences = () => {
                 });
             }
         } else {
-            // Show alert to disable in settings
             Alert.alert(
                 t("permissions_preferences.notifications.disable_alert.title"),
                 t(
@@ -164,7 +155,6 @@ const PermissionsPreferences = () => {
         }
     };
 
-    // Function to toggle location permission
     const toggleLocationPermission = async (value) => {
         if (value) {
             try {
@@ -213,7 +203,6 @@ const PermissionsPreferences = () => {
         }
     };
 
-    // Function to toggle gallery permission
     const toggleGalleryPermission = async (value) => {
         if (value) {
             try {
@@ -260,7 +249,6 @@ const PermissionsPreferences = () => {
         }
     };
 
-    // Data for permission settings
     const permissionSettings = [
         {
             id: "notifications",
@@ -289,21 +277,40 @@ const PermissionsPreferences = () => {
     ];
 
     const renderPermissionItem = (item) => (
-        <View key={item.id} className="bg-white rounded-lg mb-2 p-4 shadow-md">
+        <View
+            key={item.id}
+            className={`rounded-lg mb-2 p-4 shadow-md ${
+                isDark ? "bg-dark-surface" : "bg-white"
+            }`}
+        >
             <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center flex-1">
-                    <View className="bg-blue-100 rounded-full p-3 mr-4">
+                    <View
+                        className={`rounded-full p-3 mr-4 ${
+                            isDark ? "bg-dark-card" : "bg-blue-100"
+                        }`}
+                    >
                         <MaterialIcons
                             name={item.icon}
                             size={24}
-                            color="#006FFD"
+                            color={isDark ? "#0066E6" : "#006FFD"}
                         />
                     </View>
                     <View className="flex-1">
-                        <Text className="text-lg font-mmedium text-black mb-1">
+                        <Text
+                            className={`text-lg font-mmedium mb-1 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {item.title}
                         </Text>
-                        <Text className="text-sm font-mmedium text-gray-500">
+                        <Text
+                            className={`text-sm font-mmedium ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-500"
+                            }`}
+                        >
                             {item.description}
                         </Text>
                     </View>
@@ -311,9 +318,12 @@ const PermissionsPreferences = () => {
                 <Switch
                     value={item.value}
                     onValueChange={item.onToggle}
-                    trackColor={{ false: "#E5E5E5", true: "#006FFD" }}
-                    thumbColor={item.value ? "#FFFFFF" : "#FFFFFF"}
-                    ios_backgroundColor="#E5E5E5"
+                    trackColor={{
+                        false: isDark ? "#3A3A3A" : "#E5E5E5",
+                        true: isDark ? "#0066E6" : "#006FFD",
+                    }}
+                    thumbColor="#FFFFFF"
+                    ios_backgroundColor={isDark ? "#3A3A3A" : "#E5E5E5"}
                     disabled={isLoading}
                 />
             </View>
@@ -321,17 +331,32 @@ const PermissionsPreferences = () => {
     );
 
     return (
-        <SafeAreaView className="bg-white flex-1">
-            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`bg-${isDark ? "dark-background" : "white"} flex-1`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center border-b ${
+                    isDark
+                        ? "border-dark-border bg-dark-background"
+                        : "border-gray-200 bg-white"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                 >
-                    <MaterialIcons name="arrow-back" size={24} />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
                 <View className="flex-1">
                     <Text
-                        className="text-2xl font-mbold text-black"
+                        className={`text-2xl font-mbold ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
                         numberOfLines={2}
                         adjustsFontSizeToFit
                     >
@@ -341,7 +366,9 @@ const PermissionsPreferences = () => {
             </View>
 
             <ScrollView
-                className="px-6 pt-4 "
+                className={`px-6 pt-4 ${
+                    isDark ? "bg-dark-background" : "bg-white"
+                }`}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
                     flexGrow: 1,
@@ -349,33 +376,48 @@ const PermissionsPreferences = () => {
                 }}
             >
                 {isLoading ? (
-                    <LoadingIndicator />
+                    <LoadingIndicator isDark={isDark} />
                 ) : (
                     <>
                         <View>
-                            <Text className="text-base font-mregular text-gray-600 mb-4">
+                            <Text
+                                className={`text-base font-mregular mb-4 ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-600"
+                                }`}
+                            >
                                 {t("permissions_preferences.description")}
                             </Text>
                         </View>
                         <View>
                             {permissionSettings.map(renderPermissionItem)}
                         </View>
+                        <View
+                            className={`mt-2 mb-6 p-4 rounded-lg ${
+                                isDark ? "bg-dark-surface" : "bg-blue-50"
+                            }`}
+                        >
+                            <View className="flex-row items-start">
+                                <MaterialIcons
+                                    name="info"
+                                    size={20}
+                                    color={isDark ? "#0066E6" : "#006FFD"}
+                                    style={{ marginTop: 2, marginRight: 8 }}
+                                />
+                                <Text
+                                    className={`text-sm font-mregular flex-1 ${
+                                        isDark
+                                            ? "text-dark-text-secondary"
+                                            : "text-gray-700"
+                                    }`}
+                                >
+                                    {t("permissions_preferences.info_note")}
+                                </Text>
+                            </View>
+                        </View>
                     </>
                 )}
-
-                <View className="mt-2 mb-6 p-4 bg-blue-50 rounded-lg">
-                    <View className="flex-row items-start">
-                        <MaterialIcons
-                            name="info"
-                            size={20}
-                            color="#006FFD"
-                            style={{ marginTop: 2, marginRight: 8 }}
-                        />
-                        <Text className="text-sm font-mregular text-gray-700 flex-1">
-                            {t("permissions_preferences.info_note")}
-                        </Text>
-                    </View>
-                </View>
             </ScrollView>
         </SafeAreaView>
     );

@@ -233,7 +233,7 @@ const ProfileLayout = () => {
                         <MaterialIcons
                             name="logout"
                             size={24}
-                            color={isDark ? "#FF6B6B" : "red"}
+                            color={"#EF4444"}
                         />
                     </TouchableOpacity>
                 </View>

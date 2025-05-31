@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import { useFirestore } from "../../hooks/useFirestore";
 import auth from "@react-native-firebase/auth";
@@ -21,6 +20,7 @@ import {
     getGenderKeyByName,
 } from "../../lib/genders";
 import { useData } from "../../lib/datacontext";
+import { useTheme } from "../../lib/themeContext";
 
 const EditProfile = () => {
     const { t, i18n } = useTranslation();
@@ -28,6 +28,7 @@ const EditProfile = () => {
     const { getDocument, updateDocument } = useFirestore();
     const currentLanguage = i18n.language || "en";
     const { refreshAllData } = useData();
+    const { isDark } = useTheme();
 
     const [form, setForm] = useState({
         fname: "",
@@ -206,41 +207,58 @@ const EditProfile = () => {
         : "";
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center border-b ${
+                    isDark
+                        ? "border-dark-border bg-dark-background"
+                        : "border-gray-200 bg-white"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                     accessibilityLabel={t("edit_profile.back_button")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
                 <Text
-                    className="text-2xl font-mbold text-black"
+                    className={`text-2xl font-mbold ${
+                        isDark ? "text-dark-text-primary" : "text-black"
+                    }`}
                     numberOfLines={2}
                     adjustsFontSizeToFit
                 >
                     {t("edit_profile.title")}
                 </Text>
             </View>
-
             {isLoading ? (
-                <LoadingIndicator />
+                <LoadingIndicator isDark={isDark} />
             ) : (
                 <ScrollView
-                    className="flex-1 px-6"
+                    className={`flex-1 px-6 ${
+                        isDark ? "bg-dark-background" : "bg-white"
+                    }`}
                     contentContainerStyle={{
                         flexGrow: 1,
                         justifyContent: "center",
                         alignItems: "center",
-
                         paddingVertical: 30,
                     }}
                     showsVerticalScrollIndicator={false}
                 >
                     <View className="w-full max-w-md">
-                        <Text className="text-black font-msemibold text-left mb-2">
+                        <Text
+                            className={`font-msemibold text-left mb-2 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {t("edit_profile.fields.first_name.label")}{" "}
                             <Text className="text-red-500">*</Text>
                         </Text>
@@ -253,10 +271,15 @@ const EditProfile = () => {
                             handleChangeText={(e) =>
                                 setForm({ ...form, fname: e })
                             }
-                            containerStyle="mb-4 bg-ghostwhite"
+                            containerStyle={`mb-4`}
+                            isDark={isDark}
                         />
 
-                        <Text className="text-black font-msemibold text-left mb-2">
+                        <Text
+                            className={`font-msemibold text-left mb-2 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {t("edit_profile.fields.last_name.label")}{" "}
                             <Text className="text-red-500">*</Text>
                         </Text>
@@ -269,10 +292,15 @@ const EditProfile = () => {
                             handleChangeText={(e) =>
                                 setForm({ ...form, lname: e })
                             }
-                            containerStyle="mb-4 bg-ghostwhite"
+                            containerStyle={`mb-4 `}
+                            isDark={isDark}
                         />
 
-                        <Text className="text-black font-msemibold text-left mb-2">
+                        <Text
+                            className={`font-msemibold text-left mb-2 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {t("edit_profile.fields.city.label")}{" "}
                             <Text className="text-red-500">*</Text>
                         </Text>
@@ -284,11 +312,18 @@ const EditProfile = () => {
                             value={displayCityName}
                             options={cityOptions}
                             onSelect={handleCitySelect}
-                            containerStyle="mb-4 bg-ghostwhite"
+                            containerStyle={`mb-4 `}
+                            isDark={isDark}
                             disabled={isCityChangeRestricted}
                         />
                         {isCityChangeRestricted && (
-                            <Text className="text-red-500 font-mregular text-sm mb-4">
+                            <Text
+                                className={`font-mregular text-sm mb-4 ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-red-500"
+                                }`}
+                            >
                                 {t(
                                     "edit_profile.fields.city.cooldown_message",
                                     {
@@ -298,7 +333,11 @@ const EditProfile = () => {
                             </Text>
                         )}
 
-                        <Text className="text-black font-msemibold text-left mb-2">
+                        <Text
+                            className={`font-msemibold text-left mb-2 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {t("edit_profile.fields.gender.label")}{" "}
                             <Text className="text-red-500">*</Text>
                         </Text>
@@ -310,14 +349,16 @@ const EditProfile = () => {
                             value={displayGenderName}
                             options={genderOptions}
                             onSelect={handleGenderSelect}
-                            containerStyle="mb-6 bg-ghostwhite"
+                            containerStyle={`mb-6`}
+                            isDark={isDark}
                         />
 
                         <CustomButton
                             title={t("edit_profile.buttons.update")}
                             handlePress={handleUpdate}
-                            containerStyles="rounded-lg py-3 bg-primary mt-4"
+                            containerStyles={`rounded-lg py-3 mt-4`}
                             isLoading={isSubmitting}
+                            isDark={isDark}
                         />
                     </View>
                 </ScrollView>

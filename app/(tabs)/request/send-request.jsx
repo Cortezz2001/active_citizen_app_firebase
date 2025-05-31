@@ -1085,7 +1085,9 @@ const RequestCreationPage = () => {
                         containerStyles={`flex-1 mr-2 py-3 px-2 rounded-lg ${
                             isDark ? "bg-gray-700" : "bg-gray-200"
                         }`}
-                        textStyles={`font-mmedium `}
+                        textStyles={`font-mmedium ${
+                            isDark ? "text-white" : "text-gray-700"
+                        }`}
                         isLoading={isSavingDraft}
                         isDark={isDark}
                     />

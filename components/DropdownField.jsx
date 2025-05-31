@@ -33,20 +33,20 @@ const DropdownField = ({
     return (
         <View className={`mb-4 ${containerStyle}`}>
             <TouchableOpacity
-                className={`border rounded-lg px-4 py-3 flex-row justify-between items-center h-12 ${
+                className={`border rounded-lg px-4 py-3 flex-row justify-between items-center min-h-[50px] ${
                     disabled
                         ? isDark
-                            ? "bg-gray-700 opacity-50"
-                            : "bg-gray-100 opacity-50"
+                            ? "bg-gray-700 opacity-50 border-gray-600"
+                            : "bg-gray-100 opacity-50 border-gray-300"
                         : isDark
-                        ? "border-gray-600"
-                        : "border-gray-300"
+                        ? "bg-dark-surface border-gray-600"
+                        : "bg-ghostwhite border-gray-300"
                 }`}
                 onPress={() => !disabled && setModalVisible(true)}
                 disabled={disabled}
             >
                 <Text
-                    className={`font-mregular ${
+                    className={`font-mregular flex-1 ${
                         !value
                             ? isDark
                                 ? "text-dark-text-secondary"
@@ -55,13 +55,14 @@ const DropdownField = ({
                             ? "text-dark-text-primary"
                             : "text-black"
                     }`}
+                    numberOfLines={2}
                 >
                     {value || placeholder}
                 </Text>
                 <MaterialIcons
                     name="arrow-drop-down"
                     size={24}
-                    color={disabled ? "gray" : isDark ? "#FFFFFF" : "black"}
+                    color={disabled ? "gray" : isDark ? "#0066E6" : "#006FFD"}
                 />
             </TouchableOpacity>
 

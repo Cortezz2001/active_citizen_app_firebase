@@ -198,7 +198,7 @@ const RequestDetailPage = () => {
                 </View>
 
                 {/* Rejection Reason */}
-                {request.status === "rejected" && request.rejectionReason && (
+                {request.status === "Rejected" && request.rejectionReason && (
                     <View className="bg-red-100 rounded-lg p-4 mb-4 shadow-sm border border-red-200">
                         <View className="flex-row items-center mb-2">
                             <MaterialIcons
