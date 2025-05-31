@@ -6,20 +6,23 @@ import {
     ScrollView,
     ActivityIndicator,
     Dimensions,
+    Share,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useTranslation } from "react-i18next";
 import { useFirestore } from "@/hooks/useFirestore";
 import { PieChart } from "react-native-chart-kit";
+import { useTheme } from "@/lib/themeContext";
+import LoadingIndicator from "../../../../components/LoadingIndicator";
 
 const SurveyResultsPage = () => {
     const { t, i18n } = useTranslation();
     const router = useRouter();
     const { id } = useLocalSearchParams();
     const { getDocument, getCollection } = useFirestore();
+    const { isDark } = useTheme();
 
     const [loading, setLoading] = useState(true);
     const [survey, setSurvey] = useState(null);
@@ -117,7 +120,7 @@ const SurveyResultsPage = () => {
                     name: `${percentage}%`,
                     value: count,
                     color: getChartColor(optIndex),
-                    legendFontColor: "#7F7F7F",
+                    legendFontColor: isDark ? "#B3B3B3" : "#7F7F7F",
                     legendFontSize: 12,
                 };
             });
@@ -154,31 +157,59 @@ const SurveyResultsPage = () => {
 
     // Charts configuration
     const chartConfig = {
-        backgroundGradientFrom: "#FFFFFF",
-        backgroundGradientTo: "#FFFFFF",
-        color: (opacity = 1) => `rgba(0, 111, 253, ${opacity})`,
+        backgroundGradientFrom: isDark ? "#0F0F0F" : "#FFFFFF",
+        backgroundGradientTo: isDark ? "#0F0F0F" : "#FFFFFF",
+        color: (opacity = 1) =>
+            isDark
+                ? `rgba(64, 196, 255, ${opacity})`
+                : `rgba(0, 111, 253, ${opacity})`,
         strokeWidth: 2,
         useShadowColorFromDataset: false,
         decimalPlaces: 0,
     };
+    // Share functionality
+    const handleShare = async () => {
+        if (!survey) return;
+
+        try {
+            await Share.share({
+                message: `${survey.title[i18n.language] || survey.title.en} - ${
+                    survey.description[i18n.language] || survey.description.en
+                }`,
+                title: survey.title[i18n.language] || survey.title.en,
+            });
+        } catch (error) {
+            console.error("Error sharing:", error);
+        }
+    };
 
     if (loading) {
-        return (
-            <SafeAreaView className="flex-1 justify-center items-center bg-white">
-                <ActivityIndicator size="large" color="#006FFD" />
-            </SafeAreaView>
-        );
+        return <LoadingIndicator isDark={isDark} />;
     }
 
     if (error || !survey) {
         return (
-            <SafeAreaView className="flex-1 justify-center items-center bg-white p-4">
-                <MaterialIcons name="error-outline" size={64} color="#EF4444" />
-                <Text className="text-center font-mmedium text-lg mt-4 text-gray-800">
+            <SafeAreaView
+                className={`flex-1 justify-center items-center p-4 ${
+                    isDark ? "bg-dark-background" : "bg-white"
+                }`}
+            >
+                <MaterialIcons
+                    name="error-outline"
+                    size={64}
+                    color={isDark ? "#FF6B6B" : "#EF4444"}
+                />
+                <Text
+                    className={`text-center font-mmedium text-lg mt-4 ${
+                        isDark ? "text-dark-text-primary" : "text-gray-800"
+                    }`}
+                >
                     {error || t("results.errors.loading_failed")}
                 </Text>
                 <TouchableOpacity
-                    className="mt-6 px-6 py-3 bg-primary rounded-full"
+                    className={`mt-6 px-6 py-3 rounded-full ${
+                        isDark ? "bg-dark-primary" : "bg-primary"
+                    }`}
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
@@ -191,9 +222,18 @@ const SurveyResultsPage = () => {
 
     if (results.length === 0) {
         return (
-            <SafeAreaView className="flex-1 bg-white">
-                <StatusBar style="dark" />
-                <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+            <SafeAreaView
+                className={`flex-1 ${
+                    isDark ? "bg-dark-background" : "bg-white"
+                }`}
+            >
+                <View
+                    className={`px-6 pt-4 pb-2 flex-row items-center border-b ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center mr-4"
@@ -201,11 +241,13 @@ const SurveyResultsPage = () => {
                         <MaterialIcons
                             name="arrow-back"
                             size={24}
-                            color="black"
+                            color={isDark ? "#FFFFFF" : "black"}
                         />
                     </TouchableOpacity>
                     <Text
-                        className="text-2xl font-mbold text-black"
+                        className={`text-2xl font-mbold ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
                         numberOfLines={2}
                         adjustsFontSizeToFit
                     >
@@ -213,8 +255,16 @@ const SurveyResultsPage = () => {
                     </Text>
                 </View>
                 <View className="flex-1 justify-center items-center p-4">
-                    <MaterialIcons name="bar-chart" size={64} color="#9CA3AF" />
-                    <Text className="text-center font-mmedium text-lg mt-4 text-gray-800">
+                    <MaterialIcons
+                        name="bar-chart"
+                        size={64}
+                        color={isDark ? "#666666" : "#9CA3AF"}
+                    />
+                    <Text
+                        className={`text-center font-mmedium text-lg mt-4 ${
+                            isDark ? "text-dark-text-primary" : "text-gray-800"
+                        }`}
+                    >
                         {t("results.no_responses")}
                     </Text>
                 </View>
@@ -223,40 +273,85 @@ const SurveyResultsPage = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center justify-between border-b ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={handleShare}
+                    accessibilityLabel={t("share")}
+                >
+                    <MaterialIcons
+                        name="share"
+                        size={24}
+                        color={isDark ? "#0066E6" : "#006FFD"}
+                    />
                 </TouchableOpacity>
             </View>
 
             <ScrollView className="flex-1 px-4 pt-4">
                 {/* Survey Title and Statistics */}
                 <View className="mb-6">
-                    <Text className="font-mbold text-2xl text-black mb-2">
+                    <Text
+                        className={`font-mbold text-2xl mb-2 ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {survey.title[i18n.language] || survey.title.en}
                     </Text>
-                    <Text className="font-mregular text-gray-700 mb-4">
+                    <Text
+                        className={`font-mregular mb-4 ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {survey.description[i18n.language] ||
                             survey.description.en}
                     </Text>
 
-                    <View className="flex-row justify-between items-center bg-blue-50 p-4 rounded-lg mb-2">
+                    <View
+                        className={`flex-row justify-between items-center p-4 rounded-lg mb-2 ${
+                            isDark ? "bg-dark-surface" : "bg-blue-50"
+                        }`}
+                    >
                         <View className="flex-row items-center">
                             <MaterialIcons
                                 name="how-to-vote"
                                 size={24}
-                                color="#006FFD"
+                                color={isDark ? "#60A5FA" : "#006FFD"}
                             />
-                            <Text className="font-msemibold text-gray-700 ml-2">
+                            <Text
+                                className={`font-msemibold ml-2 ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-700"
+                                }`}
+                            >
                                 {t("results.total_participants")}
                             </Text>
                         </View>
-                        <Text className="font-mbold text-xl text-primary">
+                        <Text
+                            className={`font-mbold text-xl ${
+                                isDark ? "text-dark-primary" : "text-primary"
+                            }`}
+                        >
                             {survey.totalVotes || 0}
                         </Text>
                     </View>
@@ -266,15 +361,31 @@ const SurveyResultsPage = () => {
                 {processedResults.map((questionResult, qIndex) => (
                     <View
                         key={qIndex}
-                        className="bg-white rounded-lg p-4 mb-6 shadow-sm border border-gray-200"
+                        className={`rounded-lg p-4 mb-6 shadow-sm border ${
+                            isDark
+                                ? "bg-dark-background border-dark-border"
+                                : "bg-white border-gray-200"
+                        }`}
                     >
                         <View className="mb-4">
-                            <Text className="font-msemibold text-lg text-gray-800">
+                            <Text
+                                className={`font-msemibold text-lg ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-gray-800"
+                                }`}
+                            >
                                 {`${qIndex + 1}. ${
                                     questionResult.questionText
                                 }`}
                             </Text>
-                            <Text className="text-gray-500 text-sm mt-1">
+                            <Text
+                                className={`text-sm mt-1 ${
+                                    isDark
+                                        ? "text-dark-text-muted"
+                                        : "text-gray-500"
+                                }`}
+                            >
                                 {questionResult.type === "single_choice"
                                     ? t("results.question_types.single_choice")
                                     : t(
@@ -306,7 +417,11 @@ const SurveyResultsPage = () => {
                             {questionResult.chartData.map((item, optIndex) => (
                                 <View
                                     key={optIndex}
-                                    className="flex-row justify-between items-center p-3 mb-2 bg-ghostwhite rounded-md border border-gray-100"
+                                    className={`flex-row justify-between items-center p-3 mb-2 rounded-md border ${
+                                        isDark
+                                            ? "bg-dark-surface border-dark-border"
+                                            : "bg-ghostwhite border-gray-100"
+                                    }`}
                                 >
                                     <View className="flex-row items-center flex-1 mr-2">
                                         <View
@@ -316,18 +431,40 @@ const SurveyResultsPage = () => {
                                             className="h-3 w-3 rounded-full mr-2"
                                         />
                                         <Text
-                                            className="font-mregular text-gray-800"
+                                            className={`font-mregular ${
+                                                isDark
+                                                    ? "text-dark-text-primary"
+                                                    : "text-gray-800"
+                                            }`}
                                             numberOfLines={2}
                                         >
                                             {item.optionText}
                                         </Text>
                                     </View>
                                     <View className="flex-row items-center">
-                                        <Text className="font-mmedium text-gray-700 mr-2">
+                                        <Text
+                                            className={`font-mmedium mr-2 ${
+                                                isDark
+                                                    ? "text-dark-text-secondary"
+                                                    : "text-gray-700"
+                                            }`}
+                                        >
                                             {item.count}
                                         </Text>
-                                        <View className="bg-gray-200 px-2 py-1 rounded-full">
-                                            <Text className="text-xs font-mregular text-gray-700">
+                                        <View
+                                            className={`px-2 py-1 rounded-full ${
+                                                isDark
+                                                    ? "bg-dark-border"
+                                                    : "bg-gray-200"
+                                            }`}
+                                        >
+                                            <Text
+                                                className={`text-xs font-mregular ${
+                                                    isDark
+                                                        ? "text-dark-text-secondary"
+                                                        : "text-gray-700"
+                                                }`}
+                                            >
                                                 {item.percentage}%
                                             </Text>
                                         </View>
@@ -337,27 +474,6 @@ const SurveyResultsPage = () => {
                         </View>
                     </View>
                 ))}
-
-                {/* Share Results Button */}
-                <TouchableOpacity
-                    className="mb-8 py-4 rounded-lg items-center justify-center bg-primary"
-                    onPress={() => {
-                        // Implement share functionality here
-                        alert(t("results.share_not_implemented"));
-                    }}
-                >
-                    <View className="flex-row items-center justify-center">
-                        <MaterialIcons
-                            name="share"
-                            size={20}
-                            color="white"
-                            style={{ marginRight: 8 }}
-                        />
-                        <Text className="font-mbold text-white text-center">
-                            {t("results.buttons.share_results")}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
     );

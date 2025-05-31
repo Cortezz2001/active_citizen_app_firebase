@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     ScrollView,
     ActivityIndicator,
+    Share,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -16,6 +17,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFirestore } from "@/hooks/useFirestore";
 import { serverTimestamp } from "firebase/firestore";
 import { useData } from "../../../lib/datacontext";
+import { useTheme } from "../../../lib/themeContext";
+import LoadingIndicator from "../../../components/LoadingIndicator";
 
 // Цвета для статусов
 const statusColors = {
@@ -24,30 +27,45 @@ const statusColors = {
         text: "text-gray-700",
         icon: "edit",
         iconColor: "#374151",
+        darkBg: "bg-dark-border",
+        darkText: "text-dark-text-secondary",
+        darkIconColor: "#B3B3B3",
     },
     "In progress": {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "pending",
         iconColor: "#B45309",
+        darkBg: "bg-yellow-900",
+        darkText: "text-yellow-200",
+        darkIconColor: "#FBBF24",
     },
     Rejected: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "cancel",
         iconColor: "#B91C1C",
+        darkBg: "bg-red-900",
+        darkText: "text-red-200",
+        darkIconColor: "#F87171",
     },
     Completed: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "check-circle",
         iconColor: "#047857",
+        darkBg: "bg-green-900",
+        darkText: "text-green-200",
+        darkIconColor: "#34D399",
     },
     Published: {
         bg: "bg-blue-100",
         text: "text-blue-700",
         icon: "public",
         iconColor: "#1D4ED8",
+        darkBg: "bg-blue-900",
+        darkText: "text-blue-200",
+        darkIconColor: "#60A5FA",
     },
 };
 
@@ -59,6 +77,7 @@ const PetitionDetailsPage = () => {
     const { getDocument, addDocument, getCollection, updateDocument } =
         useFirestore();
     const { fetchUserPetitions } = useData();
+    const { isDark } = useTheme();
 
     const [loading, setLoading] = useState(true);
     const [petition, setPetition] = useState(null);
@@ -207,23 +226,58 @@ const PetitionDetailsPage = () => {
         }
     };
 
+    // Обработка шаринга петиции
+    const handleShare = async () => {
+        if (!petition) return;
+
+        try {
+            await Share.share({
+                message: `${
+                    petition.title[i18n.language] || petition.title.en
+                } - ${
+                    petition.description[i18n.language] ||
+                    petition.description.en
+                }`,
+                title: petition.title[i18n.language] || petition.title.en,
+            });
+        } catch (error) {
+            console.error("Error sharing:", error);
+            Toast.show({
+                type: "error",
+                text1: t("my_petitions.toast.error.title"),
+                text2: t("my_petitions.toast.error.sharing_failed"),
+            });
+        }
+    };
+
     if (loading) {
-        return (
-            <SafeAreaView className="flex-1 justify-center items-center bg-white">
-                <ActivityIndicator size="large" color="#006FFD" />
-            </SafeAreaView>
-        );
+        return <LoadingIndicator isDark={isDark} />;
     }
 
     if (error || !petition) {
         return (
-            <SafeAreaView className="flex-1 justify-center items-center bg-white p-4">
-                <MaterialIcons name="error-outline" size={64} color="#EF4444" />
-                <Text className="text-center font-mmedium text-lg mt-4 text-gray-800">
+            <SafeAreaView
+                className={`flex-1 justify-center items-center p-4 ${
+                    isDark ? "bg-dark-background" : "bg-white"
+                }`}
+            >
+                <StatusBar style={isDark ? "light" : "dark"} />
+                <MaterialIcons
+                    name="error-outline"
+                    size={64}
+                    color={isDark ? "#FF6B6B" : "#EF4444"}
+                />
+                <Text
+                    className={`text-center font-mmedium text-lg mt-4 ${
+                        isDark ? "text-dark-text-primary" : "text-gray-800"
+                    }`}
+                >
                     {error || t("my_petitions.errors.loading_failed")}
                 </Text>
                 <TouchableOpacity
-                    className="mt-6 px-6 py-3 bg-primary rounded-full"
+                    className={`mt-6 px-6 py-3 rounded-full ${
+                        isDark ? "bg-dark-primary" : "bg-primary"
+                    }`}
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
@@ -239,6 +293,9 @@ const PetitionDetailsPage = () => {
         text: "text-gray-700",
         icon: "help",
         iconColor: "#374151",
+        darkBg: "bg-dark-border",
+        darkText: "text-dark-text-secondary",
+        darkIconColor: "#B3B3B3",
     };
 
     const progressPercentage = Math.min(
@@ -247,15 +304,37 @@ const PetitionDetailsPage = () => {
     );
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center justify-between border-b ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                     accessibilityLabel={t("my_petitions.back_button")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={handleShare}
+                    accessibilityLabel={t("share")}
+                >
+                    <MaterialIcons
+                        name="share"
+                        size={24}
+                        color={isDark ? "#0066E6" : "#006FFD"}
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -265,34 +344,58 @@ const PetitionDetailsPage = () => {
             >
                 <View className="mb-4 mt-6">
                     <View className="flex-row items-start">
-                        <Text className="font-mbold text-2xl text-black flex-1 mr-2">
+                        <Text
+                            className={`font-mbold text-2xl flex-1 mr-2 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {petition.title[i18n.language] || petition.title.en}
                         </Text>
                         <View
-                            className={`px-1 py-1 rounded-full ${statusColor.bg} mt-1`}
+                            className={`px-1 py-1 rounded-full ${
+                                isDark ? statusColor.darkBg : statusColor.bg
+                            } mt-1`}
                         >
                             <MaterialIcons
                                 name={statusColor.icon}
                                 size={16}
-                                color={statusColor.iconColor}
+                                color={
+                                    isDark
+                                        ? statusColor.darkIconColor
+                                        : statusColor.iconColor
+                                }
                             />
                         </View>
                     </View>
                 </View>
                 {/* Причина отклонения */}
                 {petition.status === "Rejected" && petition.rejectionReason && (
-                    <View className="bg-red-100 rounded-lg p-4 mb-4 shadow-sm border border-red-200">
+                    <View
+                        className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                            isDark
+                                ? "bg-red-900 border-red-700"
+                                : "bg-red-100 border-red-200"
+                        }`}
+                    >
                         <View className="flex-row items-center mb-2">
                             <MaterialIcons
                                 name="info"
                                 size={20}
-                                color="#B91C1C"
+                                color={isDark ? "#F87171" : "#B91C1C"}
                             />
-                            <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            <Text
+                                className={`font-mbold text-lg ml-2 ${
+                                    isDark ? "text-red-200" : "text-gray-800"
+                                }`}
+                            >
                                 {t("my_petitions.rejection_reason")}
                             </Text>
                         </View>
-                        <Text className="text-gray-700 font-mregular">
+                        <Text
+                            className={`font-mregular ${
+                                isDark ? "text-red-100" : "text-gray-700"
+                            }`}
+                        >
                             {petition.rejectionReason?.[i18n.language] ||
                                 petition.rejectionReason?.en ||
                                 t("my_petitions.no_reason_provided")}
@@ -301,18 +404,36 @@ const PetitionDetailsPage = () => {
                 )}
 
                 {/* Категория */}
-                <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                <View
+                    className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <View className="flex-row items-center mb-2">
                         <MaterialIcons
                             name="category"
                             size={20}
-                            color="#212938"
+                            color={isDark ? "#B3B3B3" : "#212938"}
                         />
-                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                        <Text
+                            className={`font-mbold text-lg ml-2 ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-800"
+                            }`}
+                        >
                             {t("my_petitions.category")}
                         </Text>
                     </View>
-                    <Text className="text-gray-700 font-mregular">
+                    <Text
+                        className={`font-mregular ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {petition.categoryName?.[i18n.language] ||
                             petition.categoryName?.en ||
                             t("my_petitions.unknown_category")}
@@ -320,80 +441,158 @@ const PetitionDetailsPage = () => {
                 </View>
 
                 {/* Описание */}
-                <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                <View
+                    className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <View className="flex-row items-center mb-2">
                         <MaterialIcons
                             name="description"
                             size={20}
-                            color="#212938"
+                            color={isDark ? "#B3B3B3" : "#212938"}
                         />
-                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                        <Text
+                            className={`font-mbold text-lg ml-2 ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-800"
+                            }`}
+                        >
                             {t("my_petitions.description")}
                         </Text>
                     </View>
-                    <Text className="font-mregular text-gray-700">
+                    <Text
+                        className={`font-mregular ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {petition.description[i18n.language] ||
                             petition.description.en}
                     </Text>
                 </View>
 
                 {/* Проблема */}
-                <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                <View
+                    className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <View className="flex-row items-center mb-2">
                         <MaterialIcons
                             name="warning"
                             size={20}
-                            color="#212938"
+                            color={isDark ? "#B3B3B3" : "#212938"}
                         />
-                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                        <Text
+                            className={`font-mbold text-lg ml-2 ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-800"
+                            }`}
+                        >
                             {t("my_petitions.problem")}
                         </Text>
                     </View>
-                    <Text className="font-mregular text-gray-700">
+                    <Text
+                        className={`font-mregular ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {petition.problem[i18n.language] || petition.problem.en}
                     </Text>
                 </View>
 
                 {/* Решение */}
-                <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                <View
+                    className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <View className="flex-row items-center mb-2">
                         <MaterialIcons
                             name="lightbulb"
                             size={20}
-                            color="#212938"
+                            color={isDark ? "#B3B3B3" : "#212938"}
                         />
-                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                        <Text
+                            className={`font-mbold text-lg ml-2 ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-800"
+                            }`}
+                        >
                             {t("my_petitions.solution")}
                         </Text>
                     </View>
-                    <Text className="font-mregular text-gray-700">
+                    <Text
+                        className={`font-mregular ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {petition.solution[i18n.language] ||
                             petition.solution.en}
                     </Text>
                 </View>
 
                 {/* Прогресс-бар */}
-                <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                <View
+                    className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <View className="flex-row items-center justify-between mb-1">
                         <View className="flex-row items-center">
                             <MaterialIcons
                                 name="people"
                                 size={18}
-                                color="#006FFD"
+                                color={isDark ? "#0066E6" : "#006FFD"}
                             />
-                            <Text className="ml-1 text-primary font-mmedium">
+                            <Text
+                                className={`ml-1 font-mmedium ${
+                                    isDark
+                                        ? "text-dark-primary"
+                                        : "text-primary"
+                                }`}
+                            >
                                 {petition.totalSignatures || 0}{" "}
                                 {t("my_petitions.supporters")}
                             </Text>
                         </View>
-                        <Text className="text-gray-500 font-mregular">
+                        <Text
+                            className={`font-mregular ${
+                                isDark
+                                    ? "text-dark-text-muted"
+                                    : "text-gray-500"
+                            }`}
+                        >
                             {t("my_petitions.target")}:{" "}
                             {petition.targetSignatures}
                         </Text>
                     </View>
-                    <View className="h-2 bg-gray-200 rounded-full w-full mt-1">
+                    <View
+                        className={`h-2 rounded-full w-full mt-1 ${
+                            isDark ? "bg-dark-border" : "bg-gray-200"
+                        }`}
+                    >
                         <View
-                            className="h-2 bg-primary rounded-full"
+                            className={`h-2 rounded-full ${
+                                isDark ? "bg-dark-primary" : "bg-primary"
+                            }`}
                             style={{ width: `${progressPercentage}%` }}
                         />
                     </View>
@@ -404,16 +603,29 @@ const PetitionDetailsPage = () => {
                     <TouchableOpacity
                         className={`mt-2 mb-6 py-4 rounded-lg items-center justify-center ${
                             hasSigned || submitting
-                                ? "bg-gray-300"
+                                ? isDark
+                                    ? "bg-dark-border"
+                                    : "bg-gray-300"
+                                : isDark
+                                ? "bg-dark-primary"
                                 : "bg-primary"
                         }`}
                         onPress={handleSignPetition}
                         disabled={hasSigned || submitting}
                     >
                         {submitting ? (
-                            <ActivityIndicator size="small" color="white" />
+                            <ActivityIndicator
+                                size="small"
+                                color={isDark ? "#0066E6" : "white"}
+                            />
                         ) : (
-                            <Text className="font-mbold text-white text-center">
+                            <Text
+                                className={`font-mbold text-center ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-white"
+                                }`}
+                            >
                                 {hasSigned
                                     ? t("my_petitions.buttons.already_signed")
                                     : t("my_petitions.buttons.sign")}

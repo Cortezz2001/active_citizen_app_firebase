@@ -6,6 +6,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Linking,
+    Share,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -17,12 +18,14 @@ import LoadingIndicator from "../../../components/LoadingIndicator";
 import Markdown from "react-native-markdown-display";
 import { markdownStyles } from "../../../lib/markdownStyles";
 import { markdownRules } from "../../../lib/markdownRules";
+import { useTheme } from "../../../lib/themeContext";
 
 const EventDetailsScreen = () => {
     const { t, i18n } = useTranslation();
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const { getDocument } = useFirestore();
+    const { isDark } = useTheme();
 
     const [eventItem, setEventItem] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -71,15 +74,43 @@ const EventDetailsScreen = () => {
         }
     };
 
+    const handleShare = async () => {
+        if (!eventItem) return;
+
+        try {
+            await Share.share({
+                message: `${
+                    eventItem.title[i18n.language] || eventItem.title.en
+                } - ${
+                    eventItem.description[i18n.language] ||
+                    eventItem.description.en
+                }`,
+                title: eventItem.title[i18n.language] || eventItem.title.en,
+            });
+        } catch (error) {
+            console.error("Error sharing:", error);
+        }
+    };
+
     if (loading) {
-        return <LoadingIndicator />;
+        return <LoadingIndicator isDark={isDark} />;
     }
 
     if (error || !eventItem) {
         return (
-            <SafeAreaView className="flex-1 bg-gray-50">
-                <StatusBar style="dark" />
-                <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white shadow-sm">
+            <SafeAreaView
+                className={`flex-1 ${
+                    isDark ? "bg-dark-background" : "bg-gray-50"
+                }`}
+            >
+                <StatusBar style={isDark ? "light" : "dark"} />
+                <View
+                    className={`px-6 pt-4 pb-2 flex-row items-center border-b shadow-sm ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center mr-4"
@@ -88,10 +119,14 @@ const EventDetailsScreen = () => {
                         <MaterialIcons
                             name="arrow-back"
                             size={24}
-                            color="black"
+                            color={isDark ? "#FFFFFF" : "black"}
                         />
                     </TouchableOpacity>
-                    <Text className="text-2xl font-mbold text-black">
+                    <Text
+                        className={`text-2xl font-mbold ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {t("error")}
                     </Text>
                 </View>
@@ -99,12 +134,22 @@ const EventDetailsScreen = () => {
                     <MaterialIcons
                         name="error-outline"
                         size={64}
-                        color="#EF4444"
+                        color={isDark ? "#FF6B6B" : "#EF4444"}
                     />
-                    <Text className="text-red-500 text-lg font-mmedium mt-4 text-center">
+                    <Text
+                        className={`text-lg font-mmedium mt-4 text-center ${
+                            isDark ? "text-dark-text-primary" : "text-red-500"
+                        }`}
+                    >
                         {t("event_not_found")}
                     </Text>
-                    <Text className="text-gray-500 mt-2 text-center">
+                    <Text
+                        className={`mt-2 text-center ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-500"
+                        }`}
+                    >
                         {error}
                     </Text>
                 </View>
@@ -113,15 +158,37 @@ const EventDetailsScreen = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-50">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center justify-between border-b border-gray-200 bg-white shadow-sm">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-gray-50"}`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center justify-between border-b shadow-sm ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center"
                     accessibilityLabel={t("back")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={handleShare}
+                    accessibilityLabel={t("share")}
+                >
+                    <MaterialIcons
+                        name="share"
+                        size={24}
+                        color={isDark ? "#0066E6" : "#006FFD"}
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -132,8 +199,18 @@ const EventDetailsScreen = () => {
                     resizeMode="cover"
                 />
 
-                <View className="bg-white rounded-xl -mt-6 p-6 ">
-                    <Text className="text-2xl font-mbold text-gray-900 mb-3">
+                <View
+                    className={`rounded-xl -mt-6 p-6 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-100"
+                    } mb-4`}
+                >
+                    <Text
+                        className={`text-2xl font-mbold mb-3 ${
+                            isDark ? "text-dark-text-primary" : "text-gray-900"
+                        }`}
+                    >
                         {eventItem.title[i18n.language] || eventItem.title.en}
                     </Text>
 
@@ -142,9 +219,15 @@ const EventDetailsScreen = () => {
                             <MaterialIcons
                                 name="category"
                                 size={16}
-                                color="#6B7280"
+                                color={isDark ? "#B3B3B3" : "#6B7280"}
                             />
-                            <Text className="text-gray-600 ml-1 text-sm font-mmedium">
+                            <Text
+                                className={`ml-1 text-sm font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-600"
+                                }`}
+                            >
                                 {t("category")}:{" "}
                                 {eventItem.categoryName[i18n.language] ||
                                     eventItem.categoryName.en}
@@ -154,9 +237,15 @@ const EventDetailsScreen = () => {
                             <MaterialIcons
                                 name="event"
                                 size={16}
-                                color="#6B7280"
+                                color={isDark ? "#B3B3B3" : "#6B7280"}
                             />
-                            <Text className="text-gray-600 ml-1 text-sm font-mmedium">
+                            <Text
+                                className={`ml-1 text-sm font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-600"
+                                }`}
+                            >
                                 {t("date")}:{" "}
                                 {new Date(
                                     eventItem.date.toDate()
@@ -167,9 +256,15 @@ const EventDetailsScreen = () => {
                             <MaterialIcons
                                 name="location-on"
                                 size={16}
-                                color="#6B7280"
+                                color={isDark ? "#B3B3B3" : "#6B7280"}
                             />
-                            <Text className="text-gray-600 ml-1 text-sm font-mmedium">
+                            <Text
+                                className={`ml-1 text-sm font-mmedium ${
+                                    isDark
+                                        ? "text-dark-text-secondary"
+                                        : "text-gray-600"
+                                }`}
+                            >
                                 {t("location")}:{" "}
                                 {eventItem.location.name[i18n.language] ||
                                     eventItem.location.name.en}
@@ -181,7 +276,7 @@ const EventDetailsScreen = () => {
                     </View>
 
                     <Markdown
-                        style={markdownStyles}
+                        style={markdownStyles(isDark)}
                         mergeStyle={false}
                         rules={markdownRules}
                     >
@@ -190,7 +285,9 @@ const EventDetailsScreen = () => {
                     </Markdown>
 
                     <TouchableOpacity
-                        className="bg-primary p-4 rounded-lg items-center"
+                        className={`p-4 rounded-lg items-center ${
+                            isDark ? "bg-dark-primary" : "bg-primary"
+                        }`}
                         onPress={handleBuyTicket}
                     >
                         <Text className="text-white font-mbold">

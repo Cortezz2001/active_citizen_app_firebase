@@ -16,6 +16,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFirestore } from "@/hooks/useFirestore";
 import { serverTimestamp } from "firebase/firestore";
 import { useData } from "../../../../lib/datacontext";
+import { useTheme } from "../../../../lib/themeContext";
+import LoadingIndicator from "../../../../components/LoadingIndicator";
 
 const VoteSurveyPage = () => {
     const { t, i18n } = useTranslation();
@@ -25,6 +27,7 @@ const VoteSurveyPage = () => {
     const { getDocument, addDocument, updateDocument, getCollection } =
         useFirestore();
     const { fetchSurveys, fetchUserSurveys } = useData();
+    const { isDark } = useTheme();
 
     const [loading, setLoading] = useState(true);
     const [survey, setSurvey] = useState(null);
@@ -32,6 +35,7 @@ const VoteSurveyPage = () => {
     const [answers, setAnswers] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [hasVoted, setHasVoted] = useState(false);
+
     // Fetch the survey data
     useEffect(() => {
         const fetchSurveyAndUserVote = async () => {
@@ -118,6 +122,7 @@ const VoteSurveyPage = () => {
             fetchSurveyAndUserVote();
         }
     }, [id, user, t, i18n.language]);
+
     // Handle selection for single choice questions
     const handleSingleChoice = (questionIndex, optionIndex) => {
         setAnswers((prev) => ({
@@ -244,22 +249,33 @@ const VoteSurveyPage = () => {
     };
 
     if (loading) {
-        return (
-            <SafeAreaView className="flex-1 justify-center items-center bg-white">
-                <ActivityIndicator size="large" color="#006FFD" />
-            </SafeAreaView>
-        );
+        return <LoadingIndicator isDark={isDark} />;
     }
 
     if (error || !survey) {
         return (
-            <SafeAreaView className="flex-1 justify-center items-center bg-white p-4">
-                <MaterialIcons name="error-outline" size={64} color="#EF4444" />
-                <Text className="text-center font-mmedium text-lg mt-4 text-gray-800">
+            <SafeAreaView
+                className={`flex-1 justify-center items-center p-4 ${
+                    isDark ? "bg-dark-background" : "bg-white"
+                }`}
+            >
+                <StatusBar style={isDark ? "light" : "dark"} />
+                <MaterialIcons
+                    name="error-outline"
+                    size={64}
+                    color={isDark ? "#FF6B6B" : "#EF4444"}
+                />
+                <Text
+                    className={`text-center font-mmedium text-lg mt-4 ${
+                        isDark ? "text-dark-text-primary" : "text-gray-800"
+                    }`}
+                >
                     {error || t("vote.errors.loading_failed")}
                 </Text>
                 <TouchableOpacity
-                    className="mt-6 px-6 py-3 bg-primary rounded-full"
+                    className={`mt-6 px-6 py-3 rounded-full ${
+                        isDark ? "bg-dark-primary" : "bg-primary"
+                    }`}
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
@@ -271,15 +287,27 @@ const VoteSurveyPage = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center border-b ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                     accessibilityLabel={t("vote.back_button")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -289,14 +317,24 @@ const VoteSurveyPage = () => {
             >
                 {/* Survey Title */}
                 <View className="mb-2 mt-4">
-                    <Text className="font-mbold text-2xl text-black">
+                    <Text
+                        className={`font-mbold text-2xl ${
+                            isDark ? "text-dark-text-primary" : "text-black"
+                        }`}
+                    >
                         {survey.title[i18n.language] || survey.title.en}
                     </Text>
                 </View>
 
                 {/* Survey Description */}
                 <View className="mb-6">
-                    <Text className="font-mregular text-gray-700">
+                    <Text
+                        className={`font-mregular ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {survey.description[i18n.language] ||
                             survey.description.en}
                     </Text>
@@ -306,16 +344,32 @@ const VoteSurveyPage = () => {
                 {survey.questions.map((question, questionIndex) => (
                     <View
                         key={questionIndex}
-                        className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200"
+                        className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                            isDark
+                                ? "bg-dark-background border-dark-border"
+                                : "bg-white border-gray-200"
+                        }`}
                     >
-                        <Text className="font-msemibold text-lg text-gray-800 mb-3">
+                        <Text
+                            className={`font-msemibold text-lg mb-3 ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-800"
+                            }`}
+                        >
                             {question.questionText[i18n.language] ||
                                 question.questionText.en}
                         </Text>
 
                         {/* Question Type Indicator */}
                         <View className="mb-3">
-                            <Text className="text-xs font-mlight text-gray-500">
+                            <Text
+                                className={`text-xs font-mlight ${
+                                    isDark
+                                        ? "text-dark-text-muted"
+                                        : "text-gray-500"
+                                }`}
+                            >
                                 {question.type === "single_choice"
                                     ? t(
                                           "vote.question_types.single_choice_instruction"
@@ -333,10 +387,18 @@ const VoteSurveyPage = () => {
                                 className={`flex-row items-center p-3 mb-2 rounded-md border ${
                                     question.type === "single_choice"
                                         ? answers[questionIndex] === optionIndex
-                                            ? "border-primary bg-blue-50"
+                                            ? isDark
+                                                ? "border-dark-primary bg-dark-surface"
+                                                : "border-primary bg-blue-50"
+                                            : isDark
+                                            ? "border-dark-border bg-dark-surface"
                                             : "border-gray-200 bg-ghostwhite"
                                         : answers[questionIndex]?.[optionIndex]
-                                        ? "border-primary bg-blue-50"
+                                        ? isDark
+                                            ? "border-dark-primary bg-dark-surface"
+                                            : "border-primary bg-blue-50"
+                                        : isDark
+                                        ? "border-dark-border bg-dark-surface"
                                         : "border-gray-200 bg-ghostwhite"
                                 }`}
                                 onPress={() =>
@@ -375,12 +437,22 @@ const VoteSurveyPage = () => {
                                             answers[questionIndex]?.[
                                                 optionIndex
                                             ])
-                                            ? "#006FFD"
+                                            ? isDark
+                                                ? "#0066E6"
+                                                : "#006FFD"
+                                            : isDark
+                                            ? "#666666"
                                             : "#6B7280"
                                     }
                                     style={{ marginRight: 12 }}
                                 />
-                                <Text className="font-mregular text-gray-800 flex-1">
+                                <Text
+                                    className={`font-mregular flex-1 ${
+                                        isDark
+                                            ? "text-dark-text-primary"
+                                            : "text-gray-800"
+                                    }`}
+                                >
                                     {option[i18n.language] || option.en}
                                 </Text>
                             </TouchableOpacity>
@@ -392,22 +464,39 @@ const VoteSurveyPage = () => {
                 <TouchableOpacity
                     className={`mb-8 py-4 rounded-lg items-center justify-center ${
                         hasVoted
-                            ? "bg-gray-300"
+                            ? isDark
+                                ? "bg-dark-border"
+                                : "bg-gray-300"
                             : isFormValid() && !submitting
-                            ? "bg-primary"
+                            ? isDark
+                                ? "bg-dark-primary"
+                                : "bg-primary"
+                            : isDark
+                            ? "bg-dark-border"
                             : "bg-gray-300"
                     }`}
                     onPress={!hasVoted ? submitVote : null}
                     disabled={hasVoted || submitting}
                 >
                     {hasVoted ? (
-                        <Text className="font-mbold text-white text-center">
+                        <Text
+                            className={`font-mbold ${
+                                isDark ? "text-dark-text-primary" : "text-white"
+                            } text-center`}
+                        >
                             {t("vote.buttons.already_voted")}
                         </Text>
                     ) : submitting ? (
-                        <ActivityIndicator size="small" color="white" />
+                        <ActivityIndicator
+                            size="small"
+                            color={isDark ? "#0066E6" : "white"}
+                        />
                     ) : (
-                        <Text className="font-mbold text-white text-center">
+                        <Text
+                            className={`font-mbold ${
+                                isDark ? "text-dark-text-primary" : "text-white"
+                            } text-center`}
+                        >
                             {t("vote.buttons.submit_vote")}
                         </Text>
                     )}

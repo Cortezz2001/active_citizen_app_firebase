@@ -214,7 +214,7 @@ const RequestCard = ({
                                     <MaterialIcons
                                         name="edit"
                                         size={18}
-                                        color={isDark ? "#60A5FA" : "#006FFD"}
+                                        color={isDark ? "#0066E6" : "#006FFD"}
                                     />
                                     <Text
                                         className={`ml-1 font-mmedium ${
@@ -1050,8 +1050,10 @@ const MyRequestsTab = () => {
                 >
                     <View className="flex-1 justify-center items-center">
                         <View
-                            className={`rounded-xl p-5 w-11/12 max-w-md ${
-                                isDark ? "bg-dark-surface" : "bg-white"
+                            className={`rounded-xl p-5 w-11/12 max-w-md border ${
+                                isDark
+                                    ? "bg-dark-surface border-dark-border"
+                                    : "bg-white border-light-border"
                             }`}
                         >
                             <View className="flex-row justify-between items-center mb-4">
@@ -1104,6 +1106,7 @@ const MyRequestsTab = () => {
                                     }`}
                                     textStyles="text-white font-mmedium"
                                     isLoading={isDeleting}
+                                    isDark={isDark}
                                 />
                             </View>
                         </View>

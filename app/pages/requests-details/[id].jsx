@@ -19,6 +19,8 @@ import { VideoView, useVideoPlayer } from "expo-video";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import LoadingIndicator from "../../../components/LoadingIndicator";
+import { useTheme } from "../../../lib/themeContext";
+
 const { width, height } = Dimensions.get("window");
 
 const statusColors = {
@@ -27,24 +29,36 @@ const statusColors = {
         text: "text-gray-700",
         icon: "edit",
         iconColor: "#374151",
+        darkBg: "bg-dark-border",
+        darkText: "text-dark-text-secondary",
+        darkIconColor: "#B3B3B3",
     },
     "In progress": {
         bg: "bg-yellow-100",
         text: "text-yellow-700",
         icon: "pending",
         iconColor: "#B45309",
+        darkBg: "bg-yellow-900",
+        darkText: "text-yellow-200",
+        darkIconColor: "#FBBF24",
     },
     Rejected: {
         bg: "bg-red-100",
         text: "text-red-700",
         icon: "cancel",
         iconColor: "#B91C1C",
+        darkBg: "bg-red-900",
+        darkText: "text-red-200",
+        darkIconColor: "#F87171",
     },
     Completed: {
         bg: "bg-green-100",
         text: "text-green-700",
         icon: "check-circle",
         iconColor: "#047857",
+        darkBg: "bg-green-900",
+        darkText: "text-green-200",
+        darkIconColor: "#34D399",
     },
 };
 
@@ -52,6 +66,7 @@ const RequestDetailPage = () => {
     const { t, i18n } = useTranslation();
     const { id } = useLocalSearchParams();
     const router = useRouter();
+    const { isDark } = useTheme();
     const [request, setRequest] = useState(null);
     const [category, setCategory] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -134,18 +149,33 @@ const RequestDetailPage = () => {
     };
 
     if (isLoading) {
-        return <LoadingIndicator />;
+        return <LoadingIndicator isDark={isDark} />;
     }
 
     if (!request) {
         return (
-            <SafeAreaView className="flex-1 justify-center items-center bg-white p-4">
-                <MaterialIcons name="error-outline" size={64} color="#EF4444" />
-                <Text className="text-center font-mmedium text-lg mt-4 text-gray-800">
+            <SafeAreaView
+                className={`flex-1 justify-center items-center p-4 ${
+                    isDark ? "bg-dark-background" : "bg-white"
+                }`}
+            >
+                <StatusBar style={isDark ? "light" : "dark"} />
+                <MaterialIcons
+                    name="error-outline"
+                    size={64}
+                    color={isDark ? "#FF6B6B" : "#EF4444"}
+                />
+                <Text
+                    className={`text-center font-mmedium text-lg mt-4 ${
+                        isDark ? "text-dark-text-primary" : "text-gray-800"
+                    }`}
+                >
                     {t("request.request_not_found")}
                 </Text>
                 <TouchableOpacity
-                    className="mt-6 px-6 py-3 bg-primary rounded-full"
+                    className={`mt-6 px-6 py-3 rounded-full ${
+                        isDark ? "bg-dark-primary" : "bg-primary"
+                    }`}
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
@@ -161,18 +191,33 @@ const RequestDetailPage = () => {
         text: "text-gray-700",
         icon: "help",
         iconColor: "#374151",
+        darkBg: "bg-dark-border",
+        darkText: "text-dark-text-secondary",
+        darkIconColor: "#B3B3B3",
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
-            <StatusBar style="dark" />
-            <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
+        <SafeAreaView
+            className={`flex-1 ${isDark ? "bg-dark-background" : "bg-white"}`}
+        >
+            <StatusBar style={isDark ? "light" : "dark"} />
+            <View
+                className={`px-6 pt-4 pb-2 flex-row items-center border-b ${
+                    isDark
+                        ? "bg-dark-background border-dark-border"
+                        : "bg-white border-gray-200"
+                }`}
+            >
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
                     accessibilityLabel={t("request.back_button")}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="black" />
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={24}
+                        color={isDark ? "#FFFFFF" : "black"}
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -182,16 +227,26 @@ const RequestDetailPage = () => {
             >
                 <View className="mb-4 mt-6">
                     <View className="flex-row items-start">
-                        <Text className="font-mbold text-2xl text-black flex-1 mr-2">
+                        <Text
+                            className={`font-mbold text-2xl flex-1 mr-2 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {request.title[i18n.language] || request.title.en}
                         </Text>
                         <View
-                            className={`px-1 py-1 rounded-full ${statusColor.bg} mt-1`}
+                            className={`px-1 py-1 rounded-full ${
+                                isDark ? statusColor.darkBg : statusColor.bg
+                            } mt-1`}
                         >
                             <MaterialIcons
                                 name={statusColor.icon}
                                 size={16}
-                                color={statusColor.iconColor}
+                                color={
+                                    isDark
+                                        ? statusColor.darkIconColor
+                                        : statusColor.iconColor
+                                }
                             />
                         </View>
                     </View>
@@ -199,18 +254,32 @@ const RequestDetailPage = () => {
 
                 {/* Rejection Reason */}
                 {request.status === "Rejected" && request.rejectionReason && (
-                    <View className="bg-red-100 rounded-lg p-4 mb-4 shadow-sm border border-red-200">
+                    <View
+                        className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                            isDark
+                                ? "bg-red-900 border-red-700"
+                                : "bg-red-100 border-red-200"
+                        }`}
+                    >
                         <View className="flex-row items-center mb-2">
                             <MaterialIcons
                                 name="info"
                                 size={20}
-                                color="#B91C1C"
+                                color={isDark ? "#F87171" : "#B91C1C"}
                             />
-                            <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            <Text
+                                className={`font-mbold text-lg ml-2 ${
+                                    isDark ? "text-red-200" : "text-gray-800"
+                                }`}
+                            >
                                 {t("request.rejection_reason")}
                             </Text>
                         </View>
-                        <Text className="text-gray-700 font-mregular">
+                        <Text
+                            className={`font-mregular ${
+                                isDark ? "text-red-100" : "text-gray-700"
+                            }`}
+                        >
                             {request.rejectionReason?.[i18n.language] ||
                                 request.rejectionReason?.en ||
                                 t("request.no_reason_provided")}
@@ -220,18 +289,36 @@ const RequestDetailPage = () => {
 
                 {/* Category */}
                 {category && (
-                    <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                    <View
+                        className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                            isDark
+                                ? "bg-dark-background border-dark-border"
+                                : "bg-white border-gray-200"
+                        }`}
+                    >
                         <View className="flex-row items-center mb-2">
                             <MaterialIcons
                                 name="category"
                                 size={20}
-                                color="#212938"
+                                color={isDark ? "#B3B3B3" : "#212938"}
                             />
-                            <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            <Text
+                                className={`font-mbold text-lg ml-2 ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-gray-800"
+                                }`}
+                            >
                                 {t("request.category")}
                             </Text>
                         </View>
-                        <Text className="text-gray-700 font-mregular">
+                        <Text
+                            className={`font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-700"
+                            }`}
+                        >
                             {category.name?.[i18n.language] ||
                                 category.name?.en ||
                                 ""}
@@ -240,18 +327,36 @@ const RequestDetailPage = () => {
                 )}
 
                 {/* Description */}
-                <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                <View
+                    className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <View className="flex-row items-center mb-2">
                         <MaterialIcons
                             name="description"
                             size={20}
-                            color="#212938"
+                            color={isDark ? "#B3B3B3" : "#212938"}
                         />
-                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                        <Text
+                            className={`font-mbold text-lg ml-2 ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-800"
+                            }`}
+                        >
                             {t("request.description")}
                         </Text>
                     </View>
-                    <Text className="font-mregular text-gray-700">
+                    <Text
+                        className={`font-mregular ${
+                            isDark
+                                ? "text-dark-text-secondary"
+                                : "text-gray-700"
+                        }`}
+                    >
                         {request.description?.[i18n.language] ||
                             request.description?.en ||
                             ""}
@@ -259,23 +364,47 @@ const RequestDetailPage = () => {
                 </View>
 
                 {/* Location */}
-                <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                <View
+                    className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                        isDark
+                            ? "bg-dark-background border-dark-border"
+                            : "bg-white border-gray-200"
+                    }`}
+                >
                     <View className="flex-row items-center mb-2">
                         <MaterialIcons
                             name="location-on"
                             size={20}
-                            color="#212938"
+                            color={isDark ? "#B3B3B3" : "#212938"}
                         />
-                        <Text className="font-mbold text-lg text-gray-800 ml-2">
+                        <Text
+                            className={`font-mbold text-lg ml-2 ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-gray-800"
+                            }`}
+                        >
                             {t("request.location")}
                         </Text>
                     </View>
                     <View className="flex-1">
-                        <Text className="text-gray-700 font-mregular">
+                        <Text
+                            className={`font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-700"
+                            }`}
+                        >
                             {request.address?.formattedAddress || ""}
                         </Text>
                         {request.address?.city && (
-                            <Text className="text-gray-500 font-mregular text-sm mt-1">
+                            <Text
+                                className={`font-mregular text-sm mt-1 ${
+                                    isDark
+                                        ? "text-dark-text-muted"
+                                        : "text-gray-500"
+                                }`}
+                            >
                                 {`${request.address.city}, ${
                                     request.address.region || ""
                                 }`}
@@ -286,18 +415,36 @@ const RequestDetailPage = () => {
 
                 {/* Created Date */}
                 {request.createdAt && (
-                    <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                    <View
+                        className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                            isDark
+                                ? "bg-dark-background border-dark-border"
+                                : "bg-white border-gray-200"
+                        }`}
+                    >
                         <View className="flex-row items-center mb-2">
                             <MaterialIcons
                                 name="schedule"
                                 size={20}
-                                color="#212938"
+                                color={isDark ? "#B3B3B3" : "#212938"}
                             />
-                            <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            <Text
+                                className={`font-mbold text-lg ml-2 ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-gray-800"
+                                }`}
+                            >
                                 {t("request.created_date")}
                             </Text>
                         </View>
-                        <Text className="ml-3 text-gray-700 font-mregular">
+                        <Text
+                            className={`ml-3 font-mregular ${
+                                isDark
+                                    ? "text-dark-text-secondary"
+                                    : "text-gray-700"
+                            }`}
+                        >
                             {formatDate(request.createdAt)}
                         </Text>
                     </View>
@@ -305,14 +452,26 @@ const RequestDetailPage = () => {
 
                 {/* Media Files */}
                 {request.mediaFiles && request.mediaFiles.length > 0 && (
-                    <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+                    <View
+                        className={`rounded-lg p-4 mb-4 shadow-sm border ${
+                            isDark
+                                ? "bg-dark-background border-dark-border"
+                                : "bg-white border-gray-200"
+                        }`}
+                    >
                         <View className="flex-row items-center mb-2">
                             <MaterialIcons
                                 name="image"
                                 size={20}
-                                color="#212938"
+                                color={isDark ? "#B3B3B3" : "#212938"}
                             />
-                            <Text className="font-mbold text-lg text-gray-800 ml-2">
+                            <Text
+                                className={`font-mbold text-lg ml-2 ${
+                                    isDark
+                                        ? "text-dark-text-primary"
+                                        : "text-gray-800"
+                                }`}
+                            >
                                 {t("request.media_files")} (
                                 {request.mediaFiles.length})
                             </Text>
@@ -324,7 +483,13 @@ const RequestDetailPage = () => {
                                     className="w-1/3 px-1 mb-2"
                                     onPress={() => handleMediaPress(mediaItem)}
                                 >
-                                    <View className="bg-gray-100 rounded-lg overflow-hidden aspect-square">
+                                    <View
+                                        className={`rounded-lg overflow-hidden aspect-square ${
+                                            isDark
+                                                ? "bg-dark-border"
+                                                : "bg-gray-100"
+                                        }`}
+                                    >
                                         {mediaItem.type?.startsWith("image") ||
                                         mediaItem.url?.includes("image") ||
                                         /\.(jpg|jpeg|png|gif|webp)$/i.test(
@@ -338,13 +503,29 @@ const RequestDetailPage = () => {
                                                 resizeMode="cover"
                                             />
                                         ) : (
-                                            <View className="w-full h-full justify-center items-center bg-gray-200">
+                                            <View
+                                                className={`w-full h-full justify-center items-center ${
+                                                    isDark
+                                                        ? "bg-dark-surface"
+                                                        : "bg-gray-200"
+                                                }`}
+                                            >
                                                 <MaterialIcons
                                                     name="play-circle-outline"
                                                     size={32}
-                                                    color="#006FFD"
+                                                    color={
+                                                        isDark
+                                                            ? "#60A5FA"
+                                                            : "#006FFD"
+                                                    }
                                                 />
-                                                <Text className="text-xs text-gray-600 mt-1 text-center">
+                                                <Text
+                                                    className={`text-xs mt-1 text-center ${
+                                                        isDark
+                                                            ? "text-dark-text-muted"
+                                                            : "text-gray-600"
+                                                    }`}
+                                                >
                                                     {t("request.video")}
                                                 </Text>
                                             </View>
@@ -364,16 +545,24 @@ const RequestDetailPage = () => {
                 transparent={true}
                 onRequestClose={closeMediaModal}
             >
-                <View className="flex-1 bg-black">
+                <View
+                    className={`flex-1 ${
+                        isDark ? "bg-dark-background" : "bg-black"
+                    }`}
+                >
                     <View className="absolute top-12 right-4 z-10">
                         <TouchableOpacity
                             onPress={closeMediaModal}
-                            className="bg-black bg-opacity-50 rounded-full p-2"
+                            className={`rounded-full p-2 ${
+                                isDark
+                                    ? "bg-dark-surface bg-opacity-50"
+                                    : "bg-black bg-opacity-50"
+                            }`}
                         >
                             <MaterialIcons
                                 name="close"
                                 size={24}
-                                color="white"
+                                color={isDark ? "#B3B3B3" : "white"}
                             />
                         </TouchableOpacity>
                     </View>
@@ -410,8 +599,20 @@ const RequestDetailPage = () => {
 
                                 {selectedMedia.fileName && (
                                     <View className="absolute bottom-8 left-4 right-4">
-                                        <View className="bg-black bg-opacity-70 rounded-lg p-3">
-                                            <Text className="text-white font-mregular text-center">
+                                        <View
+                                            className={`rounded-lg p-3 ${
+                                                isDark
+                                                    ? "bg-dark-surface bg-opacity-70"
+                                                    : "bg-black bg-opacity-70"
+                                            }`}
+                                        >
+                                            <Text
+                                                className={`font-mregular text-center ${
+                                                    isDark
+                                                        ? "text-dark-text-primary"
+                                                        : "text-white"
+                                                }`}
+                                            >
                                                 {selectedMedia.fileName}
                                             </Text>
                                         </View>
