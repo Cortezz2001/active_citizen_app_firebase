@@ -18,7 +18,6 @@ import * as ImagePicker from "expo-image-picker";
 import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
 import LoadingIndicator from "../../components/LoadingIndicator";
-import { StatusBar } from "expo-status-bar";
 
 const PermissionsPreferences = () => {
     const { t } = useTranslation();
@@ -323,7 +322,6 @@ const PermissionsPreferences = () => {
 
     return (
         <SafeAreaView className="bg-white flex-1">
-            <StatusBar style="dark" />
             <View className="px-6 pt-4 pb-2 flex-row items-center border-b border-gray-200 bg-white">
                 <TouchableOpacity
                     onPress={() => router.back()}
@@ -343,8 +341,12 @@ const PermissionsPreferences = () => {
             </View>
 
             <ScrollView
-                className="px-6 pt-4 flex-1"
+                className="px-6 pt-4 "
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    justifyContent: "center",
+                }}
             >
                 {isLoading ? (
                     <LoadingIndicator />
