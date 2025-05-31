@@ -5,6 +5,7 @@ import {
     Text,
     TouchableOpacity,
     ScrollView,
+    Image,
     ActivityIndicator,
 } from "react-native";
 import Toast from "react-native-toast-message";
@@ -183,49 +184,64 @@ const ProfileLayout = () => {
         <View className="items-center mb-6">
             <TouchableOpacity onPress={pickImage} disabled={uploadingImage}>
                 <View className="relative">
-                    <FastImage
-                        source={
-                            avatarUrl
-                                ? {
-                                      uri: avatarUrl,
-                                      priority: FastImage.priority.high,
-                                      cache: FastImage.cacheControl.immutable,
-                                  }
-                                : require("../../../assets/images/anonymous.png")
-                        }
-                        style={{
-                            width: 128,
-                            height: 128,
-                            borderRadius: 64,
-                        }}
-                        onLoadStart={handleImageLoadStart}
-                        onLoadEnd={handleImageLoadEnd}
-                        onError={handleImageError}
-                        resizeMode={FastImage.resizeMode.cover}
-                        fallback={true} // Для Android - показывает placeholder при ошибке
-                    />
+                    {avatarUrl ? (
+                        // Для URL изображений используем FastImage
+                        <FastImage
+                            source={{
+                                uri: avatarUrl,
+                                priority: FastImage.priority.high,
+                                cache: FastImage.cacheControl.immutable,
+                            }}
+                            style={{
+                                width: 128,
+                                height: 128,
+                                borderRadius: 64,
+                            }}
+                            onLoadStart={handleImageLoadStart}
+                            onLoadEnd={handleImageLoadEnd}
+                            onError={handleImageError}
+                            resizeMode={FastImage.resizeMode.cover}
+                            fallback={true}
+                        />
+                    ) : (
+                        <Image
+                            source={require("../../../assets/images/anonymous.png")}
+                            style={{
+                                width: 128,
+                                height: 128,
+                                borderRadius: 64,
+                            }}
+                            resizeMode="cover"
+                        />
+                    )}
 
-                    {/* Индикатор загрузки изображения */}
+                    {/* Остальные индикаторы загрузки остаются без изменений */}
                     {imageLoading && avatarUrl && (
-                        <View className="absolute inset-0 bg-black bg-opacity-30 rounded-full justify-center items-center">
+                        <View
+                            className={`absolute inset-0 ${
+                                isDark ? "bg-dark-surface" : "bg-white"
+                            } bg-opacity-30 rounded-full justify-center items-center`}
+                        >
                             <ActivityIndicator
                                 size="large"
-                                color={isDark ? "#fff" : "#000"}
+                                color={isDark ? "#fff" : "#0066E6"}
                             />
                         </View>
                     )}
 
-                    {/* Индикатор загрузки при выгрузке нового изображения */}
                     {uploadingImage && (
-                        <View className="absolute inset-0 bg-black bg-opacity-50 rounded-full justify-center items-center">
+                        <View
+                            className={`absolute inset-0 ${
+                                isDark ? "bg-dark-surface" : "bg-white"
+                            } bg-opacity-50 rounded-full justify-center items-center`}
+                        >
                             <ActivityIndicator
                                 size="large"
-                                color={isDark ? "#fff" : "#000"}
+                                color={isDark ? "#fff" : "#0066E6"}
                             />
                         </View>
                     )}
 
-                    {/* Иконка камеры */}
                     {!uploadingImage && (
                         <View
                             className={`absolute bottom-0 right-0 ${

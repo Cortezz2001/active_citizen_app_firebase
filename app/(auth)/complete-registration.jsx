@@ -73,6 +73,7 @@ const CompleteRegistration = () => {
                 genderKey,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
+                language: currentLanguage,
             });
 
             await refreshUser();

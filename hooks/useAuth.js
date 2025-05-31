@@ -21,6 +21,17 @@ export const useAuth = () => {
     const [hasProfile, setHasProfile] = useState(null); // Новое состояние для проверки профиля
     const { getDocument } = useFirestore();
 
+const isProfileComplete = (userDoc) => {
+    if (!userDoc) return false;
+    
+    // Проверяем наличие всех обязательных полей
+    const requiredFields = ['fname', 'lname', 'cityKey', 'genderKey'];
+    return requiredFields.every(field => 
+        userDoc[field] !== undefined && 
+        userDoc[field] !== null && 
+        userDoc[field] !== ''
+    );
+};
     useEffect(() => {
         const unsubscribe = auth().onAuthStateChanged(async (authUser) => {
             console.log("OnAuthStateChanged", authUser);
@@ -29,7 +40,7 @@ export const useAuth = () => {
             if (authUser) {
                 try {
                     const userDoc = await getDocument("users", authUser.uid);
-                    setHasProfile(!!userDoc); // true, если профиль существует, false, если нет
+                    setHasProfile(isProfileComplete(userDoc)); // true, если профиль существует, false, если нет
                     await checkAndUpdateToken();
                 } catch (error) {
                     console.error("Error checking user profile:", error);
@@ -83,7 +94,7 @@ export const useAuth = () => {
             await AsyncStorage.removeItem("verificationId");
 
             const userDoc = await getDocument("users", userCredential.user.uid);
-            setHasProfile(!!userDoc); // Обновляем состояние профиля после входа
+            setHasProfile(isProfileComplete(userDoc)); // Обновляем состояние профиля после входа
             await registerForPushNotificationsAsync();
             return userCredential.user;
         } catch (error) {
@@ -146,7 +157,7 @@ export const useAuth = () => {
             }
     
             const userDoc = await getDocument("users", result.user.uid);
-            setHasProfile(!!userDoc);
+            setHasProfile(isProfileComplete(userDoc));
             await registerForPushNotificationsAsync();
             return result;
         } catch (error) {
