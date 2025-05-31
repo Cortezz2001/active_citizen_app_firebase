@@ -1,10 +1,11 @@
 globalThis.RNFB_SILENCE_MODULAR_DEPRECATION_WARNINGS = true;
 import "@/i18n";
-import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { AuthProvider, useAuthContext } from "@/lib/context";
-import { ThemeProvider, useTheme } from "@/lib/themeContext"; // Импортируем провайдер темы
+import { ThemeProvider, useTheme } from "@/lib/themeContext";
 import Toast from "react-native-toast-message";
 import { View, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -17,6 +18,9 @@ import {
 } from "../lib/notifications";
 import { useNavigationContainerRef } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+
+// Предотвращаем автоматическое скрытие SplashScreen
+SplashScreen.preventAutoHideAsync();
 
 // Компонент для Toast с поддержкой темы
 function ThemedToastConfig() {
@@ -120,11 +124,20 @@ function GlobalStatusBar() {
 }
 
 function InitialLayout() {
-    const { loading } = useAuthContext();
+    const { loading, user, hasProfile } = useAuthContext();
 
-    if (loading) {
-        return null;
-    }
+    useEffect(() => {
+        // Дожидаемся окончания загрузки авторизации
+        if (!loading) {
+            // Добавляем небольшую задержку для завершения всех операций
+            const timer = setTimeout(() => {
+                // Скрываем splash screen только после полной готовности
+                SplashScreen.hide();
+            }, 100);
+
+            return () => clearTimeout(timer);
+        }
+    }, [loading, user, hasProfile]);
 
     return (
         <Stack
@@ -171,7 +184,10 @@ function InitialLayout() {
 }
 
 export default function RootLayout() {
-    const [fontsLoaded, error] = useFonts({
+    const [appIsReady, setAppIsReady] = useState(false);
+    const navigationRef = useNavigationContainerRef();
+
+    const [fontsLoaded, fontError] = useFonts({
         "Montserrat-Black": require("../assets/fonts/Montserrat-Black.ttf"),
         "Montserrat-Bold": require("../assets/fonts/Montserrat-Bold.ttf"),
         "Montserrat-ExtraBold": require("../assets/fonts/Montserrat-ExtraBold.ttf"),
@@ -183,27 +199,37 @@ export default function RootLayout() {
         "Montserrat-Thin": require("../assets/fonts/Montserrat-Thin.ttf"),
         "Montserrat-Italic": require("../assets/fonts/Montserrat-Italic.ttf"),
     });
-    const navigationRef = useNavigationContainerRef();
 
     useEffect(() => {
-        if (error) throw error;
-        if (fontsLoaded) {
-            SplashScreen.hideAsync();
+        async function prepare() {
+            try {
+                // Ждем загрузки шрифтов
+                if (fontError) throw fontError;
 
-            registerForPushNotificationsAsync().then((token) => {
-                if (token) {
-                    console.log("Push token registered:", token);
+                if (fontsLoaded) {
+                    // Выполняем все необходимые инициализации
+                    const token = await registerForPushNotificationsAsync();
+                    if (token) {
+                        console.log("Push token registered:", token);
+                    }
+
+                    await checkAndUpdateToken();
+                    setupNotificationListeners(navigationRef);
                 }
-            });
-
-            checkAndUpdateToken();
-
-            const unsubscribe = setupNotificationListeners(navigationRef);
-            return () => unsubscribe();
+            } catch (e) {
+                console.warn(e);
+            } finally {
+                // Отмечаем приложение как готовое к отрисовке
+                if (fontsLoaded || fontError) {
+                    setAppIsReady(true);
+                }
+            }
         }
-    }, [fontsLoaded, error]);
 
-    if (!fontsLoaded || error) {
+        prepare();
+    }, [fontsLoaded, fontError]);
+
+    if (!appIsReady) {
         return null;
     }
 
