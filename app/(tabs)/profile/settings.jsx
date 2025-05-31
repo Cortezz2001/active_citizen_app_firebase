@@ -8,7 +8,7 @@ import { useTheme } from "../../../lib/themeContext";
 
 const Settings = () => {
     const { t, i18n } = useTranslation();
-    const { theme, setThemeMode } = useTheme();
+    const { theme, setThemeMode, isDark } = useTheme();
     const [languageModalVisible, setLanguageModalVisible] = useState(false);
     const [themeModalVisible, setThemeModalVisible] = useState(false);
 
@@ -29,8 +29,8 @@ const Settings = () => {
         setLanguageModalVisible(false);
     };
 
-    const selectTheme = (themeCode) => {
-        setThemeMode(themeCode);
+    const selectTheme = async (themeCode) => {
+        await setThemeMode(themeCode);
         setThemeModalVisible(false);
     };
 
@@ -56,26 +56,39 @@ const Settings = () => {
     ];
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            className={`flex-1 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
             <View>
                 {profileSettingsData.map((item) => (
                     <TouchableOpacity
                         key={item.id}
-                        className="bg-white rounded-lg mb-4 p-4 shadow-md flex-row items-center"
+                        className={`rounded-lg mb-4 p-4 shadow-md flex-row items-center ${
+                            isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                        }`}
                         onPress={item.action}
                     >
                         <MaterialIcons
                             name={item.icon}
                             size={24}
-                            color="#006FFD"
+                            color={isDark ? "#0066E6" : "#006FFD"}
                         />
-                        <Text className="flex-1 ml-4 font-mmedium text-lg">
+                        <Text
+                            className={`flex-1 ml-4 font-mmedium text-lg ${
+                                isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-light-text-primary"
+                            }`}
+                        >
                             {item.title}
                         </Text>
                         <MaterialIcons
                             name="chevron-right"
                             size={24}
-                            color="#006FFD"
+                            color={isDark ? "#0066E6" : "#006FFD"}
                         />
                     </TouchableOpacity>
                 ))}
@@ -94,10 +107,18 @@ const Settings = () => {
                     onPress={() => setLanguageModalVisible(false)}
                 >
                     <View
-                        className="bg-white m-6 p-4 rounded-xl shadow-lg"
+                        className={`m-6 p-4 rounded-xl shadow-lg border ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border"
+                                : "bg-white border-gray-200"
+                        }`}
                         style={{ marginTop: 100 }}
                     >
-                        <Text className="text-lg font-mbold mb-4">
+                        <Text
+                            className={`text-lg font-mbold mb-4 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {t("settings.select_language")}
                         </Text>
                         {languages.map((lang) => (
@@ -105,7 +126,11 @@ const Settings = () => {
                                 key={lang.code}
                                 className={`p-3 rounded-lg mb-2 flex-row items-center justify-between ${
                                     i18n.language === lang.code
-                                        ? "bg-primary"
+                                        ? isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                        : isDark
+                                        ? "bg-dark-card"
                                         : "bg-ghostwhite"
                                 }`}
                                 onPress={() => selectLanguage(lang.code)}
@@ -114,6 +139,8 @@ const Settings = () => {
                                     className={`font-mmedium ${
                                         i18n.language === lang.code
                                             ? "text-white"
+                                            : isDark
+                                            ? "text-dark-text-primary"
                                             : "text-gray-800"
                                     }`}
                                 >
@@ -145,10 +172,18 @@ const Settings = () => {
                     onPress={() => setThemeModalVisible(false)}
                 >
                     <View
-                        className="bg-white m-6 p-4 rounded-xl shadow-lg"
+                        className={`m-6 p-4 rounded-xl shadow-lg border ${
+                            isDark
+                                ? "bg-dark-surface border-dark-border"
+                                : "bg-white border-gray-200"
+                        }`}
                         style={{ marginTop: 100 }}
                     >
-                        <Text className="text-lg font-mbold mb-4">
+                        <Text
+                            className={`text-lg font-mbold mb-4 ${
+                                isDark ? "text-dark-text-primary" : "text-black"
+                            }`}
+                        >
                             {t("settings.select_theme")}
                         </Text>
                         {themes.map((themeItem) => (
@@ -156,7 +191,11 @@ const Settings = () => {
                                 key={themeItem.code}
                                 className={`p-3 rounded-lg mb-2 flex-row items-center justify-between ${
                                     theme === themeItem.code
-                                        ? "bg-primary"
+                                        ? isDark
+                                            ? "bg-dark-primary"
+                                            : "bg-primary"
+                                        : isDark
+                                        ? "bg-dark-card"
                                         : "bg-ghostwhite"
                                 }`}
                                 onPress={() => selectTheme(themeItem.code)}
@@ -165,6 +204,8 @@ const Settings = () => {
                                     className={`font-mmedium ${
                                         theme === themeItem.code
                                             ? "text-white"
+                                            : isDark
+                                            ? "text-dark-text-primary"
                                             : "text-gray-800"
                                     }`}
                                 >

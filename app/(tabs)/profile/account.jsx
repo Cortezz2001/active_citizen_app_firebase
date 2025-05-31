@@ -9,14 +9,16 @@ import { useFirestore } from "../../../hooks/useFirestore";
 import Toast from "react-native-toast-message";
 import { getStorage, ref, listAll, deleteObject } from "firebase/storage";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../lib/themeContext";
 
 const Account = () => {
     const { t } = useTranslation();
     const { deleteDocument } = useFirestore();
-    const { user, logout } = useAuthContext();
+    const { user } = useAuthContext();
     const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const storage = getStorage();
+    const { isDark } = useTheme();
 
     const handleDeleteAccount = () => {
         setDeleteAlertVisible(true);
@@ -86,12 +88,19 @@ const Account = () => {
     ];
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            className={`flex-1 ${
+                isDark ? "bg-dark-background" : "bg-secondary"
+            }`}
+        >
             <View>
                 {accountSettingsData.map((item) => (
                     <TouchableOpacity
                         key={item.id}
-                        className="bg-white rounded-lg mb-4 p-4 shadow-md flex-row items-center"
+                        className={`rounded-lg mb-4 p-4 shadow-md flex-row items-center ${
+                            isDark ? "bg-dark-surface" : "bg-ghostwhite"
+                        }`}
                         onPress={item.action}
                         disabled={isDeleting && item.id === "delete_account"}
                     >
@@ -101,6 +110,8 @@ const Account = () => {
                             color={
                                 item.id === "delete_account"
                                     ? "#EF4444"
+                                    : isDark
+                                    ? "#0066E6"
                                     : "#006FFD"
                             }
                         />
@@ -108,7 +119,9 @@ const Account = () => {
                             className={`flex-1 ml-4 font-mmedium text-lg ${
                                 item.id === "delete_account"
                                     ? "text-red-500"
-                                    : "text-black"
+                                    : isDark
+                                    ? "text-dark-text-primary"
+                                    : "text-light-text-primary"
                             }`}
                         >
                             {item.title}
@@ -119,6 +132,8 @@ const Account = () => {
                             color={
                                 item.id === "delete_account"
                                     ? "#EF4444"
+                                    : isDark
+                                    ? "#0066E6"
                                     : "#006FFD"
                             }
                         />
@@ -136,6 +151,7 @@ const Account = () => {
                 onSecondaryButtonPress={() => setDeleteAlertVisible(false)}
                 onClose={() => setDeleteAlertVisible(false)}
                 isLoading={isDeleting}
+                isDark={isDark}
             />
         </ScrollView>
     );
