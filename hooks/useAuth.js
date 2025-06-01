@@ -56,14 +56,38 @@ const isProfileComplete = (userDoc) => {
         return unsubscribe;
     }, []);
 
-    const refreshUser = async () => {
-        const currentUser = auth().currentUser;
-        if (currentUser) {
-            await currentUser.reload(); // Обновляем данные из Firebase Auth
-            setUser(auth().currentUser); // Устанавливаем обновленный объект user
+const refreshUser = async () => {
+    const currentUser = auth().currentUser;
+    if (currentUser) {
+        try {
+            // Принудительно обновляем данные из Firebase Auth
+            await currentUser.reload();
+            
+            // Получаем обновленного пользователя
+            const updatedUser = auth().currentUser;
+            
+            // Устанавливаем обновленный объект user
+            setUser(updatedUser);
+            
+            // Проверяем профиль пользователя
+            const userDoc = await getDocument("users", updatedUser.uid);
+            setHasProfile(isProfileComplete(userDoc));
+            
+            // Обновляем push token
             await checkAndUpdateToken();
+            
+            console.log("User refreshed successfully:", {
+                uid: updatedUser.uid,
+                displayName: updatedUser.displayName,
+                photoURL: updatedUser.photoURL
+            });
+            
+        } catch (error) {
+            console.error("Error refreshing user:", error);
+            throw error;
         }
-    };
+    }
+};
 
     const sendPhoneVerificationCode = async (phoneNumber, userData = null) => {
         try {

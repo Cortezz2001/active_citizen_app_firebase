@@ -66,6 +66,7 @@ const CompleteRegistration = () => {
         try {
             const displayName = `${fname} ${lname.charAt(0)}.`;
             await auth().currentUser.updateProfile({ displayName });
+            await refreshUser();
             await setDocument("users", user.uid, {
                 fname,
                 lname,
@@ -75,9 +76,6 @@ const CompleteRegistration = () => {
                 updatedAt: serverTimestamp(),
                 language: currentLanguage,
             });
-
-            await refreshUser();
-            refreshAllData();
 
             Toast.show({
                 type: "success",
