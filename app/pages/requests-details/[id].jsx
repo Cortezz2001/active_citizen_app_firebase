@@ -16,6 +16,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "../../../lib/firebase";
 import Toast from "react-native-toast-message";
 import { VideoView, useVideoPlayer } from "expo-video";
+import * as VideoThumbnails from "expo-video-thumbnails";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import LoadingIndicator from "../../../components/LoadingIndicator";
@@ -72,6 +73,8 @@ const RequestDetailPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedMedia, setSelectedMedia] = useState(null);
     const [showMediaModal, setShowMediaModal] = useState(false);
+    const [videoThumbnails, setVideoThumbnails] = useState({});
+    const [thumbnailLoading, setThumbnailLoading] = useState({});
 
     const videoPlayer = useVideoPlayer(selectedMedia?.url || "", (player) => {
         player.loop = false;
@@ -101,6 +104,14 @@ const RequestDetailPage = () => {
                         setCategory(categorySnap.data());
                     }
                 }
+
+                // Generate thumbnails for video files
+                if (
+                    requestData.mediaFiles &&
+                    requestData.mediaFiles.length > 0
+                ) {
+                    generateVideoThumbnails(requestData.mediaFiles);
+                }
             } else {
                 Toast.show({
                     type: "error",
@@ -119,6 +130,62 @@ const RequestDetailPage = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const isVideoFile = (mediaItem) => {
+        return (
+            mediaItem.type?.startsWith("video") ||
+            mediaItem.url?.includes("video") ||
+            /\.(mp4|mov|avi|mkv|webm|m4v)$/i.test(
+                mediaItem.url || mediaItem.fileName || ""
+            )
+        );
+    };
+
+    const isImageFile = (mediaItem) => {
+        return (
+            mediaItem.type?.startsWith("image") ||
+            mediaItem.url?.includes("image") ||
+            /\.(jpg|jpeg|png|gif|webp)$/i.test(
+                mediaItem.url || mediaItem.fileName || ""
+            )
+        );
+    };
+
+    const generateVideoThumbnails = async (mediaFiles) => {
+        const thumbnails = {};
+        const loadingStates = {};
+
+        for (let i = 0; i < mediaFiles.length; i++) {
+            const mediaItem = mediaFiles[i];
+
+            if (isVideoFile(mediaItem)) {
+                loadingStates[i] = true;
+                setThumbnailLoading((prev) => ({ ...prev, [i]: true }));
+
+                try {
+                    const { uri } = await VideoThumbnails.getThumbnailAsync(
+                        mediaItem.url,
+                        {
+                            time: 1000, // 1 second into the video
+                            quality: 0.7,
+                        }
+                    );
+                    thumbnails[i] = uri;
+                } catch (error) {
+                    console.warn(
+                        `Failed to generate thumbnail for video ${i}:`,
+                        error
+                    );
+                    thumbnails[i] = null;
+                } finally {
+                    loadingStates[i] = false;
+                    setThumbnailLoading((prev) => ({ ...prev, [i]: false }));
+                }
+            }
+        }
+
+        setVideoThumbnails(thumbnails);
     };
 
     const handleMediaPress = (mediaItem) => {
@@ -146,6 +213,113 @@ const RequestDetailPage = () => {
             hour: "2-digit",
             minute: "2-digit",
         });
+    };
+
+    const renderMediaThumbnail = (mediaItem, index) => {
+        const isVideo = isVideoFile(mediaItem);
+        const isImage = isImageFile(mediaItem);
+        const thumbnail = videoThumbnails[index];
+        const isLoadingThumbnail = thumbnailLoading[index];
+
+        return (
+            <TouchableOpacity
+                key={index}
+                className="w-1/3 px-1 mb-2"
+                onPress={() => handleMediaPress(mediaItem)}
+            >
+                <View
+                    className={`rounded-lg overflow-hidden aspect-square ${
+                        isDark ? "bg-dark-border" : "bg-gray-100"
+                    }`}
+                >
+                    {isImage ? (
+                        <Image
+                            source={{ uri: mediaItem.url }}
+                            className="w-full h-full"
+                            resizeMode="cover"
+                        />
+                    ) : isVideo ? (
+                        <View className="w-full h-full relative">
+                            {thumbnail ? (
+                                <>
+                                    <Image
+                                        source={{ uri: thumbnail }}
+                                        className="w-full h-full"
+                                        resizeMode="cover"
+                                    />
+                                    <View className="absolute inset-0 justify-center items-center">
+                                        <View className="bg-black bg-opacity-50 rounded-full p-2">
+                                            <MaterialIcons
+                                                name="play-arrow"
+                                                size={24}
+                                                color="white"
+                                            />
+                                        </View>
+                                    </View>
+                                </>
+                            ) : isLoadingThumbnail ? (
+                                <View
+                                    className={`w-full h-full justify-center items-center ${
+                                        isDark
+                                            ? "bg-dark-surface"
+                                            : "bg-gray-200"
+                                    }`}
+                                >
+                                    <ActivityIndicator
+                                        size="small"
+                                        color={isDark ? "#0066E6" : "#006FFD"}
+                                    />
+                                </View>
+                            ) : (
+                                <View
+                                    className={`w-full h-full justify-center items-center ${
+                                        isDark
+                                            ? "bg-dark-surface"
+                                            : "bg-gray-200"
+                                    }`}
+                                >
+                                    <MaterialIcons
+                                        name="play-circle-outline"
+                                        size={32}
+                                        color={isDark ? "#0066E6" : "#006FFD"}
+                                    />
+                                    <Text
+                                        className={`text-xs mt-1 text-center ${
+                                            isDark
+                                                ? "text-dark-text-muted"
+                                                : "text-gray-600"
+                                        }`}
+                                    >
+                                        {t("request.video")}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    ) : (
+                        <View
+                            className={`w-full h-full justify-center items-center ${
+                                isDark ? "bg-dark-surface" : "bg-gray-200"
+                            }`}
+                        >
+                            <MaterialIcons
+                                name="insert-drive-file"
+                                size={32}
+                                color={isDark ? "#B3B3B3" : "#666666"}
+                            />
+                            <Text
+                                className={`text-xs mt-1 text-center ${
+                                    isDark
+                                        ? "text-dark-text-muted"
+                                        : "text-gray-600"
+                                }`}
+                            >
+                                {t("request.file")}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
+        );
     };
 
     if (isLoading) {
@@ -477,62 +651,9 @@ const RequestDetailPage = () => {
                             </Text>
                         </View>
                         <View className="flex-row flex-wrap -mx-1">
-                            {request.mediaFiles.map((mediaItem, index) => (
-                                <TouchableOpacity
-                                    key={index}
-                                    className="w-1/3 px-1 mb-2"
-                                    onPress={() => handleMediaPress(mediaItem)}
-                                >
-                                    <View
-                                        className={`rounded-lg overflow-hidden aspect-square ${
-                                            isDark
-                                                ? "bg-dark-border"
-                                                : "bg-gray-100"
-                                        }`}
-                                    >
-                                        {mediaItem.type?.startsWith("image") ||
-                                        mediaItem.url?.includes("image") ||
-                                        /\.(jpg|jpeg|png|gif|webp)$/i.test(
-                                            mediaItem.url ||
-                                                mediaItem.fileName ||
-                                                ""
-                                        ) ? (
-                                            <Image
-                                                source={{ uri: mediaItem.url }}
-                                                className="w-full h-full"
-                                                resizeMode="cover"
-                                            />
-                                        ) : (
-                                            <View
-                                                className={`w-full h-full justify-center items-center ${
-                                                    isDark
-                                                        ? "bg-dark-surface"
-                                                        : "bg-gray-200"
-                                                }`}
-                                            >
-                                                <MaterialIcons
-                                                    name="play-circle-outline"
-                                                    size={32}
-                                                    color={
-                                                        isDark
-                                                            ? "#60A5FA"
-                                                            : "#006FFD"
-                                                    }
-                                                />
-                                                <Text
-                                                    className={`text-xs mt-1 text-center ${
-                                                        isDark
-                                                            ? "text-dark-text-muted"
-                                                            : "text-gray-600"
-                                                    }`}
-                                                >
-                                                    {t("request.video")}
-                                                </Text>
-                                            </View>
-                                        )}
-                                    </View>
-                                </TouchableOpacity>
-                            ))}
+                            {request.mediaFiles.map((mediaItem, index) =>
+                                renderMediaThumbnail(mediaItem, index)
+                            )}
                         </View>
                     </View>
                 )}
@@ -570,13 +691,7 @@ const RequestDetailPage = () => {
                     <View className="flex-1 justify-center items-center">
                         {selectedMedia && (
                             <>
-                                {selectedMedia.type?.startsWith("image") ||
-                                selectedMedia.url?.includes("image") ||
-                                /\.(jpg|jpeg|png|gif|webp)$/i.test(
-                                    selectedMedia.url ||
-                                        selectedMedia.fileName ||
-                                        ""
-                                ) ? (
+                                {isImageFile(selectedMedia) ? (
                                     <Image
                                         source={{ uri: selectedMedia.url }}
                                         style={{
