@@ -6,13 +6,14 @@ import { useState, useEffect, useRef } from "react";
 import { TextInput } from "react-native";
 import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
-import { useFirestore } from "../../hooks/useFirestore";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/themeContext";
+
 export default function SmsCode() {
     const { t } = useTranslation();
     const { phoneNumber } = useLocalSearchParams();
-    const { verifyPhoneCode, sendPhoneVerificationCode } = useAuth();
+    const { verifyPhoneCode, sendPhoneVerificationCode, hasProfile, user } =
+        useAuth();
     const [isSubmitting, setSubmitting] = useState(false);
     const [resendDisabled, setResendDisabled] = useState(true);
     const [timer, setTimer] = useState(60);
@@ -25,8 +26,9 @@ export default function SmsCode() {
         "",
     ]);
     const inputRefs = useRef([]);
-    const { getDocument } = useFirestore();
     const { isDark } = useTheme();
+    const [phoneVerificationResult, setPhoneVerificationResult] =
+        useState(null);
 
     useEffect(() => {
         if (inputRefs.current[0]) {
@@ -47,19 +49,24 @@ export default function SmsCode() {
         return () => clearInterval(interval);
     }, []);
 
-    const checkProfileAndRedirect = async (user) => {
-        try {
-            const userDoc = await getDocument("users", user.uid);
-            if (!userDoc || !userDoc.fname) {
+    useEffect(() => {
+        if (phoneVerificationResult && user && hasProfile !== null) {
+            console.log("Redirecting based on hasProfile:", hasProfile);
+            if (hasProfile === false) {
                 router.replace("/complete-registration");
             } else {
                 router.replace("/home");
+                setTimeout(() => {
+                    Toast.show({
+                        type: "success",
+                        text1: t("sms_code.toast.success.title"),
+                        text2: t("sms_code.toast.success.verified"),
+                    });
+                }, 500);
             }
-        } catch (error) {
-            console.error("Error checking profile:", error);
-            router.replace("/home");
+            setPhoneVerificationResult(null); // Reset after handling
         }
-    };
+    }, [user, hasProfile, phoneVerificationResult]);
 
     const handleCodeChange = (text, index) => {
         // Allow only digits
@@ -100,20 +107,7 @@ export default function SmsCode() {
 
         try {
             const result = await verifyPhoneCode(code);
-            if (result) {
-                await checkProfileAndRedirect(result);
-                Toast.show({
-                    type: "success",
-                    text1: t("sms_code.toast.success.title"),
-                    text2: t("sms_code.toast.success.signed_in"),
-                });
-            } else {
-                Toast.show({
-                    type: "error",
-                    text1: t("sms_code.toast.error.title"),
-                    text2: t("sms_code.toast.error.no_user_data"),
-                });
-            }
+            setPhoneVerificationResult(result);
         } catch (error) {
             let message = t("sms_code.toast.error.invalid_code");
             if (error.message.includes("invalid-verification-code")) {

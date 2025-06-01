@@ -2,49 +2,51 @@ import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScrollView } from "react-native";
 import PhoneField from "@/components/PhoneField";
 import GoogleButton from "@/components/GoogleButton";
 import { useAuth } from "@/hooks/useAuth";
 import Toast from "react-native-toast-message";
-import { useFirestore } from "../../hooks/useFirestore";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../lib/themeContext";
 
 export default function SignIn() {
     const { t } = useTranslation();
     const { isDark } = useTheme();
-    const { sendPhoneVerificationCode, signInWithGoogle } = useAuth();
+    const { sendPhoneVerificationCode, signInWithGoogle, hasProfile, user } =
+        useAuth();
     const [isSubmitting, setSubmitting] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState("");
-    const { getDocument } = useFirestore();
+    const [googleSignInResult, setGoogleSignInResult] = useState(null);
+    const [isGoogleLoading, setGoogleLoading] = useState(false);
 
-    const checkProfileAndRedirect = async (user) => {
-        try {
-            const userDoc = await getDocument("users", user.uid);
-            if (!userDoc || !userDoc.fname) {
+    useEffect(() => {
+        if (googleSignInResult && user && hasProfile !== null) {
+            console.log("Redirecting based on hasProfile:", hasProfile);
+            if (hasProfile === false) {
                 router.replace("/complete-registration");
             } else {
                 router.replace("/home");
+                setTimeout(() => {
+                    Toast.show({
+                        type: "success",
+                        text1: t("sign_in.toast.success.title"),
+                        text2: t("sign_in.toast.success.message"),
+                    });
+                }, 500);
             }
-        } catch (error) {
-            console.error("Error checking profile:", error);
-            router.replace("/home");
+            setGoogleSignInResult(null); // Reset after handling
         }
-    };
+    }, [user, hasProfile, googleSignInResult]);
 
     const handleGoogleSignIn = async () => {
+        setGoogleLoading(true);
         try {
             const result = await signInWithGoogle();
             console.log("Sign in success:", result);
             if (result) {
-                await checkProfileAndRedirect(result.user);
-                Toast.show({
-                    type: "success",
-                    text1: t("sign_in.toast.success.title"),
-                    text2: t("sign_in.toast.success.message"),
-                });
+                setGoogleSignInResult(result);
             } else {
                 Toast.show({
                     type: "error",
@@ -61,6 +63,8 @@ export default function SignIn() {
                     error.message ||
                     t("sign_in.toast.error.failed_google_sign_in"),
             });
+        } finally {
+            setGoogleLoading(false);
         }
     };
 
@@ -181,26 +185,11 @@ export default function SignIn() {
                     />
                 </View>
 
-                <GoogleButton onPress={handleGoogleSignIn} isDark={isDark} />
-
-                {/* Дополнительные элементы для демонстрации темы */}
-                {/* <View
-                    className={`mt-8 p-4 rounded-lg ${
-                        isDark
-                            ? "bg-dark-card border-dark-border"
-                            : "bg-gray-50 border-gray-200"
-                    } border`}
-                >
-                    <Text
-                        className={`text-sm font-mregular ${
-                            isDark
-                                ? "text-dark-text-secondary"
-                                : "text-gray-600"
-                        }`}
-                    >
-                        Демонстрация адаптивной темы
-                    </Text>
-                </View> */}
+                <GoogleButton
+                    onPress={handleGoogleSignIn}
+                    isDark={isDark}
+                    isLoading={isGoogleLoading}
+                />
             </ScrollView>
         </SafeAreaView>
     );

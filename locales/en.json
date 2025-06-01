@@ -526,8 +526,7 @@
         "toast": {
             "success": {
                 "title": "Success",
-                "signed_in": "Successfully signed in!",
-                "code_sent": "A new verification code has been sent"
+                "verified": "Successfully signed in!"
             },
             "error": {
                 "title": "Error",
