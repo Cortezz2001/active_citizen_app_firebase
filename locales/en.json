@@ -61,7 +61,9 @@
             "success_title": "Success",
             "success_message": "Your account has been deleted successfully.",
             "error_title": "Error",
-            "error_message": "Failed to delete account. Please try again."
+            "error_message": "Failed to delete account. Please try again.",
+            "reauth_required_title": "Recent Login Required",
+            "reauth_required_message": "Please sign out and sign in again to delete your account"
         }
     },
     "settings": {

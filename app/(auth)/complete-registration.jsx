@@ -64,9 +64,6 @@ const CompleteRegistration = () => {
         setIsSubmitting(true);
 
         try {
-            const displayName = `${fname} ${lname.charAt(0)}.`;
-            await auth().currentUser.updateProfile({ displayName });
-            await refreshUser();
             await setDocument("users", user.uid, {
                 fname,
                 lname,
@@ -76,7 +73,10 @@ const CompleteRegistration = () => {
                 updatedAt: serverTimestamp(),
                 language: currentLanguage,
             });
-
+            const displayName = `${fname} ${lname.charAt(0)}.`;
+            await auth().currentUser.updateProfile({ displayName });
+            await refreshUser();
+            refreshAllData();
             Toast.show({
                 type: "success",
                 text1: t("complete_registration.toast.success.title"),

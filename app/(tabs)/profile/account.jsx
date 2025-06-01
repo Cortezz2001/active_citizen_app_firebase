@@ -41,11 +41,19 @@ const Account = () => {
     const confirmDeleteAccount = async () => {
         try {
             setIsDeleting(true);
-            if (user && user.uid) {
-                await deleteUserAvatars(user.uid);
-                await deleteDocument("users", user.uid);
-            }
+
+            // Сохраняем uid перед удалением аккаунта
+            const userUid = user?.uid;
+
+            // Сначала пытаемся удалить аккаунт из Firebase Auth
             await auth().currentUser.delete();
+
+            // Если удаление аккаунта прошло успешно, удаляем данные пользователя
+            if (userUid) {
+                await deleteUserAvatars(userUid);
+                await deleteDocument("users", userUid);
+            }
+
             setDeleteAlertVisible(false);
             router.replace("/sign-in");
             Toast.show({
@@ -55,11 +63,23 @@ const Account = () => {
             });
         } catch (error) {
             console.error("Error deleting account:", error);
-            Toast.show({
-                type: "error",
-                text1: t("account.toast.error_title"),
-                text2: error.message || t("account.toast.error_message"),
-            });
+
+            // Скрываем модальное окно при любой ошибке
+            setDeleteAlertVisible(false);
+
+            if (error.code === "auth/requires-recent-login") {
+                Toast.show({
+                    type: "error",
+                    text1: t("account.toast.reauth_required_title"),
+                    text2: t("account.toast.reauth_required_message"),
+                });
+            } else {
+                Toast.show({
+                    type: "error",
+                    text1: t("account.toast.error_title"),
+                    text2: error.message || t("account.toast.error_message"),
+                });
+            }
         } finally {
             setIsDeleting(false);
         }

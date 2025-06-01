@@ -40,7 +40,9 @@ const isProfileComplete = (userDoc) => {
             if (authUser) {
                 try {
                     const userDoc = await getDocument("users", authUser.uid);
-                    setHasProfile(isProfileComplete(userDoc)); // true, если профиль существует, false, если нет
+                     const profileComplete = isProfileComplete(userDoc);
+                    setHasProfile(profileComplete); // true, если профиль существует, false, если нет
+                    console.log("Has Profile state change", profileComplete);
                     await checkAndUpdateToken();
                 } catch (error) {
                     console.error("Error checking user profile:", error);
@@ -71,7 +73,9 @@ const refreshUser = async () => {
             
             // Проверяем профиль пользователя
             const userDoc = await getDocument("users", updatedUser.uid);
-            setHasProfile(isProfileComplete(userDoc));
+            const profileComplete = isProfileComplete(userDoc);
+            setHasProfile(profileComplete);
+            console.log("Has Profile refresh:", profileComplete);
             
             // Обновляем push token
             await checkAndUpdateToken();
