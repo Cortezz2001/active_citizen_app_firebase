@@ -18,6 +18,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { ActivityIndicator } from "react-native";
 import FilterButton from "../../../../components/FilterButton";
 import { useTheme } from "../../../../lib/themeContext";
+import FastImage from "react-native-fast-image";
 
 const EmptyStateMessage = ({ searchText, isDark }) => {
     const { t } = useTranslation();
@@ -60,11 +61,27 @@ const NewsCard = ({ item, onPress, i18n, isDark }) => (
         onPress={onPress}
         activeOpacity={0.7}
     >
-        <Image
-            source={{ uri: item.imageUrl }}
-            className="w-full h-48 rounded-t-lg"
-            resizeMode="cover"
-        />
+        <View
+            className={`relative ${
+                isDark ? "bg-dark-card " : "bg-light-card "
+            }`}
+        >
+            <FastImage
+                source={{
+                    uri: item.imageUrl,
+                    priority: FastImage.priority.normal,
+                    cache: FastImage.cacheControl.immutable,
+                }}
+                style={{
+                    width: "100%",
+                    height: 192, // h-48 = 192px
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 8,
+                }}
+                resizeMode={FastImage.resizeMode.cover}
+                fallback={true}
+            />
+        </View>
         <View className="p-4">
             <Text
                 className={`font-msemibold text-lg ${
@@ -201,6 +218,7 @@ const NewsTab = () => {
         endDate: null,
         categories: [],
     });
+    const [preloadedImages, setPreloadedImages] = useState(new Set());
     const { isDark } = useTheme();
 
     // Available categories
@@ -267,6 +285,63 @@ const NewsTab = () => {
         },
     ];
 
+    // Функция для предзагрузки изображений
+    const preloadImages = (newsItems, startIndex = 0, count = 10) => {
+        if (!newsItems || newsItems.length === 0) return;
+
+        const imagesToPreload = [];
+        const endIndex = Math.min(startIndex + count, newsItems.length);
+
+        for (let i = startIndex; i < endIndex; i++) {
+            const item = newsItems[i];
+            if (item?.imageUrl && !preloadedImages.has(item.imageUrl)) {
+                imagesToPreload.push({
+                    uri: item.imageUrl,
+                    priority: FastImage.priority.high,
+                    cache: FastImage.cacheControl.immutable,
+                });
+            }
+        }
+
+        if (imagesToPreload.length > 0) {
+            FastImage.preload(imagesToPreload);
+            setPreloadedImages((prev) => {
+                const newSet = new Set(prev);
+                imagesToPreload.forEach((img) => newSet.add(img.uri));
+                return newSet;
+            });
+        }
+    };
+
+    // Предзагрузка изображений при изменении данных
+    useEffect(() => {
+        const displayData = isSearchActive
+            ? paginatedSearchResults
+            : paginatedNews;
+        if (displayData && displayData.length > 0) {
+            // Предзагружаем первые 15 изображений при загрузке данных
+            preloadImages(displayData, 0, 15);
+        }
+    }, [paginatedNews, paginatedSearchResults, isSearchActive]);
+
+    // Предзагрузка следующих изображений при прокрутке
+    const handleViewableItemsChanged = ({ viewableItems }) => {
+        if (viewableItems.length === 0) return;
+
+        const displayData = isSearchActive
+            ? paginatedSearchResults
+            : paginatedNews;
+        const lastVisibleIndex = Math.max(
+            ...viewableItems.map((item) => item.index)
+        );
+
+        // Предзагружаем следующие 10 изображений заранее
+        if (lastVisibleIndex >= 0 && displayData && displayData.length > 0) {
+            const preloadStartIndex = lastVisibleIndex + 1;
+            preloadImages(displayData, preloadStartIndex, 10);
+        }
+    };
+
     // Initialize temp filters when modal opens
     useEffect(() => {
         if (showFilterModal) {
@@ -308,6 +383,7 @@ const NewsTab = () => {
             await searchNews(searchText.trim(), i18n.language, emptyFilters);
         }
     };
+
     const formatDate = (date) => {
         if (!date) return "";
         return date.toLocaleDateString(i18n.language, {
@@ -350,6 +426,9 @@ const NewsTab = () => {
     const onRefresh = async () => {
         setRefreshing(true);
         try {
+            // Сбрасываем предзагруженные изображения при обновлении
+            setPreloadedImages(new Set());
+
             // Если активен поиск, обновляем результаты поиска с учетом фильтров
             if (searchText.trim()) {
                 await searchNews(searchText.trim(), i18n.language, newsFilters);
@@ -368,6 +447,7 @@ const NewsTab = () => {
             loadMoreNews();
         }
     };
+
     const renderFooter = () => {
         if (!isLoadingMore) return null;
         return (
@@ -457,6 +537,11 @@ const NewsTab = () => {
                 ListFooterComponent={renderFooter}
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.5}
+                onViewableItemsChanged={handleViewableItemsChanged}
+                viewabilityConfig={{
+                    itemVisiblePercentThreshold: 50,
+                    minimumViewTime: 100,
+                }}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}

@@ -4,7 +4,6 @@ import {
     Text,
     TouchableOpacity,
     FlatList,
-    Image,
     RefreshControl,
     Modal,
 } from "react-native";
@@ -18,6 +17,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { ActivityIndicator } from "react-native";
 import FilterButton from "../../../../components/FilterButton";
 import { useTheme } from "../../../../lib/themeContext";
+import FastImage from "react-native-fast-image";
 
 const EmptyStateMessage = ({ searchText, isDark }) => {
     const { t } = useTranslation();
@@ -61,10 +61,27 @@ const EventCard = ({ item, onPress, i18n, isDark }) => (
         activeOpacity={0.7}
     >
         <View className="flex-row h-full items-center">
-            <Image
-                source={{ uri: item.imageUrl }}
-                className="w-24 h-full rounded-l-lg"
-            />
+            <View
+                className={`relative ${
+                    isDark ? "bg-dark-card" : "bg-light-card"
+                }`}
+            >
+                <FastImage
+                    source={{
+                        uri: item.imageUrl,
+                        priority: FastImage.priority.normal,
+                        cache: FastImage.cacheControl.immutable,
+                    }}
+                    style={{
+                        width: 96, // w-24 = 96px
+                        height: "100%",
+                        borderTopLeftRadius: 8,
+                        borderBottomLeftRadius: 8,
+                    }}
+                    resizeMode={FastImage.resizeMode.cover}
+                    fallback={true}
+                />
+            </View>
             <View className="p-4 flex-1">
                 <Text
                     className={`font-msemibold text-lg ${
@@ -164,6 +181,7 @@ const EventsTab = () => {
         endDate: null,
         categories: [],
     });
+    const [preloadedImages, setPreloadedImages] = useState(new Set());
     const { isDark } = useTheme();
     const eventCategories = [
         {
@@ -231,6 +249,63 @@ const EventsTab = () => {
             name: { en: "Other", kz: "Басқа", ru: "Другое" },
         },
     ];
+
+    // Function to preload images
+    const preloadImages = (eventItems, startIndex = 0, count = 10) => {
+        if (!eventItems || eventItems.length === 0) return;
+
+        const imagesToPreload = [];
+        const endIndex = Math.min(startIndex + count, eventItems.length);
+
+        for (let i = startIndex; i < endIndex; i++) {
+            const item = eventItems[i];
+            if (item?.imageUrl && !preloadedImages.has(item.imageUrl)) {
+                imagesToPreload.push({
+                    uri: item.imageUrl,
+                    priority: FastImage.priority.high,
+                    cache: FastImage.cacheControl.immutable,
+                });
+            }
+        }
+
+        if (imagesToPreload.length > 0) {
+            FastImage.preload(imagesToPreload);
+            setPreloadedImages((prev) => {
+                const newSet = new Set(prev);
+                imagesToPreload.forEach((img) => newSet.add(img.uri));
+                return newSet;
+            });
+        }
+    };
+
+    // Preload images when data changes
+    useEffect(() => {
+        const displayData = isEventSearchActive
+            ? paginatedEventSearchResults
+            : paginatedEvents;
+        if (displayData && displayData.length > 0) {
+            // Preload first 15 images on data load
+            preloadImages(displayData, 0, 15);
+        }
+    }, [paginatedEvents, paginatedEventSearchResults, isEventSearchActive]);
+
+    // Preload next images on scroll
+    const handleViewableItemsChanged = ({ viewableItems }) => {
+        if (viewableItems.length === 0) return;
+
+        const displayData = isEventSearchActive
+            ? paginatedEventSearchResults
+            : paginatedEvents;
+        const lastVisibleIndex = Math.max(
+            ...viewableItems.map((item) => item.index)
+        );
+
+        // Preload next 10 images proactively
+        if (lastVisibleIndex >= 0 && displayData && displayData.length > 0) {
+            const preloadStartIndex = lastVisibleIndex + 1;
+            preloadImages(displayData, preloadStartIndex, 10);
+        }
+    };
 
     useEffect(() => {
         if (showFilterModal) {
@@ -307,6 +382,8 @@ const EventsTab = () => {
     const onRefresh = async () => {
         setRefreshing(true);
         try {
+            // Reset preloaded images on refresh
+            setPreloadedImages(new Set());
             if (searchText.trim()) {
                 await searchEvents(
                     searchText.trim(),
@@ -419,6 +496,11 @@ const EventsTab = () => {
                 ListFooterComponent={renderFooter}
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.5}
+                onViewableItemsChanged={handleViewableItemsChanged}
+                viewabilityConfig={{
+                    itemVisiblePercentThreshold: 50,
+                    minimumViewTime: 100,
+                }}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
