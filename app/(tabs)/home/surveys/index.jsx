@@ -37,14 +37,14 @@ const EmptyStateMessage = ({ searchText, isDark }) => {
                     isDark ? "text-dark-text-secondary" : "text-gray-400"
                 }`}
             >
-                {t("no_surveys_found", { search: searchText })}
+                {t("surveys.no_surveys_found", { search: searchText })}
             </Text>
             <Text
                 className={`mt-2 text-center ${
                     isDark ? "text-dark-text-secondary" : "text-gray-400"
                 }`}
             >
-                {t("adjust_search")}
+                {t("surveys.adjust_search")}
             </Text>
         </View>
     );
@@ -94,7 +94,7 @@ const SurveyCard = ({ item, onPress, i18n, isDark }) => {
                                     isDark ? "text-green-300" : "text-green-700"
                                 }`}
                             >
-                                {t("completed")}
+                                {t("surveys.completed")}
                             </Text>
                         </View>
                     ) : isPublished ? (
@@ -113,7 +113,7 @@ const SurveyCard = ({ item, onPress, i18n, isDark }) => {
                                     isDark ? "text-blue-300" : "text-blue-700"
                                 }`}
                             >
-                                {t("active")}
+                                {t("surveys.active")}
                             </Text>
                         </View>
                     ) : null}
@@ -147,7 +147,7 @@ const SurveyCard = ({ item, onPress, i18n, isDark }) => {
                                 isDark ? "text-dark-primary" : "text-primary"
                             }`}
                         >
-                            {item.totalVotes || 0} {t("votes")}
+                            {item.totalVotes || 0} {t("surveys.votes")}
                         </Text>
                     </View>
                     {isCompleted ? (
@@ -170,7 +170,7 @@ const SurveyCard = ({ item, onPress, i18n, isDark }) => {
                                         : "text-gray-700"
                                 }`}
                             >
-                                {t("view_results")}
+                                {t("surveys.view_results")}
                             </Text>
                         </TouchableOpacity>
                     ) : hasVoted ? (
@@ -201,7 +201,7 @@ const SurveyCard = ({ item, onPress, i18n, isDark }) => {
                                         : "text-gray-700"
                                 }`}
                             >
-                                {t("vote")}
+                                {t("surveys.vote")}
                             </Text>
                         </TouchableOpacity>
                     )}
@@ -242,8 +242,8 @@ const SurveysTab = () => {
     const { isKeyboardVisible } = useKeyboard();
     const { isDark } = useTheme();
     const statusOptions = [
-        { id: "Published", name: t("active") },
-        { id: "Completed", name: t("completed") },
+        { id: "Published", name: t("surveys.active") },
+        { id: "Completed", name: t("surveys.completed") },
     ];
 
     const categories = [
@@ -432,7 +432,7 @@ const SurveysTab = () => {
                         isDark ? "text-dark-text-secondary" : "text-gray-400"
                     }`}
                 >
-                    {t("no_surveys_available")}
+                    {t("surveys.no_surveys_available")}
                 </Text>
             </View>
         );

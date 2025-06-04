@@ -44,7 +44,7 @@ const VoteSurveyPage = () => {
                 const surveyData = await getDocument("surveys", id);
 
                 if (!surveyData) {
-                    setError(t("vote.errors.survey_not_found"));
+                    setError(t("surveys_details_vote.errors.survey_not_found"));
                     return;
                 }
 
@@ -112,7 +112,7 @@ const VoteSurveyPage = () => {
                 }
             } catch (err) {
                 console.error("Error fetching survey or user vote:", err);
-                setError(t("vote.errors.loading_failed"));
+                setError(t("surveys_details_vote.errors.loading_failed"));
             } finally {
                 setLoading(false);
             }
@@ -178,8 +178,10 @@ const VoteSurveyPage = () => {
         if (!isFormValid()) {
             Toast.show({
                 type: "error",
-                text1: t("vote.toast.error.title"),
-                text2: t("vote.toast.error.answer_all_questions"),
+                text1: t("surveys_details_vote.toast.error.title"),
+                text2: t(
+                    "surveys_details_vote.toast.error.answer_all_questions"
+                ),
             });
             return;
         }
@@ -232,16 +234,16 @@ const VoteSurveyPage = () => {
             await Promise.all([fetchSurveys(), fetchUserSurveys()]);
             Toast.show({
                 type: "success",
-                text1: t("vote.toast.success.title"),
-                text2: t("vote.toast.success.vote_submitted"),
+                text1: t("surveys_details_vote.toast.success.title"),
+                text2: t("surveys_details_vote.toast.success.vote_submitted"),
             });
             router.back();
         } catch (err) {
             console.error("Error submitting vote:", err);
             Toast.show({
                 type: "error",
-                text1: t("vote.toast.error.title"),
-                text2: t("vote.toast.error.submission_failed"),
+                text1: t("surveys_details_vote.toast.error.title"),
+                text2: t("surveys_details_vote.toast.error.submission_failed"),
             });
         } finally {
             setSubmitting(false);
@@ -270,7 +272,7 @@ const VoteSurveyPage = () => {
                         isDark ? "text-dark-text-primary" : "text-gray-800"
                     }`}
                 >
-                    {error || t("vote.errors.loading_failed")}
+                    {error || t("surveys_details_vote.errors.loading_failed")}
                 </Text>
                 <TouchableOpacity
                     className={`mt-6 px-6 py-3 rounded-full ${
@@ -279,7 +281,7 @@ const VoteSurveyPage = () => {
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
-                        {t("vote.buttons.go_back")}
+                        {t("surveys_details_vote.buttons.go_back")}
                     </Text>
                 </TouchableOpacity>
             </SafeAreaView>
@@ -301,7 +303,7 @@ const VoteSurveyPage = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
-                    accessibilityLabel={t("vote.back_button")}
+                    accessibilityLabel={t("surveys_details_vote.back_button")}
                 >
                     <MaterialIcons
                         name="arrow-back"
@@ -372,10 +374,10 @@ const VoteSurveyPage = () => {
                             >
                                 {question.type === "single_choice"
                                     ? t(
-                                          "vote.question_types.single_choice_instruction"
+                                          "surveys_details_vote.question_types.single_choice_instruction"
                                       )
                                     : t(
-                                          "vote.question_types.multiple_choice_instruction"
+                                          "surveys_details_vote.question_types.multiple_choice_instruction"
                                       )}
                             </Text>
                         </View>
@@ -484,7 +486,7 @@ const VoteSurveyPage = () => {
                                 isDark ? "text-dark-text-primary" : "text-white"
                             } text-center`}
                         >
-                            {t("vote.buttons.already_voted")}
+                            {t("surveys_details_vote.buttons.already_voted")}
                         </Text>
                     ) : submitting ? (
                         <ActivityIndicator
@@ -497,7 +499,7 @@ const VoteSurveyPage = () => {
                                 isDark ? "text-dark-text-primary" : "text-white"
                             } text-center`}
                         >
-                            {t("vote.buttons.submit_vote")}
+                            {t("surveys_details_vote.buttons.submit_vote")}
                         </Text>
                     )}
                 </TouchableOpacity>

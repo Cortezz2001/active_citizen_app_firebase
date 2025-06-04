@@ -97,14 +97,14 @@ const EmptyStateMessage = ({ searchText, isDark }) => {
                     isDark ? "text-dark-text-secondary" : "text-gray-400"
                 }`}
             >
-                {t("no_petitions_found", { search: searchText })}
+                {t("petitions.no_petitions_found", { search: searchText })}
             </Text>
             <Text
                 className={`mt-2 text-center ${
                     isDark ? "text-dark-text-secondary" : "text-gray-400"
                 }`}
             >
-                {t("adjust_search")}
+                {t("petitions.adjust_search")}
             </Text>
         </View>
     );
@@ -152,7 +152,7 @@ const PetitionCard = ({ item, onPress, i18n, isDark }) => {
                                     isDark ? "text-green-300" : "text-green-700"
                                 }`}
                             >
-                                {t("completed")}
+                                {t("petitions.completed")}
                             </Text>
                         </View>
                     ) : isPublished ? (
@@ -171,7 +171,7 @@ const PetitionCard = ({ item, onPress, i18n, isDark }) => {
                                     isDark ? "text-blue-300" : "text-blue-700"
                                 }`}
                             >
-                                {t("active")}
+                                {t("petitions.active")}
                             </Text>
                         </View>
                     ) : null}
@@ -208,7 +208,8 @@ const PetitionCard = ({ item, onPress, i18n, isDark }) => {
                                         : "text-primary"
                                 }`}
                             >
-                                {item.totalSignatures} {t("supporters")}
+                                {item.totalSignatures}{" "}
+                                {t("petitions.supporters")}
                             </Text>
                         </View>
                         <Text
@@ -218,7 +219,7 @@ const PetitionCard = ({ item, onPress, i18n, isDark }) => {
                                     : "text-gray-500"
                             }`}
                         >
-                            {t("target")}: {item.targetSignatures}
+                            {t("petitions.target")}: {item.targetSignatures}
                         </Text>
                     </View>
                     <View
@@ -252,7 +253,7 @@ const PetitionCard = ({ item, onPress, i18n, isDark }) => {
                         </View>
                     ) : !isCompleted ? (
                         <CustomButton
-                            title={t("sign")}
+                            title={t("petitions.sign")}
                             handlePress={() => onPress()}
                             containerStyles={`px-3 py-1 rounded-full border shadow-lg ${
                                 isDark
@@ -304,8 +305,8 @@ const PetitionsTab = () => {
     const { isDark } = useTheme();
 
     const statusOptions = [
-        { id: "Published", name: t("active") },
-        { id: "Completed", name: t("completed") },
+        { id: "Published", name: t("petitions.active") },
+        { id: "Completed", name: t("petitions.completed") },
     ];
 
     useEffect(() => {
@@ -443,7 +444,7 @@ const PetitionsTab = () => {
                         isDark ? "text-dark-text-secondary" : "text-gray-400"
                     }`}
                 >
-                    {t("no_petitions_available")}
+                    {t("petitions.no_petitions_available")}
                 </Text>
             </View>
         );

@@ -198,7 +198,7 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete, isDark }) => {
                         <MaterialIcons
                             name="how-to-vote"
                             size={18}
-                            color={isDark ? "#60A5FA" : "#006FFD"}
+                            color={isDark ? "#0066E6" : "#006FFD"}
                         />
                         <Text
                             className={`ml-1 font-mmedium ${
@@ -877,7 +877,7 @@ const MySurveysPage = () => {
                                     {categories.map((category) => (
                                         <TouchableOpacity
                                             key={category.id}
-                                            className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
+                                            className={`mr-2 mb-2 px-4 py-1 rounded-full border ${
                                                 tempFilters.categories.includes(
                                                     category.id
                                                 )

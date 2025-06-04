@@ -115,7 +115,7 @@ const NewsDetailsScreen = () => {
 
             const commentsWithUsers = await Promise.all(
                 commentsData.map(async (comment) => {
-                    let userName = t("anonymous");
+                    let userName = t("news_details.anonymous");
                     let userAvatar = null;
 
                     if (comment.userId) {
@@ -125,7 +125,7 @@ const NewsDetailsScreen = () => {
                         );
                         userName = userDoc
                             ? `${userDoc.fname} ${userDoc.lname.charAt(0)}.`
-                            : t("anonymous");
+                            : t("news_details.anonymous");
 
                         const authUser = userDoc?.authData || {};
                         if (authUser?.photoURL) {
@@ -247,7 +247,7 @@ const NewsDetailsScreen = () => {
             const userDoc = await getDocument("users", user.uid);
             const userName = userDoc
                 ? `${userDoc.fname} ${userDoc.lname.charAt(0)}.`
-                : t("anonymous");
+                : t("news_details.anonymous");
 
             let userAvatar = null;
             if (user?.photoURL) {
@@ -286,7 +286,7 @@ const NewsDetailsScreen = () => {
             await updateNewsCommentCount(id);
         } catch (error) {
             console.error("Error adding comment:", error);
-            alert(t("comment_failed"));
+            alert(t("news_details.comment_failed"));
         } finally {
             setIsCommentSubmitting(false);
         }
@@ -398,7 +398,7 @@ const NewsDetailsScreen = () => {
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center mr-4"
-                        accessibilityLabel={t("back")}
+                        accessibilityLabel={t("news_details.back")}
                     >
                         <MaterialIcons
                             name="arrow-back"
@@ -411,7 +411,7 @@ const NewsDetailsScreen = () => {
                             isDark ? "text-dark-text-primary" : "text-black"
                         }`}
                     >
-                        {t("error")}
+                        {t("news_details.error")}
                     </Text>
                 </View>
                 <View className="flex-1 justify-center items-center p-4">
@@ -425,7 +425,7 @@ const NewsDetailsScreen = () => {
                             isDark ? "text-dark-text-primary" : "text-red-500"
                         }`}
                     >
-                        {t("news_not_found")}
+                        {t("news_details.news_not_found")}
                     </Text>
                     <Text
                         className={`mt-2 text-center ${
@@ -455,7 +455,7 @@ const NewsDetailsScreen = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center"
-                    accessibilityLabel={t("back")}
+                    accessibilityLabel={t("news_details.back")}
                 >
                     <MaterialIcons
                         name="arrow-back"
@@ -465,7 +465,7 @@ const NewsDetailsScreen = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={handleShare}
-                    accessibilityLabel={t("share")}
+                    accessibilityLabel={t("news_details.share")}
                 >
                     <MaterialIcons
                         name="share"
@@ -511,7 +511,7 @@ const NewsDetailsScreen = () => {
                                         : "text-gray-600"
                                 }`}
                             >
-                                {t("category")}:{" "}
+                                {t("news_details.category")}:{" "}
                                 {newsItem.categoryName[i18n.language] ||
                                     newsItem.categoryName.en}
                             </Text>
@@ -529,7 +529,7 @@ const NewsDetailsScreen = () => {
                                         : "text-gray-600"
                                 }`}
                             >
-                                {t("published_date")}:{" "}
+                                {t("news_details.published_date")}:{" "}
                                 {new Date(
                                     newsItem.createdAt.toDate()
                                 ).toLocaleDateString(i18n.language)}
@@ -578,7 +578,7 @@ const NewsDetailsScreen = () => {
                                         : "text-gray-500"
                                 }`}
                             >
-                                {t("source")}: {newsItem.source}
+                                {t("news_details.source")}: {newsItem.source}
                             </Text>
                         </View>
                     )}
@@ -604,7 +604,7 @@ const NewsDetailsScreen = () => {
                                     : "text-gray-900"
                             }`}
                         >
-                            {t("comments")} ({commentCount})
+                            {t("news_details.comments")} ({commentCount})
                         </Text>
                     </View>
 
@@ -622,7 +622,7 @@ const NewsDetailsScreen = () => {
                                         ? "text-dark-text-primary"
                                         : "text-black"
                                 }`}
-                                placeholder={t("write_comment")}
+                                placeholder={t("news_details.write_comment")}
                                 placeholderTextColor={
                                     isDark ? "#666666" : "#9CA3AF"
                                 }
@@ -636,7 +636,9 @@ const NewsDetailsScreen = () => {
                                 disabled={
                                     !commentText.trim() || isCommentSubmitting
                                 }
-                                accessibilityLabel={t("post_comment")}
+                                accessibilityLabel={t(
+                                    "news_details.post_comment"
+                                )}
                             >
                                 {isCommentSubmitting ? (
                                     <ActivityIndicator
@@ -694,7 +696,7 @@ const NewsDetailsScreen = () => {
                                         : "text-gray-500"
                                 }`}
                             >
-                                {t("no_comments")}
+                                {t("news_details.no_comments")}
                             </Text>
                         </View>
                     )}

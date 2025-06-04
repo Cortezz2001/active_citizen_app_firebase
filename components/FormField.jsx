@@ -22,7 +22,7 @@ const FormField = ({
             <View
                 className={`border rounded-lg px-4 py-3 relative ${
                     isDark
-                        ? "bg-dark-surface border-gray-600"
+                        ? "bg-dark-surface border-dark-border"
                         : "bg-ghostwhite border-gray-300"
                 }`}
             >

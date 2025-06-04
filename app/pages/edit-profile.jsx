@@ -318,11 +318,7 @@ const EditProfile = () => {
                         />
                         {isCityChangeRestricted && (
                             <Text
-                                className={`font-mregular text-sm mb-4 ${
-                                    isDark
-                                        ? "text-dark-text-secondary"
-                                        : "text-red-500"
-                                }`}
+                                className={`font-mregular text-sm mb-4 text-red-500 `}
                             >
                                 {t(
                                     "edit_profile.fields.city.cooldown_message",

@@ -37,14 +37,14 @@ const EmptyStateMessage = ({ searchText, isDark }) => {
                     isDark ? "text-dark-text-secondary" : "text-gray-400"
                 }`}
             >
-                {t("no_events_found", { search: searchText })}
+                {t("events.no_events_found", { search: searchText })}
             </Text>
             <Text
                 className={`mt-2 text-center ${
                     isDark ? "text-dark-text-secondary" : "text-gray-400"
                 }`}
             >
-                {t("adjust_search")}
+                {t("events.adjust_search")}
             </Text>
         </View>
     );
@@ -143,7 +143,7 @@ const EventCard = ({ item, onPress, i18n, isDark }) => (
                     >
                         {item.categoryName?.[i18n.language] ||
                             item.categoryName?.en ||
-                            t("unknown_category")}
+                            t("events.unknown_category")}
                     </Text>
                 </View>
             </View>
@@ -440,7 +440,7 @@ const EventsTab = () => {
                         isDark ? "text-dark-text-secondary" : "text-gray-400"
                     }`}
                 >
-                    {t("no_events_available")}
+                    {t("events.no_events_available")}
                 </Text>
             </View>
         );
@@ -474,7 +474,7 @@ const EventsTab = () => {
                             isDark ? "text-red-400" : "text-red-500"
                         }`}
                     >
-                        {t("error")}: {error}
+                        {t("events.error")}: {error}
                     </Text>
                 </View>
             );

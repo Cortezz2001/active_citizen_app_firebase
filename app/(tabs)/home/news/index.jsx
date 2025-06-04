@@ -38,14 +38,14 @@ const EmptyStateMessage = ({ searchText, isDark }) => {
                     isDark ? "text-dark-text-secondary" : "text-gray-400"
                 }`}
             >
-                {t("no_news_found", { search: searchText })}
+                {t("news.no_news_found", { search: searchText })}
             </Text>
             <Text
                 className={`mt-2 text-center ${
                     isDark ? "text-dark-text-secondary" : "text-gray-400"
                 }`}
             >
-                {t("adjust_search")}
+                {t("news.adjust_search")}
             </Text>
         </View>
     );
@@ -482,7 +482,7 @@ const NewsTab = () => {
                         isDark ? "text-dark-text-secondary" : "text-gray-400"
                     }`}
                 >
-                    {t("no_news_available")}
+                    {t("news.no_news_available")}
                 </Text>
             </View>
         );
@@ -515,7 +515,7 @@ const NewsTab = () => {
                             isDark ? "text-red-400" : "text-red-500"
                         }`}
                     >
-                        {t("error")}: {error}
+                        {t("news.error")}: {error}
                     </Text>
                 </View>
             );

@@ -115,8 +115,8 @@ const RequestDetailPage = () => {
             } else {
                 Toast.show({
                     type: "error",
-                    text1: t("request.error"),
-                    text2: t("request.request_not_found"),
+                    text1: t("requests_details.error"),
+                    text2: t("requests_details.request_not_found"),
                 });
                 router.back();
             }
@@ -124,8 +124,8 @@ const RequestDetailPage = () => {
             console.error("Error fetching request details:", error);
             Toast.show({
                 type: "error",
-                text1: t("request.error"),
-                text2: t("request.failed_to_load_request"),
+                text1: t("requests_details.error"),
+                text2: t("requests_details.failed_to_load_request"),
             });
         } finally {
             setIsLoading(false);
@@ -290,7 +290,7 @@ const RequestDetailPage = () => {
                                                 : "text-gray-600"
                                         }`}
                                     >
-                                        {t("request.video")}
+                                        {t("requests_details.video")}
                                     </Text>
                                 </View>
                             )}
@@ -313,7 +313,7 @@ const RequestDetailPage = () => {
                                         : "text-gray-600"
                                 }`}
                             >
-                                {t("request.file")}
+                                {t("requests_details.file")}
                             </Text>
                         </View>
                     )}
@@ -344,7 +344,7 @@ const RequestDetailPage = () => {
                         isDark ? "text-dark-text-primary" : "text-gray-800"
                     }`}
                 >
-                    {t("request.request_not_found")}
+                    {t("requests_details.request_not_found")}
                 </Text>
                 <TouchableOpacity
                     className={`mt-6 px-6 py-3 rounded-full ${
@@ -353,7 +353,7 @@ const RequestDetailPage = () => {
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
-                        {t("request.go_back")}
+                        {t("requests_details.go_back")}
                     </Text>
                 </TouchableOpacity>
             </SafeAreaView>
@@ -385,7 +385,7 @@ const RequestDetailPage = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
-                    accessibilityLabel={t("request.back_button")}
+                    accessibilityLabel={t("requests_details.back_button")}
                 >
                     <MaterialIcons
                         name="arrow-back"
@@ -446,7 +446,7 @@ const RequestDetailPage = () => {
                                     isDark ? "text-red-200" : "text-gray-800"
                                 }`}
                             >
-                                {t("request.rejection_reason")}
+                                {t("requests_details.rejection_reason")}
                             </Text>
                         </View>
                         <Text
@@ -456,7 +456,7 @@ const RequestDetailPage = () => {
                         >
                             {request.rejectionReason?.[i18n.language] ||
                                 request.rejectionReason?.en ||
-                                t("request.no_reason_provided")}
+                                t("requests_details.no_reason_provided")}
                         </Text>
                     </View>
                 )}
@@ -483,7 +483,7 @@ const RequestDetailPage = () => {
                                         : "text-gray-800"
                                 }`}
                             >
-                                {t("request.category")}
+                                {t("requests_details.category")}
                             </Text>
                         </View>
                         <Text
@@ -521,7 +521,7 @@ const RequestDetailPage = () => {
                                     : "text-gray-800"
                             }`}
                         >
-                            {t("request.description")}
+                            {t("requests_details.description")}
                         </Text>
                     </View>
                     <Text
@@ -558,7 +558,7 @@ const RequestDetailPage = () => {
                                     : "text-gray-800"
                             }`}
                         >
-                            {t("request.location")}
+                            {t("requests_details.location")}
                         </Text>
                     </View>
                     <View className="flex-1">
@@ -609,7 +609,7 @@ const RequestDetailPage = () => {
                                         : "text-gray-800"
                                 }`}
                             >
-                                {t("request.created_date")}
+                                {t("requests_details.created_date")}
                             </Text>
                         </View>
                         <Text
@@ -646,7 +646,7 @@ const RequestDetailPage = () => {
                                         : "text-gray-800"
                                 }`}
                             >
-                                {t("request.media_files")} (
+                                {t("requests_details.media_files")} (
                                 {request.mediaFiles.length})
                             </Text>
                         </View>

@@ -100,8 +100,8 @@ const SurveyDetailPage = () => {
             } else {
                 Toast.show({
                     type: "error",
-                    text1: t("survey.error"),
-                    text2: t("survey.survey_not_found"),
+                    text1: t("surveys_details_info.survey.error"),
+                    text2: t("surveys_details_info.survey.survey_not_found"),
                 });
                 router.back();
             }
@@ -109,8 +109,8 @@ const SurveyDetailPage = () => {
             console.error("Error fetching survey details:", error);
             Toast.show({
                 type: "error",
-                text1: t("survey.error"),
-                text2: t("survey.failed_to_load_survey"),
+                text1: t("surveys_details_info.survey.error"),
+                text2: t("surveys_details_info..failed_to_load_survey"),
             });
         } finally {
             setIsLoading(false);
@@ -153,7 +153,7 @@ const SurveyDetailPage = () => {
                         isDark ? "text-dark-text-primary" : "text-gray-800"
                     }`}
                 >
-                    {t("survey.survey_not_found")}
+                    {t("surveys_details_info.survey_not_found")}
                 </Text>
                 <TouchableOpacity
                     className={`mt-6 px-6 py-3 rounded-full ${
@@ -162,7 +162,7 @@ const SurveyDetailPage = () => {
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
-                        {t("survey.go_back")}
+                        {t("surveys_details_info.go_back")}
                     </Text>
                 </TouchableOpacity>
             </SafeAreaView>
@@ -194,7 +194,7 @@ const SurveyDetailPage = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
-                    accessibilityLabel={t("survey.back_button")}
+                    accessibilityLabel={t("surveys_details_info.back_button")}
                 >
                     <MaterialIcons
                         name="arrow-back"
@@ -254,7 +254,7 @@ const SurveyDetailPage = () => {
                                     isDark ? "text-red-200" : "text-gray-800"
                                 }`}
                             >
-                                {t("survey.rejection_reason")}
+                                {t("surveys_details_info.rejection_reason")}
                             </Text>
                         </View>
                         <Text
@@ -264,7 +264,7 @@ const SurveyDetailPage = () => {
                         >
                             {survey.rejectionReason?.[i18n.language] ||
                                 survey.rejectionReason?.en ||
-                                t("survey.no_reason_provided")}
+                                t("surveys_details_info.no_reason_provided")}
                         </Text>
                     </View>
                 )}
@@ -290,7 +290,7 @@ const SurveyDetailPage = () => {
                                         : "text-gray-800"
                                 }`}
                             >
-                                {t("survey.category")}
+                                {t("surveys_details_info.category")}
                             </Text>
                         </View>
                         <Text
@@ -327,7 +327,7 @@ const SurveyDetailPage = () => {
                                     : "text-gray-800"
                             }`}
                         >
-                            {t("survey.description")}
+                            {t("surveys_details_info.description")}
                         </Text>
                     </View>
                     <Text
@@ -365,7 +365,7 @@ const SurveyDetailPage = () => {
                                         : "text-gray-800"
                                 }`}
                             >
-                                {t("survey.created_date")}
+                                {t("surveys_details_info.created_date")}
                             </Text>
                         </View>
                         <Text
@@ -402,7 +402,7 @@ const SurveyDetailPage = () => {
                                         : "text-gray-800"
                                 }`}
                             >
-                                {t("survey.total_votes")}
+                                {t("surveys_details_info.total_votes")}
                             </Text>
                         </View>
                         <Text
@@ -412,7 +412,8 @@ const SurveyDetailPage = () => {
                                     : "text-gray-700"
                             }`}
                         >
-                            {survey.totalVotes || 0} {t("survey.votes_label")}
+                            {survey.totalVotes || 0}{" "}
+                            {t("surveys_details_info.votes_label")}
                         </Text>
                     </View>
                 )}
@@ -438,7 +439,7 @@ const SurveyDetailPage = () => {
                                         : "text-gray-800"
                                 }`}
                             >
-                                {t("survey.questions")} (
+                                {t("surveys_details_info.questions")} (
                                 {survey.questions.length})
                             </Text>
                         </View>
@@ -451,7 +452,7 @@ const SurveyDetailPage = () => {
                                             : "text-gray-700"
                                     }`}
                                 >
-                                    {t("survey.question_label", {
+                                    {t("surveys_details_info.question_label", {
                                         index: index + 1,
                                     })}
                                     :{" "}
@@ -466,7 +467,7 @@ const SurveyDetailPage = () => {
                                     }`}
                                 >
                                     {t(
-                                        `survey.question_types.${question.type}`
+                                        `surveys_details_info.question_types.${question.type}`
                                     )}
                                 </Text>
                                 {question.options.map((option, optIndex) => (

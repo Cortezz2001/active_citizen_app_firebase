@@ -114,7 +114,7 @@ const EventDetailsScreen = () => {
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className="flex-row items-center mr-4"
-                        accessibilityLabel={t("back")}
+                        accessibilityLabel={t("events_details.back")}
                     >
                         <MaterialIcons
                             name="arrow-back"
@@ -127,7 +127,7 @@ const EventDetailsScreen = () => {
                             isDark ? "text-dark-text-primary" : "text-black"
                         }`}
                     >
-                        {t("error")}
+                        {t("events_details.error")}
                     </Text>
                 </View>
                 <View className="flex-1 justify-center items-center p-4">
@@ -141,7 +141,7 @@ const EventDetailsScreen = () => {
                             isDark ? "text-dark-text-primary" : "text-red-500"
                         }`}
                     >
-                        {t("event_not_found")}
+                        {t("events_details.event_not_found")}
                     </Text>
                     <Text
                         className={`mt-2 text-center ${
@@ -172,7 +172,7 @@ const EventDetailsScreen = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center"
-                    accessibilityLabel={t("back")}
+                    accessibilityLabel={t("events_details.back")}
                 >
                     <MaterialIcons
                         name="arrow-back"
@@ -182,7 +182,7 @@ const EventDetailsScreen = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={handleShare}
-                    accessibilityLabel={t("share")}
+                    accessibilityLabel={t("events_details.share")}
                 >
                     <MaterialIcons
                         name="share"
@@ -228,7 +228,7 @@ const EventDetailsScreen = () => {
                                         : "text-gray-600"
                                 }`}
                             >
-                                {t("category")}:{" "}
+                                {t("events_details.category")}:{" "}
                                 {eventItem.categoryName[i18n.language] ||
                                     eventItem.categoryName.en}
                             </Text>
@@ -246,7 +246,7 @@ const EventDetailsScreen = () => {
                                         : "text-gray-600"
                                 }`}
                             >
-                                {t("date")}:{" "}
+                                {t("events_details.date")}:{" "}
                                 {new Date(
                                     eventItem.date.toDate()
                                 ).toLocaleDateString(i18n.language)}
@@ -265,7 +265,7 @@ const EventDetailsScreen = () => {
                                         : "text-gray-600"
                                 }`}
                             >
-                                {t("location")}:{" "}
+                                {t("events_details.location")}:{" "}
                                 {eventItem.location.name[i18n.language] ||
                                     eventItem.location.name.en}
                                 ,{" "}
@@ -291,7 +291,7 @@ const EventDetailsScreen = () => {
                         onPress={handleBuyTicket}
                     >
                         <Text className="text-white font-mbold">
-                            {t("buy_ticket")}
+                            {t("events_details.buy_ticket")}
                         </Text>
                     </TouchableOpacity>
                 </View>

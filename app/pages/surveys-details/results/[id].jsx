@@ -39,7 +39,9 @@ const SurveyResultsPage = () => {
                 // Get survey details
                 const surveyData = await getDocument("surveys", id);
                 if (!surveyData) {
-                    setError(t("results.errors.survey_not_found"));
+                    setError(
+                        t("surveys_details_results.errors.survey_not_found")
+                    );
                     return;
                 }
                 setSurvey(surveyData);
@@ -59,7 +61,7 @@ const SurveyResultsPage = () => {
                 processResults(surveyData, surveyResults);
             } catch (err) {
                 console.error("Error fetching survey results:", err);
-                setError(t("results.errors.loading_failed"));
+                setError(t("surveys_details_results.errors.loading_failed"));
             } finally {
                 setLoading(false);
             }
@@ -204,7 +206,8 @@ const SurveyResultsPage = () => {
                         isDark ? "text-dark-text-primary" : "text-gray-800"
                     }`}
                 >
-                    {error || t("results.errors.loading_failed")}
+                    {error ||
+                        t("surveys_details_results.errors.loading_failed")}
                 </Text>
                 <TouchableOpacity
                     className={`mt-6 px-6 py-3 rounded-full ${
@@ -213,7 +216,7 @@ const SurveyResultsPage = () => {
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
-                        {t("results.buttons.go_back")}
+                        {t("surveys_details_results.buttons.go_back")}
                     </Text>
                 </TouchableOpacity>
             </SafeAreaView>
@@ -251,7 +254,7 @@ const SurveyResultsPage = () => {
                         numberOfLines={2}
                         adjustsFontSizeToFit
                     >
-                        {t("results.title")}
+                        {t("surveys_details_results.title")}
                     </Text>
                 </View>
                 <View className="flex-1 justify-center items-center p-4">
@@ -265,7 +268,7 @@ const SurveyResultsPage = () => {
                             isDark ? "text-dark-text-primary" : "text-gray-800"
                         }`}
                     >
-                        {t("results.no_responses")}
+                        {t("surveys_details_results.no_responses")}
                     </Text>
                 </View>
             </SafeAreaView>
@@ -295,7 +298,7 @@ const SurveyResultsPage = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={handleShare}
-                    accessibilityLabel={t("share")}
+                    accessibilityLabel={t("surveys_details_results.share")}
                 >
                     <MaterialIcons
                         name="share"
@@ -335,7 +338,7 @@ const SurveyResultsPage = () => {
                             <MaterialIcons
                                 name="how-to-vote"
                                 size={24}
-                                color={isDark ? "#60A5FA" : "#006FFD"}
+                                color={isDark ? "#0066E6" : "#006FFD"}
                             />
                             <Text
                                 className={`font-msemibold ml-2 ${
@@ -344,7 +347,9 @@ const SurveyResultsPage = () => {
                                         : "text-gray-700"
                                 }`}
                             >
-                                {t("results.total_participants")}
+                                {t(
+                                    "surveys_details_results.total_participants"
+                                )}
                             </Text>
                         </View>
                         <Text
@@ -387,13 +392,12 @@ const SurveyResultsPage = () => {
                                 }`}
                             >
                                 {questionResult.type === "single_choice"
-                                    ? t("results.question_types.single_choice")
+                                    ? t(
+                                          "surveys_details_results.question_types.single_choice"
+                                      )
                                     : t(
-                                          "results.question_types.multiple_choice"
+                                          "surveys_details_results.question_types.multiple_choice"
                                       )}
-                                {" • "}
-                                {questionResult.totalResponses}{" "}
-                                {t("results.responses")}
                             </Text>
                         </View>
 

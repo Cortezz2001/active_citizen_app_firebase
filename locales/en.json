@@ -69,6 +69,13 @@
     "settings": {
         "permissions_preferences": "Permissions preferences",
         "language": "Language",
+        "theme": "Theme",
+      "select_theme": "Select theme",
+      "themes": {
+          "light": "Light",
+          "dark": "Dark",
+          "system": "System"
+      },
         "select_language": "Select language",
         "languages": {
             "english": "English",
@@ -186,11 +193,27 @@
             "categories": "Categories"
             }
             },
+            "requests_details": {
+                "error": "Error",
+                "request_not_found": "Request not found",
+                "failed_to_load_request": "Failed to load request",
+                "go_back": "Go Back",
+                "back_button": "Back",
+                "rejection_reason": "Rejection Reason",
+                "no_reason_provided": "No reason provided",
+                "category": "Category",
+                "description": "Description",
+                "location": "Location",
+                "created_date": "Created Date",
+                "media_files": "Media Files",
+                "video": "Video",
+                "file": "File"
+            },
     "my_surveys": {
         "title": "My Surveys",
         "search_placeholder": "Search surveys",
         "create_button": "Create Survey",
-        "votes_label": "votes",
+        "votes_label": "participants",
         "statuses": {
             "draft": "Draft",
             "in progress": "In progress",
@@ -273,7 +296,8 @@
             "date_range": "Date Range",
             "from": "From",
             "to": "To"
-          }
+          },
+          "signatures_label": "supporters"
     },
     "edit_profile": {
         "title": "Edit Your Profile",
@@ -352,6 +376,8 @@
                 "required": "All questions must have text",
                 "min_questions": "You need at least one question in your survey"
             },
+            "select_category": "Select category",
+            "category": "Category",
             "options": {
                 "label": "Options",
                 "placeholder": "Option {{index}}",
@@ -416,23 +442,8 @@
                 "placeholder": "Enter target number (e.g., 1000)",
                 "required": "Please enter a valid target number of supporters"
             },
-            "categories": {
-                "label": "Categories",
-                "instruction": "Select at least one category that best describes your petition",
-                "required": "Please select at least one category",
-                "options": {
-                    "environment": "Environment",
-                    "transportation": "Transportation",
-                    "healthcare": "Healthcare",
-                    "education": "Education",
-                    "housing": "Housing",
-                    "public_safety": "Public Safety",
-                    "arts_culture": "Arts & Culture",
-                    "parks_recreation": "Parks & Recreation",
-                    "community_development": "Community Development",
-                    "other": "Other"
-                }
-            }
+            "select_category": "Select category",
+            "category": "Category"
         },
         "buttons": {
             "save_draft": "Save as Draft",
@@ -641,6 +652,197 @@
     "section3": "**3. Information Protection**\n\nWe take reasonable measures to protect your information from unauthorized access, use, or disclosure.",
     "section4": "**4. Information Disclosure**\n\nWe may disclose your information:\n- To government authorities or services responsible for addressing city issues, to process your requests.\n- To our service providers who assist us in operating the Application.\n- In cases required by law or to protect our rights.",
     "section5": "**5. Your Rights**\n\nYou have the right to:\n- Request access to your personal data.\n- Correct inaccurate or incomplete data.\n- Request the deletion of your data."
+  },
+  "news": {
+    "no_news_found": "No news found for '{{search}}'",
+    "adjust_search": "Try adjusting your search to find what you're looking for",
+    "no_news_available": "No news available at the moment",
+    "error": "Error",
+    "filter_modal": {
+      "title": "Filter News",
+      "categories": "Categories",
+      "date_range": "Date Range",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "reset": "Reset",
+      "apply": "Apply"
+    }
+  },
+    "news_details": {
+        "anonymous": "Anonymous",
+        "comment_failed": "Failed to add comment",
+        "back": "Back",
+        "error": "Error",
+        "news_not_found": "News not found",
+        "share": "Share",
+        "category": "Category",
+        "published_date": "Published Date",
+        "source": "Source",
+        "comments": "Comments",
+        "write_comment": "Write a comment...",
+        "post_comment": "Post comment",
+        "no_comments": "No comments yet"
+  },
+    "events": {
+    "no_events_found": "No events found for '{{search}}'",
+    "adjust_search": "Try adjusting your search to find what you're looking for",
+    "no_events_available": "No events available at the moment",
+    "error": "Error",
+    "unknown_category": "Unknown category",
+    "filter_modal": {
+      "title": "Filter Events",
+      "categories": "Categories",
+      "date_range": "Date Range",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "reset": "Reset",
+      "apply": "Apply"
+    }
+  },
+    "events_details": {
+    "back": "Back",
+    "share": "Share",
+    "error": "Error",
+    "event_not_found": "Event not found",
+    "category": "Category",
+    "date": "Date",
+    "location": "Location",
+    "buy_ticket": "Buy Ticket"
+  },
+    "surveys": {
+        "no_surveys_found": "No surveys found for '{{search}}'",
+        "adjust_search": "Try adjusting your search to find what you're looking for",
+        "no_surveys_available": "No surveys available at the moment",
+        "completed": "Completed",
+        "active": "Active",
+        "votes": "participants",
+        "view_results": "View Results",
+        "vote": "Take",
+        "create_new_survey": "Create New Survey",
+        "my_surveys": "My Surveys",
+        "filter_modal": {
+            "title": "Filter Surveys",
+            "status": "Status",
+            "categories": "Categories",
+            "reset": "Reset",
+            "apply": "Apply"
+        }
+  },
+    "surveys_details_info": {
+    "error": "Error",
+    "survey_not_found": "Survey not found",
+    "failed_to_load_survey": "Failed to load survey",
+    "go_back": "Go Back",
+    "back_button": "Back",
+    "rejection_reason": "Rejection Reason",
+    "no_reason_provided": "No reason provided",
+    "category": "Category",
+    "description": "Description",
+    "created_date": "Created Date",
+    "total_votes": "Total Votes",
+    "votes_label": "Votes",
+    "questions": "Questions",
+    "question_label": "Question {{index}}",
+    "question_types": {
+      "single_choice": "Single Choice",
+      "multiple_choice": "Multiple Choice"
+    }
+  },
+    "surveys_details_results": {
+        "title": "Survey Results",
+        "no_responses": "No responses yet",
+        "errors": {
+        "survey_not_found": "Survey not found",
+        "loading_failed": "Failed to load survey results"
+        },
+        "buttons": {
+        "go_back": "Go Back"
+        },
+        "total_participants": "Total Participants",
+        "question_types": {
+        "single_choice": "Single Choice",
+        "multiple_choice": "Multiple Choice"
+        }
+  },
+    "surveys_details_vote": {
+    "back_button": "Back",
+    "errors": {
+      "survey_not_found": "Survey not found",
+      "loading_failed": "Failed to load survey"
+    },
+    "buttons": {
+      "go_back": "Go Back",
+      "submit_vote": "Submit Vote",
+      "already_voted": "You have already voted"
+    },
+    "question_types": {
+      "single_choice_instruction": "Select one option",
+      "multiple_choice_instruction": "Select one or more options"
+    },
+    "toast": {
+      "error": {
+        "title": "Error",
+        "answer_all_questions": "Please answer all questions",
+        "submission_failed": "Failed to submit your vote"
+      },
+      "success": {
+        "title": "Success",
+        "vote_submitted": "Your vote has been submitted"
+      }
+    }
+  },
+    "petitions": {
+    "no_petitions_found": "No petitions found for '{{search}}'",
+    "adjust_search": "Try adjusting your search to find what you're looking for",
+    "no_petitions_available": "No petitions available at the moment",
+    "error": "Error",
+    "completed": "Completed",
+    "active": "Active",
+    "supporters": "supporters",
+    "target": "Target",
+    "sign": "Sign",
+    "create_new_petition": "Create New Petition",
+    "my_petitions": "My Petitions",
+    "filter_modal": {
+      "title": "Filter Petitions",
+      "status": "Status",
+      "categories": "Categories",
+      "reset": "Reset",
+      "apply": "Apply"
+    }
+  },
+    "petitions_details": {
+    "back_button": "Back",
+    "errors": {
+      "not_found": "Petition not found",
+      "loading_failed": "Failed to load petition"
+    },
+    "buttons": {
+      "go_back": "Go Back",
+      "sign": "Sign Petition",
+      "already_signed": "You have already signed"
+    },
+    "rejection_reason": "Rejection Reason",
+    "no_reason_provided": "No reason provided",
+    "category": "Category",
+    "unknown_category": "Unknown",
+    "description": "Description",
+    "problem": "Problem",
+    "solution": "Solution",
+    "supporters": "Supporters",
+    "target": "Target",
+    "toast": {
+      "error": {
+        "title": "Error",
+        "not_authenticated": "Please log in to sign the petition",
+        "signing_failed": "Failed to sign the petition",
+        "sharing_failed": "Failed to share the petition"
+      },
+      "success": {
+        "title": "Success",
+        "signed": "You have successfully signed the petition"
+      }
+    }
   }
     
 }

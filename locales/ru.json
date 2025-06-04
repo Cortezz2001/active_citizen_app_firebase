@@ -69,6 +69,13 @@
   "settings": {
       "permissions_preferences": "Настройки разрешений",
       "language": "Язык",
+      "theme": "Тема",
+      "select_theme": "Выбрать тему",
+      "themes": {
+          "light": "Светлая",
+          "dark": "Темная",
+          "system": "Системная"
+      },
       "select_language": "Выбрать язык",
       "languages": {
           "english": "Английский",
@@ -185,11 +192,27 @@
         "categories": "Категории"
       }
   },
+    "requests_details": {
+        "error": "Ошибка",
+        "request_not_found": "Запрос не найден",
+        "failed_to_load_request": "Не удалось загрузить запрос",
+        "go_back": "Вернуться",
+        "back_button": "Назад",
+        "rejection_reason": "Причина отклонения",
+        "no_reason_provided": "Причина не указана",
+        "category": "Категория",
+        "description": "Описание",
+        "location": "Местоположение",
+        "created_date": "Дата создания",
+        "media_files": "Медиафайлы",
+        "video": "Видео",
+        "file": "Файл"
+    },
   "my_surveys": {
       "title": "Мои опросы",
       "search_placeholder": "Поиск опросов",
       "create_button": "Создать опрос",
-      "votes_label": "голосов",
+      "votes_label": "участников",
       "statuses": {
           "draft": "Черновик",
           "in progress": "В процессе",
@@ -234,11 +257,11 @@
       "search_placeholder": "Поиск петиций",
       "create_button": "Создать петицию",
       "statuses": {
-"draft": "Черновик",
-"in progress": "В процессе",
-"rejected": "Отклонено",
-"published": "Опубликовано",
-"completed": "Завершено"
+        "draft": "Черновик",
+        "in progress": "В процессе",
+        "rejected": "Отклонено",
+        "published": "Опубликовано",
+        "completed": "Завершено"
       },
       "created_label": "Создано",
       "supporters_label": "поддерживающих",
@@ -272,7 +295,9 @@
         "date_range": "Диапазон дат",
         "from": "От",
         "to": "До"  
-      }
+      },
+      "signatures_label": "Поддержавшие"
+
   },
   "edit_profile": {
     "title": "Редактировать профиль",
@@ -351,6 +376,8 @@
           "required": "Все вопросы должны содержать текст",
           "min_questions": "В опросе должен быть хотя бы один вопрос"
       },
+      "select_category": "Выбрать категорию",
+      "category": "Категория",
       "options": {
           "label": "Варианты",
           "placeholder": "Вариант {{index}}",
@@ -415,23 +442,9 @@
           "placeholder": "Введите целевое число (например, 1000)",
           "required": "Пожалуйста, введите действительное целевое количество сторонников"
       },
-      "categories": {
-          "label": "Категории",
-          "instruction": "Выберите хотя бы одну категорию, которая лучше всего описывает вашу петицию",
-          "required": "Пожалуйста, выберите хотя бы одну категорию",
-          "options": {
-              "environment": "Окружающая среда",
-              "transportation": "Транспорт",
-              "healthcare": "Здравоохранение",
-              "education": "Образование",
-              "housing": "Жилье",
-              "public_safety": "Общественная безопасность",
-              "arts_culture": "Искусство и культура",
-              "parks_recreation": "Парки и отдых",
-              "community_development": "Развитие сообщества",
-              "other": "Другое"
-          }
-      }
+        "select_category": "Выберите категорию",
+        "category": "Категория"
+
   },
   "buttons": {
       "save_draft": "Сохранить как черновик",
@@ -640,6 +653,197 @@
     "section3": "**3. Защита информации**\n\nМы принимаем разумные меры для защиты вашей информации от несанкционированного доступа, использования или раскрытия.",
     "section4": "**4. Раскрытие информации**\n\nМы можем раскрывать вашу информацию:\n- Государственным органам или службам, ответственным за решение городских проблем, для обработки ваших запросов.\n- Нашим поставщикам услуг, которые помогают нам в работе Приложения.\n- В случаях, предусмотренных законом или для защиты наших прав.",
     "section5": "**5. Ваши права**\n\nВы имеете право:\n- Запрашивать доступ к вашим персональным данным.\n- Исправлять неточные или неполные данные.\n- Запрашивать удаление ваших данных."
+  },
+  "news": {
+        "no_news_found": "Новости по запросу '{{search}}' не найдены",
+        "adjust_search": "Попробуйте изменить поиск, чтобы найти то, что вы ищете",
+        "no_news_available": "В данный момент новостей нет",
+        "error": "Ошибка",
+        "filter_modal": {
+            "title": "Фильтр новостей",
+            "categories": "Категории",
+            "date_range": "Диапазон дат",
+            "start_date": "Начальная дата",
+            "end_date": "Конечная дата",
+            "reset": "Сброс",
+            "apply": "Применить"
+        }
+    },
+    "news_details": {
+        "anonymous": "Аноним",
+        "comment_failed": "Не удалось добавить комментарий",
+        "back": "Назад",
+        "error": "Ошибка",
+        "news_not_found": "Новость не найдена",
+        "share": "Поделиться",
+        "category": "Категория",
+        "published_date": "Дата публикации",
+        "source": "Источник",
+        "comments": "Комментарии",
+        "write_comment": "Напишите комментарий...",
+        "post_comment": "Отправить комментарий",
+        "no_comments": "Пока нет комментариев"
+    },
+    "events": {
+        "no_events_found": "События по запросу '{{search}}' не найдены",
+        "adjust_search": "Попробуйте изменить запрос, чтобы найти то, что вы ищете",
+        "no_events_available": "На данный момент события отсутствуют",
+        "error": "Ошибка",
+        "unknown_category": "Неизвестная категория",
+        "filter_modal": {
+        "title": "Фильтр событий",
+        "categories": "Категории",
+        "date_range": "Диапазон дат",
+        "start_date": "Начальная дата",
+        "end_date": "Конечная дата",
+        "reset": "Сбросить",
+        "apply": "Применить"
+        }
+  },
+    "events_details": {
+    "back": "Назад",
+    "share": "Поделиться",
+    "error": "Ошибка",
+    "event_not_found": "Событие не найдено",
+    "category": "Категория",
+    "date": "Дата",
+    "location": "Место",
+    "buy_ticket": "Купить билет"
+  },
+    "surveys": {
+    "no_surveys_found": "Опросы по запросу '{{search}}' не найдены",
+    "adjust_search": "Попробуйте изменить запрос, чтобы найти то, что вы ищете",
+    "no_surveys_available": "На данный момент опросы отсутствуют",
+    "completed": "Завершено",
+    "active": "Активно",
+    "votes": "участников",
+    "view_results": "Результаты",
+    "vote": "Участвовать",
+    "create_new_survey": "Создать новый опрос",
+    "my_surveys": "Мои опросы",
+    "filter_modal": {
+      "title": "Фильтр опросов",
+      "status": "Статус",
+      "categories": "Категории",
+      "reset": "Сбросить",
+      "apply": "Применить"
+    }
+  },
+    "surveys_details_info": {
+    "error": "Ошибка",
+    "survey_not_found": "Опрос не найден",
+    "failed_to_load_survey": "Не удалось загрузить опрос",
+    "go_back": "Вернуться",
+    "back_button": "Назад",
+    "rejection_reason": "Причина отклонения",
+    "no_reason_provided": "Причина не указана",
+    "category": "Категория",
+    "description": "Описание",
+    "created_date": "Дата создания",
+    "total_votes": "Всего голосов",
+    "votes_label": "Голосов",
+    "questions": "Вопросы",
+    "question_label": "Вопрос {{index}}",
+    "question_types": {
+      "single_choice": "Одиночный выбор",
+      "multiple_choice": "Множественный выбор"
+    }
+  },
+    "surveys_details_results": {
+    "title": "Результаты опроса",
+    "no_responses": "Пока нет результатов",
+    "errors": {
+      "survey_not_found": "Опрос не найден",
+      "loading_failed": "Не удалось загрузить результаты опроса"
+    },
+    "buttons": {
+      "go_back": "Вернуться"
+    },
+    "total_participants": "Всего участников",
+    "question_types": {
+      "single_choice": "Одиночный выбор",
+      "multiple_choice": "Множественный выбор"
+    }
+  },
+    "surveys_details_vote": {
+    "back_button": "Назад",
+    "errors": {
+      "survey_not_found": "Опрос не найден",
+      "loading_failed": "Не удалось загрузить опрос"
+    },
+    "buttons": {
+      "go_back": "Вернуться",
+      "submit_vote": "Отправить",
+      "already_voted": "Вы уже прошли опрос"
+    },
+    "question_types": {
+      "single_choice_instruction": "Выберите один вариант",
+      "multiple_choice_instruction": "Выберите один или несколько вариантов"
+    },
+    "toast": {
+      "error": {
+        "title": "Ошибка",
+        "answer_all_questions": "Пожалуйста, ответьте на все вопросы",
+        "submission_failed": "Не удалось отправить ваши результаты. Пожалуйста, попробуйте еще раз."
+      },
+      "success": {
+        "title": "Успех",
+        "vote_submitted": "Ваши результаты успешно отправлены!"
+      }
+    }
+  },
+    "petitions": {
+    "no_petitions_found": "Петиции по запросу '{{search}}' не найдены",
+    "adjust_search": "Попробуйте изменить запрос, чтобы найти то, что вы ищете",
+    "no_petitions_available": "На данный момент петиции отсутствуют",
+    "error": "Ошибка",
+    "completed": "Завершено",
+    "active": "Активно",
+    "supporters": "Поддержавшие",
+    "target": "Цель",
+    "sign": "Подписать",
+    "create_new_petition": "Создать новую петицию",
+    "my_petitions": "Мои петиции",
+    "filter_modal": {
+      "title": "Фильтр петиций",
+      "status": "Статус",
+      "categories": "Категории",
+      "reset": "Сбросить",
+      "apply": "Применить"
+    }
+  },
+    "petitions_details": {
+    "back_button": "Назад",
+    "errors": {
+      "not_found": "Петиция не найдена",
+      "loading_failed": "Не удалось загрузить петицию"
+    },
+    "buttons": {
+      "go_back": "Вернуться",
+      "sign": "Подписать петицию",
+      "already_signed": "Вы уже подписали"
+    },
+    "rejection_reason": "Причина отклонения",
+    "no_reason_provided": "Причина не указана",
+    "category": "Категория",
+    "unknown_category": "Неизвестно",
+    "description": "Описание",
+    "problem": "Проблема",
+    "solution": "Решение",
+    "supporters": "Поддержавшие",
+    "target": "Цель",
+    "toast": {
+      "error": {
+        "title": "Ошибка",
+        "not_authenticated": "Пожалуйста, войдите, чтобы подписать петицию",
+        "signing_failed": "Не удалось подписать петицию",
+        "sharing_failed": "Не удалось поделиться петицией"
+      },
+      "success": {
+        "title": "Успех",
+        "signed": "Вы успешно подписали петицию"
+      }
+    }
   }
 
 }

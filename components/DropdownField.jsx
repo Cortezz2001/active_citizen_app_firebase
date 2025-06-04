@@ -36,10 +36,10 @@ const DropdownField = ({
                 className={`border rounded-lg px-4 py-3 flex-row justify-between items-center min-h-[50px] ${
                     disabled
                         ? isDark
-                            ? "bg-gray-700 opacity-50 border-gray-600"
+                            ? "bg-gray-700 opacity-50 border-dark-border"
                             : "bg-gray-100 opacity-50 border-gray-300"
                         : isDark
-                        ? "bg-dark-surface border-gray-600"
+                        ? "bg-dark-surface border-dark-border"
                         : "bg-ghostwhite border-gray-300"
                 }`}
                 onPress={() => !disabled && setModalVisible(true)}

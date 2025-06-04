@@ -91,7 +91,7 @@ const PetitionDetailsPage = () => {
             const petitionData = await getDocument("petitions", id);
 
             if (!petitionData) {
-                setError(t("my_petitions.errors.not_found"));
+                setError(t("petitions_details.errors.not_found"));
                 return;
             }
 
@@ -149,7 +149,7 @@ const PetitionDetailsPage = () => {
             });
         } catch (err) {
             console.error("Error fetching petition:", err);
-            setError(t("my_petitions.errors.loading_failed"));
+            setError(t("petitions_details.errors.loading_failed"));
         } finally {
             setLoading(false);
         }
@@ -166,8 +166,8 @@ const PetitionDetailsPage = () => {
         if (!user) {
             Toast.show({
                 type: "error",
-                text1: t("my_petitions.toast.error.title"),
-                text2: t("my_petitions.toast.error.not_authenticated"),
+                text1: t("petitions_details.toast.error.title"),
+                text2: t("petitions_details.toast.error.not_authenticated"),
             });
             return;
         }
@@ -211,15 +211,15 @@ const PetitionDetailsPage = () => {
 
             Toast.show({
                 type: "success",
-                text1: t("my_petitions.toast.success.title"),
-                text2: t("my_petitions.toast.success.signed"),
+                text1: t("petitions_details.toast.success.title"),
+                text2: t("petitions_details.toast.success.signed"),
             });
         } catch (err) {
             console.error("Error signing petition:", err);
             Toast.show({
                 type: "error",
-                text1: t("my_petitions.toast.error.title"),
-                text2: t("my_petitions.toast.error.signing_failed"),
+                text1: t("petitions_details.toast.error.title"),
+                text2: t("petitions_details.toast.error.signing_failed"),
             });
         } finally {
             setSubmitting(false);
@@ -244,8 +244,8 @@ const PetitionDetailsPage = () => {
             console.error("Error sharing:", error);
             Toast.show({
                 type: "error",
-                text1: t("my_petitions.toast.error.title"),
-                text2: t("my_petitions.toast.error.sharing_failed"),
+                text1: t("petitions_details.toast.error.title"),
+                text2: t("petitions_details.toast.error.sharing_failed"),
             });
         }
     };
@@ -272,7 +272,7 @@ const PetitionDetailsPage = () => {
                         isDark ? "text-dark-text-primary" : "text-gray-800"
                     }`}
                 >
-                    {error || t("my_petitions.errors.loading_failed")}
+                    {error || t("petitions_details.errors.loading_failed")}
                 </Text>
                 <TouchableOpacity
                     className={`mt-6 px-6 py-3 rounded-full ${
@@ -281,7 +281,7 @@ const PetitionDetailsPage = () => {
                     onPress={() => router.back()}
                 >
                     <Text className="text-white font-mmedium">
-                        {t("my_petitions.buttons.go_back")}
+                        {t("petitions_details.buttons.go_back")}
                     </Text>
                 </TouchableOpacity>
             </SafeAreaView>
@@ -318,7 +318,7 @@ const PetitionDetailsPage = () => {
                 <TouchableOpacity
                     onPress={() => router.back()}
                     className="flex-row items-center mr-4"
-                    accessibilityLabel={t("my_petitions.back_button")}
+                    accessibilityLabel={t("petitions_details.back_button")}
                 >
                     <MaterialIcons
                         name="arrow-back"
@@ -328,7 +328,7 @@ const PetitionDetailsPage = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={handleShare}
-                    accessibilityLabel={t("share")}
+                    accessibilityLabel={t("petitions_details.share")}
                 >
                     <MaterialIcons
                         name="share"
@@ -388,7 +388,7 @@ const PetitionDetailsPage = () => {
                                     isDark ? "text-red-200" : "text-gray-800"
                                 }`}
                             >
-                                {t("my_petitions.rejection_reason")}
+                                {t("petitions_details.rejection_reason")}
                             </Text>
                         </View>
                         <Text
@@ -398,7 +398,7 @@ const PetitionDetailsPage = () => {
                         >
                             {petition.rejectionReason?.[i18n.language] ||
                                 petition.rejectionReason?.en ||
-                                t("my_petitions.no_reason_provided")}
+                                t("petitions_details.no_reason_provided")}
                         </Text>
                     </View>
                 )}
@@ -424,7 +424,7 @@ const PetitionDetailsPage = () => {
                                     : "text-gray-800"
                             }`}
                         >
-                            {t("my_petitions.category")}
+                            {t("petitions_details.category")}
                         </Text>
                     </View>
                     <Text
@@ -436,7 +436,7 @@ const PetitionDetailsPage = () => {
                     >
                         {petition.categoryName?.[i18n.language] ||
                             petition.categoryName?.en ||
-                            t("my_petitions.unknown_category")}
+                            t("petitions_details.unknown_category")}
                     </Text>
                 </View>
 
@@ -461,7 +461,7 @@ const PetitionDetailsPage = () => {
                                     : "text-gray-800"
                             }`}
                         >
-                            {t("my_petitions.description")}
+                            {t("petitions_details.description")}
                         </Text>
                     </View>
                     <Text
@@ -497,7 +497,7 @@ const PetitionDetailsPage = () => {
                                     : "text-gray-800"
                             }`}
                         >
-                            {t("my_petitions.problem")}
+                            {t("petitions_details.problem")}
                         </Text>
                     </View>
                     <Text
@@ -532,7 +532,7 @@ const PetitionDetailsPage = () => {
                                     : "text-gray-800"
                             }`}
                         >
-                            {t("my_petitions.solution")}
+                            {t("petitions_details.solution")}
                         </Text>
                     </View>
                     <Text
@@ -570,7 +570,7 @@ const PetitionDetailsPage = () => {
                                 }`}
                             >
                                 {petition.totalSignatures || 0}{" "}
-                                {t("my_petitions.supporters")}
+                                {t("petitions_details.supporters")}
                             </Text>
                         </View>
                         <Text
@@ -580,7 +580,7 @@ const PetitionDetailsPage = () => {
                                     : "text-gray-500"
                             }`}
                         >
-                            {t("my_petitions.target")}:{" "}
+                            {t("petitions_details.target")}:{" "}
                             {petition.targetSignatures}
                         </Text>
                     </View>
@@ -627,8 +627,10 @@ const PetitionDetailsPage = () => {
                                 }`}
                             >
                                 {hasSigned
-                                    ? t("my_petitions.buttons.already_signed")
-                                    : t("my_petitions.buttons.sign")}
+                                    ? t(
+                                          "petitions_details.buttons.already_signed"
+                                      )
+                                    : t("petitions_details.buttons.sign")}
                             </Text>
                         )}
                     </TouchableOpacity>
