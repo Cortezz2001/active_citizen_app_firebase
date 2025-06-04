@@ -208,8 +208,9 @@ const PetitionCard = ({ item, onPress, i18n, isDark }) => {
                                         : "text-primary"
                                 }`}
                             >
-                                {item.totalSignatures}{" "}
-                                {t("petitions.supporters")}
+                                {t("my_petitions.signatures", {
+                                    count: item.totalSignatures || 0,
+                                })}
                             </Text>
                         </View>
                         <Text

@@ -213,7 +213,8 @@
         "title": "My Surveys",
         "search_placeholder": "Search surveys",
         "create_button": "Create Survey",
-        "votes_label": "participants",
+        "votes_one": "{{count}} participant",
+        "votes_other": "{{count}} participants",
         "statuses": {
             "draft": "Draft",
             "in progress": "In progress",
@@ -265,7 +266,8 @@
             "completed": "Completed"
         },
         "created_label": "Created",
-        "supporters_label": "supporters",
+        "signatures_one": "{{count}} supporter",
+        "signatures_other": "{{count}} supporters",
         "target_label": "Target",
         "actions": {
             "view_rejection_reason": "View Rejection Reason",
@@ -525,27 +527,27 @@
         }
     },
     "sms_code": {
-        "title": "Enter confirmation code",
-        "instruction": "A 6-digit code was sent to",
+        "toast": {
+        "success": {
+            "title": "Success",
+            "verified": "Phone number verified successfully!",
+            "code_sent": "Verification code sent successfully!"
+        },
+        "error": {
+            "title": "Error",
+            "incomplete_code": "Please enter a complete 6-digit code",
+            "invalid_code": "Invalid verification code",
+            "resend_failed": "Failed to resend verification code"
+        }
+        },
+        "title": "Enter Verification Code",
+        "instruction": "Enter the 6-digit code sent to your phone number",
         "resend": {
-            "enabled": "Resend code",
-            "disabled": "Resend code ({{timer}} s)"
+        "disabled": "Resend code in {{timer}} seconds",
+        "enabled": "Resend code"
         },
         "buttons": {
-            "continue": "Continue"
-        },
-        "toast": {
-            "success": {
-                "title": "Success",
-                "verified": "Successfully signed in!"
-            },
-            "error": {
-                "title": "Error",
-                "incomplete_code": "Please enter the 6-digit verification code",
-                "no_user_data": "Failed to verify the code. No user data returned.",
-                "invalid_code": "Invalid verification code. Please try again.",
-                "resend_failed": "Failed to resend verification code"
-            }
+        "continue": "Continue"
         }
     },
     "complete_registration": {
@@ -716,6 +718,8 @@
         "completed": "Completed",
         "active": "Active",
         "votes": "participants",
+        "votes_one": "{{count}} participant",
+        "votes_other": "{{count}} participants",
         "view_results": "View Results",
         "vote": "Take",
         "create_new_survey": "Create New Survey",
@@ -798,7 +802,8 @@
     "error": "Error",
     "completed": "Completed",
     "active": "Active",
-    "supporters": "supporters",
+    "signatures_one": "{{count}} supporter",
+    "signatures_other": "{{count}} supporters",
     "target": "Target",
     "sign": "Sign",
     "create_new_petition": "Create New Petition",

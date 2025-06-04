@@ -147,7 +147,9 @@ const SurveyCard = ({ item, onPress, i18n, isDark }) => {
                                 isDark ? "text-dark-primary" : "text-primary"
                             }`}
                         >
-                            {item.totalVotes || 0} {t("surveys.votes")}
+                            {t("surveys.votes", {
+                                count: item.totalVotes || 0,
+                            })}
                         </Text>
                     </View>
                     {isCompleted ? (

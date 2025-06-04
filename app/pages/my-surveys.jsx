@@ -205,7 +205,9 @@ const SurveyCard = ({ item, i18n, onViewRejection, onDelete, isDark }) => {
                                 isDark ? "text-dark-primary" : "text-primary"
                             }`}
                         >
-                            {item.totalVotes || 0} {t("my_surveys.votes_label")}
+                            {t("my_surveys.votes", {
+                                count: item.totalVotes || 0,
+                            })}
                         </Text>
                     </View>
                 )}

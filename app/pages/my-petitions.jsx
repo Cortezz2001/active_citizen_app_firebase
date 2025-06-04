@@ -197,8 +197,9 @@ const PetitionCard = ({ item, i18n, onViewRejection, onDelete, isDark }) => {
                                 isDark ? "text-dark-primary" : "text-primary"
                             }`}
                         >
-                            {item.totalSignatures || 0}{" "}
-                            {t("my_petitions.signatures_label")}
+                            {t("my_petitions.signatures", {
+                                count: item.totalSignatures || 0,
+                            })}
                         </Text>
                     </View>
                 )}

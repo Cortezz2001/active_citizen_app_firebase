@@ -212,7 +212,8 @@
   "title": "Менің сауалнамаларым",
   "search_placeholder": "Сауалнамалардан іздеу",
   "create_button": "Сауалнама жасау",
-  "votes_label": "дауыс",
+    "votes_one": "{{count}} қатысушы",
+    "votes_other": "{{count}} қатысушы",
   "statuses": {
 "draft": "Жоба", 
 "in progress": "Орындалуда", 
@@ -265,6 +266,8 @@
   },
   "created_label": "Жасалған күні",
   "supporters_label": "қолдаушы",
+    "signatures_one": "{{count}} қолдаушы",
+    "signatures_other": "{{count}} қолдаушылар",
   "target_label": "Мақсат",
   "actions": {
     "view_rejection_reason": "Қабылдамау себебін көру",
@@ -522,30 +525,30 @@
       }
   }
 },
-"sms_code": {
-  "title": "Растау кодын енгізіңіз",
-  "instruction": "6 таңбалы код жіберілді",
-  "resend": {
-      "enabled": "Кодты қайта жіберу",
-      "disabled": "Кодты қайта жіберу ({{timer}} с)"
-  },
-  "buttons": {
-      "continue": "Жалғастыру"
-  },
-  "toast": {
+  "sms_code": {
+    "toast": {
       "success": {
-          "title": "Сәтті",
-          "verified": "Жүйеге сәтті кірді!"
+        "title": "Сәтті",
+        "verified": "Телефон нөмірі сәтті расталды!",
+        "code_sent": "Растау коды сәтті жіберілді!"
       },
       "error": {
-          "title": "Қате",
-          "incomplete_code": "6 таңбалы растау кодын енгізіңіз",
-          "no_user_data": "Кодты тексеру сәтсіз аяқталды. Пайдаланушы деректері қайтарылмады.",
-          "invalid_code": "Растау коды жарамсыз. Қайта көріңіз.",
-          "resend_failed": "Растау кодын қайта жіберу сәтсіз аяқталды"
+        "title": "Қате",
+        "incomplete_code": "Толық 6 санды кодты енгізіңіз",
+        "invalid_code": "Жарамсыз растау коды",
+        "resend_failed": "Растау кодын қайта жіберу сәтсіз аяқталды"
       }
-  }
-},
+    },
+    "title": "Растау кодын енгізіңіз",
+    "instruction": "Телефон нөміріңізге жіберілген 6 санды кодты енгізіңіз",
+    "resend": {
+      "disabled": "{{timer}} секундтан кейін кодты қайта жіберу",
+      "enabled": "Кодты қайта жіберу"
+    },
+    "buttons": {
+      "continue": "Жалғастыру"
+    }
+  },
 "complete_registration": {
   "title": "Профильді толтырыңыз",
   "back_button": "Артқа",
@@ -713,7 +716,8 @@
         "no_surveys_available": "Қазіргі уақытта сауалнамалар жоқ",
         "completed": "Аяқталды",
         "active": "Белсенді",
-        "votes": "Дауыс",
+        "votes_one": "{{count}} қатысушы",
+        "votes_other": "{{count}} қатысушы",
         "view_results": "Нәтижелерді қарау",
         "vote": "Дауыс беру",
         "create_new_survey": "Жаңа сауалнама құру",
@@ -756,7 +760,7 @@
     "buttons": {
       "go_back": "Артқа қайту"
     },
-    "total_participants": "Жалпы қатысушылар",
+    "total_participants": "Жалпы қатысушы",
     "question_types": {
       "single_choice": "Бір таңдау",
       "multiple_choice": "Бірнеше таңдау"
@@ -796,7 +800,8 @@
     "error": "Қате",
     "completed": "Аяқталды",
     "active": "Белсенді",
-    "supporters": "Қолдаушылар",
+    "signatures_one": "{{count}} қолдаушы",
+    "signatures_other": "{{count}} қолдаушылар",
     "target": "Мақсат",
     "sign": "Қол қою",
     "create_new_petition": "Жаңа петиция құру",

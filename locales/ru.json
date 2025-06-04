@@ -212,7 +212,8 @@
       "title": "Мои опросы",
       "search_placeholder": "Поиск опросов",
       "create_button": "Создать опрос",
-      "votes_label": "участников",
+        "votes_one": "{{count}} участник",
+        "votes_other": "{{count}} участников",
       "statuses": {
           "draft": "Черновик",
           "in progress": "В процессе",
@@ -264,7 +265,8 @@
         "completed": "Завершено"
       },
       "created_label": "Создано",
-      "supporters_label": "поддерживающих",
+      "signatures_one": "{{count}} поддерживающий",
+      "signatures_other": "{{count}} поддерживающих",
       "target_label": "Цель",
       "actions": {
           "view_rejection_reason": "Посмотреть причину отказа",
@@ -525,30 +527,30 @@
       }
   }
 },
-"sms_code": {
-  "title": "Введите код подтверждения",
-  "instruction": "6-значный код отправлен на",
-  "resend": {
-      "enabled": "Отправить код повторно",
-      "disabled": "Отправить код повторно ({{timer}} с)"
-  },
-  "buttons": {
-      "continue": "Продолжить"
-  },
-  "toast": {
+  "sms_code": {
+    "toast": {
       "success": {
-          "title": "Успех",
-          "verified": "Успешный вход!"
+        "title": "Успех",
+        "verified": "Номер телефона успешно подтвержден!",
+        "code_sent": "Код подтверждения успешно отправлен!"
       },
       "error": {
-          "title": "Ошибка",
-          "incomplete_code": "Пожалуйста, введите 6-значный код подтверждения",
-          "no_user_data": "Не удалось проверить код. Данные пользователя не возвращены.",
-          "invalid_code": "Недействительный код подтверждения. Попробуйте снова.",
-          "resend_failed": "Не удалось повторно отправить код подтверждения"
+        "title": "Ошибка",
+        "incomplete_code": "Пожалуйста, введите полный 6-значный код",
+        "invalid_code": "Неверный код подтверждения",
+        "resend_failed": "Не удалось повторно отправить код подтверждения"
       }
-  }
-},
+    },
+    "title": "Введите код подтверждения",
+    "instruction": "Введите 6-значный код, отправленный на ваш номер телефона",
+    "resend": {
+      "disabled": "Отправить код повторно через {{timer}} секунд",
+      "enabled": "Отправить код повторно"
+    },
+    "buttons": {
+      "continue": "Продолжить"
+    }
+  },
 "complete_registration": {
   "title": "Завершите ваш профиль",
   "back_button": "Назад",
@@ -716,7 +718,8 @@
     "no_surveys_available": "На данный момент опросы отсутствуют",
     "completed": "Завершено",
     "active": "Активно",
-    "votes": "участников",
+    "votes_one": "{{count}} участник",
+    "votes_other": "{{count}} участников",
     "view_results": "Результаты",
     "vote": "Участвовать",
     "create_new_survey": "Создать новый опрос",
@@ -799,7 +802,8 @@
     "error": "Ошибка",
     "completed": "Завершено",
     "active": "Активно",
-    "supporters": "Поддержавшие",
+    "signatures_one": "{{count}} поддерживающий",
+    "signatures_other": "{{count}} поддерживающих",
     "target": "Цель",
     "sign": "Подписать",
     "create_new_petition": "Создать новую петицию",
