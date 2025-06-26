@@ -37,7 +37,7 @@ import {
     deleteObject,
 } from "firebase/storage";
 import { useTheme } from "../../../lib/themeContext";
-
+import { getCityKeyByName } from "../../../lib/cities";
 const { width, height } = Dimensions.get("window");
 
 const categories = [
@@ -116,8 +116,11 @@ const getAddressFromCoordinates = async (latitude, longitude) => {
 
         if (result.length > 0) {
             const address = result[0];
+            const city = address.city || "Unknown";
+            const cityKey = getCityKeyByName(city);
             return {
                 city: address.city || "Unknown",
+                cityKey: cityKey,
                 country: address.country || "Unknown",
                 district: address.district || null,
                 formattedAddress: address.formattedAddress || "",
@@ -134,6 +137,7 @@ const getAddressFromCoordinates = async (latitude, longitude) => {
         }
         return {
             city: "Unknown",
+            cityKey: null,
             country: "Unknown",
             district: null,
             formattedAddress: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
@@ -151,6 +155,7 @@ const getAddressFromCoordinates = async (latitude, longitude) => {
         console.error("Error getting address:", error);
         return {
             city: "Unknown",
+            cityKey: null,
             country: "Unknown",
             district: null,
             formattedAddress: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
@@ -668,6 +673,7 @@ const RequestCreationPage = () => {
                 status: status,
                 address: {
                     city: addressData.city,
+                    cityKey: addressData.cityKey,
                     country: addressData.country,
                     district: addressData.district,
                     formattedAddress: addressData.formattedAddress,
